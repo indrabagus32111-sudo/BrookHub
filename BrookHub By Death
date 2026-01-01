@@ -1,0 +1,491 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "BrookHub By Death",
+   Icon = "activity",
+   LoadingTitle = "Loading",
+   LoadingSubtitle = "coded by: Death | SUPER EDITION",
+   ShowText = "Rayfield",
+   Theme = "AmberGlow",
+   ToggleUIKeybind = "K",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "BrookHub By Death",
+      FileName = "BrookHub By Death"
+   },
+   KeySystem = true,
+   KeySettings = {
+      Title = "Loading",
+      Subtitle = "Super Key System",
+      Note = "Enter key to access SUPER features",
+      FileName = "SuperKey",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"FreeKeyless", "FreeKeyless", "PREMIUM123"}
+   }
+})
+
+-- =============================================
+-- Script universial 1
+-- =============================================
+local UniversalTab = Window:CreateTab("Universal Script", "globe")
+local UniversalSection = UniversalTab:CreateSection("Script 1")
+
+local Button1 = UniversalTab:CreateButton({
+   Name = "Renegado Hub",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Brookhaven-RP-Renegado-hub-75147"))()
+   end,
+})
+
+local Button2 = UniversalTab:CreateButton({
+   Name = "Hexagon Client",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/nxvap/Hexagon/refs/heads/main/brookhaven"))()
+   end,
+})
+
+local Button3 = UniversalTab:CreateButton({
+   Name = "Sander XY",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Brookhaven-RP-Sander-XY-35845"))()
+   end,
+})
+
+local Button4 = UniversalTab:CreateButton({
+   Name = "Sky Destroyer By Alrect",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Sky-destroyerV2-X-by-alrect-X-Fe-68351"))()
+   end,
+})
+
+local Button5 = UniversalTab:CreateButton({
+   Name = " Infinite Yield",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+   end,
+})
+
+
+local AutoFarmSection = UniversalTab:CreateSection("Script 2")
+
+local Button6 = UniversalTab:CreateButton({
+   Name = "Tiger X",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Brookhaven-RP-Tiger-X-39488"))()
+   end,
+})
+
+-- ANIMATIONS & EMOTES
+local AnimationSection = UniversalTab:CreateSection("Script 3")
+
+local Button7 = UniversalTab:CreateButton({
+   Name = "JG brookhaven",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-JG-Brookhaven-47443"))()
+   end,
+})
+
+-- =============================================
+-- Script Universial 2
+-- =============================================
+local GameTab = Window:CreateTab("Specific Game", "rewind")
+local GameSection = GameTab:CreateSection("Script 4")
+
+local Button8 = GameTab:CreateButton({
+   Name = "System broken",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
+   end,
+})
+
+local Button9 = GameTab:CreateButton({
+   Name = "H4MA SALON ",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/AlrecTofficial67/FinzuFile_xploTer/refs/heads/main/Laser_H4M4SALON_TEAMPHScommunity.txt", true))()
+   end,
+})
+
+local Button10 = GameTab:CreateButton({
+   Name = "Invisible",
+   Callback = function()
+      loadstring(game:HttpGet('https://pastebin.com/raw/3Rnd9rHf'))()
+   end,
+})
+
+-- GAME SPECIFIC POPULER
+local PopularSection = GameTab:CreateSection("Script 5")
+
+local Button11 = GameTab:CreateButton({
+   Name = "Nameless Admin",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Nameless-admin-REWORKED-43502"))()
+   end,
+})
+
+local Button12 = GameTab:CreateButton({
+   Name = "God Mode",
+   Callback = function()
+      
+loadstring(game:HttpGet("https://raw.githubusercontent.com/miglels33/God-Mode-Script/refs/heads/main/GodModeScript.md"))()
+   end,
+})
+
+local Button13 = GameTab:CreateButton({
+   Name = "D4rk Hub",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Brookhaven-RP-D4rk-Hub-65190"))()
+   end,
+})
+
+local Button14 = GameTab:CreateButton({
+   Name = "R4D No Key",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Brookhaven-RP-R4D-TROLL-NO-KEY-17625"))()
+   end,
+})
+
+local Button15 = GameTab:CreateButton({
+   Name = "Hide Player",
+   Callback = function()
+
+-- Hide Player Buat Counter Sky destroyer Dari orang lain! 
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Hidden = {}
+local HideAll = false
+
+-- GUI
+local sg = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+sg.Name = "CleanHide"
+sg.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", sg)
+frame.Size = UDim2.new(0, 260, 0, 360)
+frame.Position = UDim2.new(0, 15, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 8)
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 36)
+title.BackgroundTransparency = 1
+title.Text = "hide player"
+title.TextColor3 = Color3.fromRGB(220, 220, 220)
+title.Font = Enum.Font.GothamMedium
+title.TextSize = 15
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Position = UDim2.new(0, 12, 0, 0)
+
+-- Hide All (simple banget)
+local allbtn = Instance.new("TextButton", frame)
+allbtn.Size = UDim2.new(1, -24, 0, 36)
+allbtn.Position = UDim2.new(0, 12, 1, -48)
+allbtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+allbtn.Text = "hide all: off"
+allbtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+allbtn.Font = Enum.Font.Gotham
+allbtn.TextSize = 14
+
+local allcorner = Instance.new("UICorner", allbtn)
+allcorner.CornerRadius = UDim.new(0, 6)
+
+-- Scroll list
+local scroll = Instance.new("ScrollingFrame", frame)
+scroll.Size = UDim2.new(1, -24, 1, -100)
+scroll.Position = UDim2.new(0, 12, 0, 44)
+scroll.BackgroundTransparency = 1
+scroll.ScrollBarThickness = 3
+scroll.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0, 4)
+layout.SortOrder = Enum.SortOrder.Name
+
+-- Fungsi hide (same kayak sebelumnya, cuma lebih ringkas)
+local function hide(plr, yes)
+    if not plr.Character then return end
+    for _, v in plr.Character:GetDescendants() do
+        if v:IsA("BasePart") or v:IsA("MeshPart") or v:IsA("Decal") then
+            v.Transparency = yes and 0 or 1
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") then
+            v.Enabled = yes
+        end
+    end
+    local head = plr.Character:FindFirstChild("Head")
+    if head then
+        for _, g in head:GetChildren() do
+            if g:IsA("BillboardGui") then g.Enabled = yes end
+        end
+    end
+end
+
+-- Tombol
+local function add(plr)
+    if plr == LocalPlayer or scroll:FindFirstChild(plr.Name) then return end
+    
+    local btn = Instance.new("TextButton", scroll)
+    btn.Name = plr.Name
+    btn.Size = UDim2.new(1, 0, 0, 32)
+    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    btn.Text = plr.DisplayName
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 14
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.Position = UDim2.new(0, 8, 0, 0)
+
+    local c = Instance.new("UICorner", btn)
+    c.CornerRadius = UDim.new(0, 5)
+
+    btn.MouseButton1Click:Connect(function()
+        if HideAll then return end
+        Hidden[plr] = not Hidden[plr]
+        hide(plr, not Hidden[plr])
+        btn.BackgroundColor3 = Hidden[plr] and Color3.fromRGB(80, 30, 30) or Color3.fromRGB(35, 35, 35)
+    end)
+end
+
+-- Hide all toggle
+allbtn.MouseButton1Click:Connect(function()
+    HideAll = not HideAll
+    allbtn.Text = "hide all: " .. (HideAll and "on" or "off")
+    allbtn.BackgroundColor3 = HideAll and Color3.fromRGB(100, 30, 30) or Color3.fromRGB(40, 40, 40)
+    
+    for _, plr in Players:GetPlayers() do
+        if plr ~= LocalPlayer then
+            hide(plr, not HideAll)
+            local b = scroll:FindFirstChild(plr.Name)
+            if b then
+                b.BackgroundColor3 = HideAll and Color3.fromRGB(80, 30, 30) or Color3.fromRGB(35, 35, 35)
+            end
+        end
+    end
+end)
+
+-- Event
+Players.PlayerAdded:Connect(function(p)
+    p.CharacterAdded:Wait()
+    task.wait(1)
+    add(p)
+    if HideAll or Hidden[p] then hide(p, false) end
+end)
+
+Players.PlayerRemoving:Connect(function(p)
+    if scroll:FindFirstChild(p.Name) then
+        scroll[p.Name]:Destroy()
+    end
+end)
+
+-- Init
+for _, p in Players:GetPlayers() do
+    if p ~= LocalPlayer then add(p) end
+end
+
+print("Larutan Cap Kaki 3")
+   end,
+})
+
+-- =============================================
+-- PLAYER TAB
+-- =============================================
+local PlayerTab = Window:CreateTab("Player", "user")
+local PlayerSection = PlayerTab:CreateSection("PLAYER SETTINGS")
+
+local WalkSpeedValue = 16
+local JumpPowerValue = 50
+
+local Slider1 = PlayerTab:CreateSlider({
+   Name = "WalkSpeed",
+   Range = {16, 200},
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 16,
+   Flag = "WalkSpeed",
+   Callback = function(Value)
+      WalkSpeedValue = Value
+      local character = game.Players.LocalPlayer.Character
+      if character and character:FindFirstChild("Humanoid") then
+          character.Humanoid.WalkSpeed = Value
+      end
+   end,
+})
+
+local Slider2 = PlayerTab:CreateSlider({
+   Name = "JumpPower",
+   Range = {50, 200},
+   Increment = 1,
+   Suffix = "Power",
+   CurrentValue = 50,
+   Flag = "JumpPower",
+   Callback = function(Value)
+      JumpPowerValue = Value
+      local character = game.Players.LocalPlayer.Character
+      if character and character:FindFirstChild("Humanoid") then
+          character.Humanoid.JumpPower = Value
+      end
+   end,
+})
+
+-- NOCLIP YANG DIPERBAIKI
+local noclipEnabled = false
+local noclipConnection
+
+local NoclipToggle = PlayerTab:CreateToggle({
+   Name = "Noclip",
+   CurrentValue = false,
+   Flag = "NoclipToggle",
+   Callback = function(Value)
+      noclipEnabled = Value
+      
+      if Value then
+          if noclipConnection then
+              noclipConnection:Disconnect()
+          end
+          
+          noclipConnection = game:GetService('RunService').Stepped:Connect(function()
+              if noclipEnabled and game.Players.LocalPlayer.Character then
+                  for _, part in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                      if part:IsA("BasePart") then
+                          part.CanCollide = false
+                      end
+                  end
+              end
+          end)
+          
+          Rayfield:Notify({
+             Title = "Noclip Diaktifkan",
+             Content = "Anda sekarang bisa menembus objek",
+             Duration = 3,
+          })
+      else
+          if noclipConnection then
+              noclipConnection:Disconnect()
+          end
+          Rayfield:Notify({
+             Title = "Noclip Dimatikan",
+             Content = "Collision kembali normal",
+             Duration = 3,
+          })
+      end
+   end,
+})
+
+-- INFINITE JUMP YANG DIPERBAIKI
+local infiniteJumpEnabled = false
+local infiniteJumpConnection
+
+local InfiniteJumpToggle = PlayerTab:CreateToggle({
+   Name = "Infinite Jump",
+   CurrentValue = false,
+   Flag = "InfiniteJumpToggle",
+   Callback = function(Value)
+      infiniteJumpEnabled = Value
+      
+      if Value then
+          if infiniteJumpConnection then
+              infiniteJumpConnection:Disconnect()
+          end
+          
+          infiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+              if infiniteJumpEnabled then
+                  local character = game.Players.LocalPlayer.Character
+                  if character and character:FindFirstChild("Humanoid") then
+                      character.Humanoid:ChangeState("Jumping")
+                  end
+              end
+          end)
+          
+          Rayfield:Notify({
+             Title = "Infinite Jump Diaktifkan",
+             Content = "Anda bisa melompat tanpa batas",
+             Duration = 3,
+          })
+      else
+          if infiniteJumpConnection then
+              infiniteJumpConnection:Disconnect()
+              infiniteJumpConnection = nil
+          end
+          Rayfield:Notify({
+             Title = "Infinite Jump Dimatikan",
+             Content = "Lompatan kembali normal",
+             Duration = 3,
+          })
+      end
+   end,
+})
+
+
+-- =============================================
+-- R15 TO R6 CONVERTER TAB
+-- =============================================
+local ConverterTab = Window:CreateTab("R15 to R6", "refresh-cw")
+local ConverterSection = ConverterTab:CreateSection("R15 TO R6 CONVERTER")
+
+local Button17 = ConverterTab:CreateButton({
+   Name = "Convert R15 to R6",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-r6-script-56753"))()
+   end,
+})
+
+
+-- =============================================
+-- UTILITIES TAB
+-- =============================================
+local UtilTab = Window:CreateTab("Utilities", "settings")
+local UtilSection = UtilTab:CreateSection(" UTILITIES")
+
+local Button19 = UtilTab:CreateButton({
+   Name = "Reset Character",
+   Callback = function()
+      game.Players.LocalPlayer.Character:BreakJoints()
+      Rayfield:Notify({
+         Title = "Character Reset",
+         Content = "Character has been reset",
+         Duration = 3,
+      })
+   end,
+})
+
+
+-- =============================================
+-- FINAL NOTIFICATION & AUTO SETUP
+-- =============================================
+
+-- Auto apply settings ketika character respawn
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    wait(2)
+    local humanoid = character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = WalkSpeedValue
+        humanoid.JumpPower = JumpPowerValue
+    end
+end)
+
+-- Notifikasi SUPER LOADED
+Rayfield:Notify({
+   Title = "BrookHub Loaded",
+   Content = "SEMUA FITUR BERHASIL DIMUAT!\n• Brookhaven Script\n• R15 to R6 Converter\n• Player Modifications\n• Visual Features\n• Enjoy ;D",
+   Duration = 8,
+   Image = 6023426925,
+})
+
+-- Load configuration
+Rayfield:LoadConfiguration()
+
+print("============================================")
+print("🔥BrookHub Loaded")
+print("📊 TOTAL FEATURES: FE SCRIPTS")
+print("🎮 GAME SPECIFIC: 7 Games")
+print("👁️ VISUAL: 3 Features") 
+print("🔄 CONVERTER: 2 Tools")
+print("🛠️ UTILITIES: 2 Features")
+print("============================================")
