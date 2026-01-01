@@ -293,6 +293,14 @@ print("Larutan Cap Kaki 3")
    end,
 })
 
+local Button16 = GameTab:CreateButton({
+   Name = "Bring Player V1",
+   Callback = function()
+
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Bring-Parts-V1-69618"))()
+   end,
+})
+
 -- =============================================
 -- PLAYER TAB
 -- =============================================
