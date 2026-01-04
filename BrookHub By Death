@@ -361,7 +361,7 @@ local NoclipToggle = PlayerTab:CreateToggle({
           
           Rayfield:Notify({
              Title = "Noclip: on",
-             Content = "Anda sekarang bisa menembus objek",
+             Content = "You can now penetrate objects",
              Duration = 2,
           })
       else
@@ -370,7 +370,7 @@ local NoclipToggle = PlayerTab:CreateToggle({
           end
           Rayfield:Notify({
              Title = "Noclip: off",
-             Content = "Collision kembali normal",
+             Content = "Collision back to normal",
              Duration = 2,
           })
       end
@@ -404,7 +404,7 @@ local InfiniteJumpToggle = PlayerTab:CreateToggle({
           
           Rayfield:Notify({
              Title = "Infinite Jump: on",
-             Content = "Anda bisa melompat tanpa batas",
+             Content = "You can jump without limits",
              Duration = 2,
           })
       else
@@ -414,7 +414,7 @@ local InfiniteJumpToggle = PlayerTab:CreateToggle({
           end
           Rayfield:Notify({
              Title = "Infinite Jump: off",
-             Content = "Lompatan kembali normal",
+             Content = "Jump back to normal",
              Duration = 2,
           })
       end
