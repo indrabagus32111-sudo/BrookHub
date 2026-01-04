@@ -30,7 +30,7 @@ local Window = Rayfield:CreateWindow({
 -- =============================================
 -- Script universial 1
 -- =============================================
-local UniversalTab = Window:CreateTab("Universal Script", "globe")
+local UniversalTab = Window:CreateTab("Script 1", "globe")
 local UniversalSection = UniversalTab:CreateSection("Script 1")
 
 local Button1 = UniversalTab:CreateButton({
@@ -68,9 +68,6 @@ local Button5 = UniversalTab:CreateButton({
    end,
 })
 
-
-local AutoFarmSection = UniversalTab:CreateSection("Script 2")
-
 local Button6 = UniversalTab:CreateButton({
    Name = "Tiger X",
    Callback = function()
@@ -78,20 +75,17 @@ local Button6 = UniversalTab:CreateButton({
    end,
 })
 
--- ANIMATIONS & EMOTES
-local AnimationSection = UniversalTab:CreateSection("Script 3")
-
 local Button7 = UniversalTab:CreateButton({
-   Name = "JG brookhaven",
+   Name = "SP Hub",
    Callback = function()
-      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-JG-Brookhaven-47443"))()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Brookhaven-RP-SP-Hub-New-Uptade-Egg-Event-35182"))()
    end,
 })
 
 -- =============================================
 -- Script Universial 2
 -- =============================================
-local GameTab = Window:CreateTab("Specific Game", "rewind")
+local GameTab = Window:CreateTab("Script 2", "globe")
 local GameSection = GameTab:CreateSection("Script 4")
 
 local Button8 = GameTab:CreateButton({
@@ -114,9 +108,6 @@ local Button10 = GameTab:CreateButton({
       loadstring(game:HttpGet('https://pastebin.com/raw/3Rnd9rHf'))()
    end,
 })
-
--- GAME SPECIFIC POPULER
-local PopularSection = GameTab:CreateSection("Script 5")
 
 local Button11 = GameTab:CreateButton({
    Name = "Nameless Admin",
