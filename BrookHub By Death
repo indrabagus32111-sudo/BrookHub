@@ -360,18 +360,18 @@ local NoclipToggle = PlayerTab:CreateToggle({
           end)
           
           Rayfield:Notify({
-             Title = "Noclip Diaktifkan",
+             Title = "Noclip: on",
              Content = "Anda sekarang bisa menembus objek",
-             Duration = 3,
+             Duration = 2,
           })
       else
           if noclipConnection then
               noclipConnection:Disconnect()
           end
           Rayfield:Notify({
-             Title = "Noclip Dimatikan",
+             Title = "Noclip: off",
              Content = "Collision kembali normal",
-             Duration = 3,
+             Duration = 2,
           })
       end
    end,
@@ -403,9 +403,9 @@ local InfiniteJumpToggle = PlayerTab:CreateToggle({
           end)
           
           Rayfield:Notify({
-             Title = "Infinite Jump Diaktifkan",
+             Title = "Infinite Jump: on",
              Content = "Anda bisa melompat tanpa batas",
-             Duration = 3,
+             Duration = 2,
           })
       else
           if infiniteJumpConnection then
@@ -413,9 +413,9 @@ local InfiniteJumpToggle = PlayerTab:CreateToggle({
               infiniteJumpConnection = nil
           end
           Rayfield:Notify({
-             Title = "Infinite Jump Dimatikan",
+             Title = "Infinite Jump: off",
              Content = "Lompatan kembali normal",
-             Duration = 3,
+             Duration = 2,
           })
       end
    end,
@@ -429,7 +429,7 @@ local ConverterTab = Window:CreateTab("R15 to R6", "refresh-cw")
 local ConverterSection = ConverterTab:CreateSection("R15 TO R6 CONVERTER")
 
 local Button17 = ConverterTab:CreateButton({
-   Name = "Convert R15 to R6",
+   Name = "R15 to R6",
    Callback = function()
       loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-r6-script-56753"))()
    end,
