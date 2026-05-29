@@ -5646,6 +5646,46 @@ Tab:AddToggle({
 
 local TrollTab = Window:MakeTab({ Title = "FE", Icon = "fire" })
 
+Tab:AddDropdown({
+    Name = "Fire Colors",
+    Description = "Select the <font color='rgb(255, 100, 100)'>Fire Color</font>",
+    Options = {"White", "Orange", "Green", "Blue", "Purple", "Black"},
+    Default = "White",
+    Flag = "fire_color_dropdown",
+    Callback = function(Value)
+        -- Tabela com as cores e seus respectivos IDs e cÃƒÂ³digos
+        local fireColors = {
+            ["White"] = {
+                id = "18637074370",
+                code = "030FireWhite"
+            },
+            ["Orange"] = {
+                id = "18637025451", 
+                code = "031FireOrange"
+            },
+            ["Green"] = {
+                id = "18637078598",
+                code = "032FireGreen"
+            },
+            ["Blue"] = {
+                id = "18637076370",
+                code = "033FireBlue"
+            },
+            ["Purple"] = {
+                id = "18637070174",
+                code = "034FirePurple"
+            },
+            ["Black"] = {
+                id = "18637072603",
+                code = "035FireBlack"
+            }
+        }
+        
+        _G.selectedColor = Value
+        print("Cor selecionada: " .. Value)
+    end
+})
+
 Tab:AddButton({
     Name = "Equip Fire Color",
     Callback = function()
