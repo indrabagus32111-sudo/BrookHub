@@ -5646,7 +5646,7 @@ Tab:AddToggle({
 
 local TrollTab = Window:MakeTab({ Title = "FE", Icon = "skull" })
 
-localTab:AddDropdown({
+Tab:AddDropdown({
     Name = "Fire Colors",
     Description = "Select the <font color='rgb(255, 100, 100)'>Fire Color</font>",
     Options = {"White", "Orange", "Green", "Blue", "Purple", "Black"},
@@ -5686,7 +5686,7 @@ localTab:AddDropdown({
     end
 })
 
-localTab:AddButton({
+Tab:AddButton({
     Name = "Equip Fire Color",
     Callback = function()
         -- Tabela com as cores e seus respectivos IDs e cÃƒÂ³digos
@@ -5738,7 +5738,7 @@ localTab:AddButton({
 })
 
 
-localTab:AddDropdown({
+Tab:AddDropdown({
     Name = "Smoke Colors",
     Description = "Select the <font color='rgb(150, 150, 150)'>Smoke Color</font>",
     Options = {"White", "Yellow", "Orange", "Green", "Blue", "Purple", "Red", "Black"},
@@ -5786,8 +5786,7 @@ localTab:AddDropdown({
     end
 })
 
-
-localTab:AddButton({
+Tab:AddButton({
     Name = "Equip Smoke Color",
     Callback = function()
         -- Tabela com as cores de smoke e seus respectivos IDs e cÃƒÂ³digos
