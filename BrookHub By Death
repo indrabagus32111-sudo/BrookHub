@@ -24,8 +24,8 @@ local InfoTab = Window:MakeTab({ Title = "Info", Icon = "rbxassetid://1530913847
 
 InfoTab:AddSection({ "Informações do Script" })
 InfoTab:AddParagraph({ "Owner / Developer:", "Zyronis" })
-InfoTab:AddParagraph({ "Collaboration:", "Lolytadev, Rick/Shadow and Bazuka" })
-InfoTab:AddParagraph({ "Leaked by:", "Bazuka (eu recriei tudo) se for vazar, deixe meus creditos." })
+InfoTab:AddParagraph({ "Collaboration:", "Death X ????" })
+InfoTab:AddParagraph({ "Leaked by:", "Death" })
 InfoTab:AddParagraph({ "You are using:", "Death Hub Brookhaven " })
 InfoTab:AddParagraph({"Your executor:", executor})
 
@@ -5644,9 +5644,9 @@ Tab:AddToggle({
     end
 })
 
-local TrollTab = Window:MakeTab({ Title = "FE", Icon = "fire" })
+local TrollTab = Window:MakeTab({ Title = "FE", Icon = "skull" })
 
-Tab:AddDropdown({
+localTab:AddDropdown({
     Name = "Fire Colors",
     Description = "Select the <font color='rgb(255, 100, 100)'>Fire Color</font>",
     Options = {"White", "Orange", "Green", "Blue", "Purple", "Black"},
@@ -5686,7 +5686,7 @@ Tab:AddDropdown({
     end
 })
 
-Tab:AddButton({
+localTab:AddButton({
     Name = "Equip Fire Color",
     Callback = function()
         -- Tabela com as cores e seus respectivos IDs e cÃƒÂ³digos
@@ -5738,7 +5738,7 @@ Tab:AddButton({
 })
 
 
-Tab:AddDropdown({
+localTab:AddDropdown({
     Name = "Smoke Colors",
     Description = "Select the <font color='rgb(150, 150, 150)'>Smoke Color</font>",
     Options = {"White", "Yellow", "Orange", "Green", "Blue", "Purple", "Red", "Black"},
@@ -5787,7 +5787,7 @@ Tab:AddDropdown({
 })
 
 
-Tab:AddButton({
+localTab:AddButton({
     Name = "Equip Smoke Color",
     Callback = function()
         -- Tabela com as cores de smoke e seus respectivos IDs e cÃƒÂ³digos
