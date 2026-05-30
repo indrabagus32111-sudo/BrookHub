@@ -5644,6 +5644,9 @@ Tab:AddToggle({
     end
 }
 
+-- ==========================================
+-- TAB FE
+-- ==========================================
 local FETab = Window:MakeTab({ Title = "FE", Icon = "skull" })
 
 FETab:AddDropdown({
