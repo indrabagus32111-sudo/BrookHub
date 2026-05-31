@@ -144,6 +144,10 @@ local Window = redzlib:MakeWindow({
         Image = 'rbxassetid://76560659040388',
         BackgroundTransparency = 0,
         Size = UDim2.new(0, 35, 0, 35),
+    },
+    Corner = {
+        CornerRadius = UDim.new(0, 100),
+    },
 })
 
 
