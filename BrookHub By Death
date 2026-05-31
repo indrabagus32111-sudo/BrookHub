@@ -4727,8 +4727,112 @@ end})
                                                    -- === Tab 10: lag server === --
 ---------------------------------------------------------------------------------------------------------------------------------
 
+local selectedMethod = nil
+local methodActive = false
 
+-- Helper: fire click detector
+local function clickNormally(object)
+    local clickDetector = object:FindFirstChildWhichIsA("ClickDetector")
+    if clickDetector then
+        fireclickdetector(clickDetector)
+    end
+end
 
+Tab:AddDropdown({
+    Name = "Selecionar Método",
+    Options = {"Laptop", "Telefone", "Bomba"},
+    Default = "",
+    Callback = function(value)
+        selectedMethod = value
+    end
+})
+
+Tab:AddToggle({
+    Name = "Ativar Spam",
+    Default = false,
+    Callback = function(state)
+        methodActive = state
+
+        if not state then return end
+
+        if selectedMethod == "Laptop" then
+            local laptopPath = workspace:FindFirstChild("WorkspaceCom")
+                and workspace.WorkspaceCom:FindFirstChild("001_GiveTools")
+                and workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Laptop")
+
+            if not laptopPath then warn("Laptop não encontrado.") return end
+
+            task.spawn(function()
+                local count = 0
+                while methodActive and count < 999999999 do
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = laptopPath.CFrame
+                    clickNormally(laptopPath)
+                    count = count + 1
+                    task.wait(0.0001)
+                end
+            end)
+
+        elseif selectedMethod == "Telefone" then
+            local phonePath = workspace:FindFirstChild("WorkspaceCom")
+                and workspace.WorkspaceCom:FindFirstChild("001_CommercialStores")
+                and workspace.WorkspaceCom["001_CommercialStores"]:FindFirstChild("CommercialStorage1")
+                and workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1:FindFirstChild("Store")
+                and workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1.Store:FindFirstChild("Tools")
+                and workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1.Store.Tools:FindFirstChild("Iphone")
+
+            if not phonePath then warn("Telefone não encontrado.") return end
+
+            task.spawn(function()
+                local count = 0
+                while methodActive and count < 999999 do
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = phonePath.CFrame
+                    clickNormally(phonePath)
+                    count = count + 1
+                    task.wait(0.01)
+                end
+            end)
+
+        elseif selectedMethod == "Bomba" then
+            local Player = game.Players.LocalPlayer
+            local Character = Player.Character or Player.CharacterAdded:Wait()
+            local RootPart = Character:WaitForChild("HumanoidRootPart")
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local Bomb = workspace:WaitForChild("WorkspaceCom")
+                :WaitForChild("001_CriminalWeapons")
+                :WaitForChild("GiveTools")
+                :WaitForChild("Bomb")
+
+            -- Click detector loop
+            task.spawn(function()
+                while methodActive do
+                    if Bomb and RootPart then
+                        RootPart.CFrame = Bomb.CFrame
+                        fireclickdetector(Bomb.ClickDetector)
+                        task.wait(0.00001)
+                    else
+                        task.wait(0.0001)
+                    end
+                end
+            end)
+
+            -- Mouse + FireServer loop
+            task.spawn(function()
+                local VirtualInputManager = game:GetService("VirtualInputManager")
+                while methodActive do
+                    if Bomb and RootPart then
+                        VirtualInputManager:SendMouseButtonEvent(500, 500, 0, true, game, 0)
+                        task.wait(1.5)
+                        VirtualInputManager:SendMouseButtonEvent(500, 500, 0, false, game, 0)
+
+                        local args = { [1] = "Bomb" .. Player.Name }
+                        ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Blo1wBomb1sServe1r"):FireServer(unpack(args))
+                    end
+                    task.wait(1.5)
+                end
+            end)
+        end
+    end
+})
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -4754,7 +4858,7 @@ Tab11:AddButton({
 
 
 Tab11:AddButton({
-    Name = "Buraco Negro",
+    Name = "Black Hole",
     Description = "Universal",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Bac0nHck/Scripts/main/BringFlingPlayers"))("More Scripts: t.me/arceusxscripts")
@@ -4764,7 +4868,7 @@ Tab11:AddButton({
 local Section = Tab11:AddSection({"esse system broochk e voidProtection"})
 
 Tab11:AddButton({
-    Name = "System Broochk",
+    Name = "System Broken",
     Description = "Universal",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
@@ -4772,7 +4876,7 @@ Tab11:AddButton({
 })
 
 Tab11:AddButton({
-    Name = "Roships",
+    Name = "Rochips",
     Description = "Universal",
     Callback = function()
         loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-rochips-universal-18294"))()
@@ -4788,7 +4892,7 @@ Tab11:AddButton({
 })
 
 Tab11:AddButton({
-    Name = "Reverso",
+    Name = "Reverse",
     Description = "Universal",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/0Ben1/fe./main/L"))()
@@ -4807,7 +4911,7 @@ Tab11:AddButton({
     Name = "Death Hub Troll Prop",
     Description = "Somente para Brookhaven",
     Callback = function()
-        loadstring(game:HttpGet("https://pastefy.app/nUEVIZvQ/raw"))()
+        loadstring(game:HttpGet("https://pastefy.app/C3a8N10s/raw"))()
     end
 })
 
