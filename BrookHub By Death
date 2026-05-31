@@ -46,7 +46,7 @@ local function createLoadingScreen()
     nameText.BackgroundTransparency = 1
     nameText.Font = Enum.Font.FredokaOne
     nameText.TextScaled = true
-    nameText.Text = "User: "..lp.Name.." (age: "..tostring(lp.AccountAge).." day)"
+    nameText.Text = "Verificando usuÃ¡rio: "..lp.Name.." (Conta: "..tostring(lp.AccountAge).." dias)"
     nameText.Parent = frame
 
     local barBG = Instance.new("Frame")
@@ -102,7 +102,7 @@ local function createLoadingScreen()
             -- Exibe a notificaÃ§Ã£o de boas-vindas
             StarterGui:SetCore("SendNotification", {
                 Title = "Death Hub",
-                Text = "Welcome",
+                Text = "Welcome to Death Hub ",
                 Duration = 4
             })
             
@@ -125,29 +125,24 @@ end
 -- Uso:
 local loadingPromise = createLoadingScreen()
 
--- Aqui vocÃª coloca o cÃ³digo que deve esperar atÃ© que o loading termine
+-- Aqui vocÃª coloca o cÃ³digo que deve Wait until loading is complete
 waitForPromise(loadingPromise)
 
 -- SEU CÃ“DIGO ABAIXO AQUI
-print("Loading complete! Agora executando o resto do script...")
+print("Loading complete! now run the rest of the script...")
 -- ... resto do seu cÃ³digo ...
 
-local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/BRENOPOOF/slapola/refs/heads/main/Main.txt"))()
+local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/minhdepzai-v/LibraryRobloc/refs/heads/main/RedzLibrary.lua"))()
+
 local Window = redzlib:MakeWindow({
     Title = "Death Hub",
     SubTitle = "by Death",
-    SaveFolder = "teste"
+    SaveFolder = "test"
   })
 
   Window:AddMinimizeButton({
-    Button = {
-        Image = 'rbxassetid://76560659040388',
-        BackgroundTransparency = 0,
-        Size = UDim2.new(0, 35, 0, 35),
-    },
-    Corner = {
-        CornerRadius = UDim.new(0, 100),
-    },
+    Button = { Image = "rbxassetid://113088956809836", BackgroundTransparency = 0 },
+    Corner = { CornerRadius = UDim.new(35, 1) },
 })
 
 
@@ -163,7 +158,7 @@ local Tab8 = Window:MakeTab({"Music", "music"})
 local Tab9 = Window:MakeTab({"Troll", "skull"}) 
 local Tab10 = Window:MakeTab({"Lag Server", "bomb"})
 local Tab11 = Window:MakeTab({"Scripts", "scroll"})
-local Tab12 = Window:MakeTab({"Teleportes", "map-pin"})
+local Tab12 = Window:MakeTab({"Teleport", "map-pin"})
 
 
 
@@ -172,13 +167,13 @@ local Tab12 = Window:MakeTab({"Teleportes", "map-pin"})
 --------------------------------------------------------------------------------------------------------------------------------
                                                    -- === Tab 1: credits === --
 ---------------------------------------------------------------------------------------------------------------------------------
-Tab1:AddSection({"CrÃ©ditos do Hub"})
+Tab1:AddSection({"Credits Hub"})
 
 Tab1:AddDiscordInvite({
-    Name = "Death Studio",
-    Description = "entra ai",
+    Name = "Death Hub Studio",
+    Description = "Join Discord",
     Logo = "rbxassetid://113088956809836",
-    Invite = "https://discord.gg/E6WCkcgKY",
+    Invite = "https://discord.gg/5W8reeYkC",
 })
 
 
@@ -208,12 +203,12 @@ local Paragraph = Tab1:AddParagraph({"Execultor", executorName})
 
 local Section = Tab1:AddSection({"versao do Hub v1"})
 
-local Paragraph = Tab1:AddParagraph({"Criadores", "Lolyta \n ?????"})
+local Paragraph = Tab1:AddParagraph({"creator", "Death"})
 
 
   
   Tab1:AddButton({
-    Name = " - Copiar @ do TikTok",
+    Name = " - Copy TikTok",
     Callback = function()
       setclipboard("@gagaâš¡") -- Copia o @
       setclipboard("tiktok.com/@isaac98538") -- Copia o link tambÃ©m, se quiser sÃ³ o @, remova esta linha
@@ -663,11 +658,11 @@ local Section = Tab2:AddSection({"ESP"})
 
 -- Dropdown de cor
 Tab2:AddDropdown({
-    Name = "Cor do ESP",
+    Name = "ESP Color ",
     Default = "RGB ",
     Options = {
-        "RGB", "Branco", "Preto", "Vermelho",
-        "Verde", "Azul", "Amarelo", "Rosa", "Roxo"
+        "RGB", "White", "Black", "Red",
+        "Green", "Blue", "Yellow", "Pink", "Purple"
     },
     Callback = function(value)
         selectedColor = value
@@ -679,21 +674,21 @@ local function getESPColor()
     if selectedColor == "RGB" then
         local h = (tick() % 5) / 5
         return Color3.fromHSV(h, 1, 1)
-    elseif selectedColor == "Preto" then
+    elseif selectedColor == "White" then
         return Color3.fromRGB(0, 0, 0)
-    elseif selectedColor == "Branco" then
+    elseif selectedColor == "Black" then
         return Color3.fromRGB(255, 255, 255)
-    elseif selectedColor == "Vermelho" then
+    elseif selectedColor == "Red" then
         return Color3.fromRGB(255, 0, 0)
-    elseif selectedColor == "Verde" then
+    elseif selectedColor == "Green" then
         return Color3.fromRGB(0, 255, 0)
-    elseif selectedColor == "Azul" then
+    elseif selectedColor == "Biru" then
         return Color3.fromRGB(0, 170, 255)
-    elseif selectedColor == "Amarelo" then
+    elseif selectedColor == "Yellow" then
         return Color3.fromRGB(255, 255, 0)
-    elseif selectedColor == "Rosa" then
+    elseif selectedColor == "Pink" then
         return Color3.fromRGB(255, 105, 180)
-    elseif selectedColor == "Roxo" then
+    elseif selectedColor == "Purple" then
         return Color3.fromRGB(128, 0, 128)
     end
     return Color3.new(1, 1, 1)
@@ -746,7 +741,7 @@ end
 
 -- Toggle de ativaÃ§Ã£o do ESP
 local Toggle1 = Tab2:AddToggle({
-    Name = "ESP Ativado",
+    Name = "ESP activated",
     Description = "Mostra nome e idade da conta dos jogadores.",
     Default = false
 })
@@ -4842,14 +4837,14 @@ Tab12:AddDropdown({
     Default = teleportLocation,
     Multi = false,
     Options = {
-        "Morro",
-        "PraÃ§a",
+        "hill",
+        "Lobby",
         "Banco",
         "Hospital",
         "Prefeitura",
         "Fazenda",
         "Mercado",
-        "Shopping",
+        "Shop",
         "Aeroporto",
         "Hotel",
         "Beira-mar 1",
