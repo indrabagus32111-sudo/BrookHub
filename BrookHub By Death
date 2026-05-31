@@ -4738,7 +4738,7 @@ local function clickNormally(object)
     end
 end
 
-Tab:AddDropdown({
+Tab10:AddDropdown({
     Name = "Selecionar Método",
     Options = {"Laptop", "Telefone", "Bomba"},
     Default = "",
@@ -4747,7 +4747,7 @@ Tab:AddDropdown({
     end
 })
 
-Tab:AddToggle({
+Tab10:AddToggle({
     Name = "Ativar Spam",
     Default = false,
     Callback = function(state)
