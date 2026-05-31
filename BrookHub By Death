@@ -4740,7 +4740,7 @@ end
 
 Tab10:AddDropdown({
     Name = "Selecionar Método",
-    Options = {"Laptop", "Telefone", "Bomba"},
+    Options = {"Laptop", "Phone", "Bomb"},
     Default = "",
     Callback = function(value)
         selectedMethod = value
@@ -4772,7 +4772,7 @@ Tab10:AddToggle({
                 end
             end)
 
-        elseif selectedMethod == "Telefone" then
+        elseif selectedMethod == "Phone" then
             local phonePath = workspace:FindFirstChild("WorkspaceCom")
                 and workspace.WorkspaceCom:FindFirstChild("001_CommercialStores")
                 and workspace.WorkspaceCom["001_CommercialStores"]:FindFirstChild("CommercialStorage1")
@@ -4792,7 +4792,7 @@ Tab10:AddToggle({
                 end
             end)
 
-        elseif selectedMethod == "Bomba" then
+        elseif selectedMethod == "Bomb" then
             local Player = game.Players.LocalPlayer
             local Character = Player.Character or Player.CharacterAdded:Wait()
             local RootPart = Character:WaitForChild("HumanoidRootPart")
