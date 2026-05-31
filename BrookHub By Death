@@ -236,7 +236,7 @@ local function headsitOnPlayer(targetPlayer)
     local humanoid = character:FindFirstChildOfClass("Humanoid")
 
     if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("Head") then
-        warn("Jogador alvo sem cabeÃ§a ou personagem.")
+        warn("Target player without a head or character.")
         return false
     end
     local targetHead = targetPlayer.Character.Head
@@ -263,7 +263,7 @@ local function headsitOnPlayer(targetPlayer)
         humanoid.Sit = true
     end
 
-    print("Headsit ativado em " .. targetPlayer.Name)
+    print("Headsit activated in " .. targetPlayer.Name)
     return true
 end
 
@@ -282,7 +282,7 @@ local function removeHeadsit()
         humanoid.Sit = false
     end
 
-    print("Headsit desativado.")
+    print("Headsit deactivated.")
 end
 
 -- FunÃ§Ã£o para encontrar jogador por nome parcial
@@ -304,7 +304,7 @@ local function notifyPlayerSelected(player)
     local content, _ = Players:GetUserThumbnailAsync(player.UserId, thumbType, thumbSize)
 
     StarterGui:SetCore("SendNotification", {
-        Title = "Player Selecionado",
+        Title = "Player Selected",
         Text = player.Name .. " foi selecionado!",
         Icon = content,
         Duration = 5
@@ -313,9 +313,9 @@ end
 
 -- TextBox para digitar nome do player
 Tab2:AddTextBox({
-    Name = "Nome do Jogador",
-    Description = "Digite parte do nome",
-    PlaceholderText = "ex: lo â†’ gaga",
+    Name = "Player Name",
+    Description = "Type part of the name",
+    PlaceholderText = "ex: lo â†' Death",
     Callback = function(Value)
         local foundPlayer = findPlayerByPartialName(Value)
         if foundPlayer then
