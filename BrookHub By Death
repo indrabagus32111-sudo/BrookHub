@@ -674,15 +674,15 @@ local function getESPColor()
     if selectedColor == "RGB" then
         local h = (tick() % 5) / 5
         return Color3.fromHSV(h, 1, 1)
-    elseif selectedColor == "White" then
-        return Color3.fromRGB(0, 0, 0)
     elseif selectedColor == "Black" then
+        return Color3.fromRGB(0, 0, 0)
+    elseif selectedColor == "White" then
         return Color3.fromRGB(255, 255, 255)
     elseif selectedColor == "Red" then
         return Color3.fromRGB(255, 0, 0)
     elseif selectedColor == "Green" then
         return Color3.fromRGB(0, 255, 0)
-    elseif selectedColor == "Biru" then
+    elseif selectedColor == "Blue" then
         return Color3.fromRGB(0, 170, 255)
     elseif selectedColor == "Yellow" then
         return Color3.fromRGB(255, 255, 0)
@@ -2450,8 +2450,8 @@ local function isValidMusicId(value)
 end
 
 Tab8:AddTextBox({
-    Name = "ID da mÃºsica",
-    PlaceholderText = "Digite o ID e pressione Enter",
+    Name = "ID Music",
+    PlaceholderText = "Enter ID",
     Callback = function(value)
         if value and value ~= "" then
             tocarMusica(tostring(value))
@@ -3320,7 +3320,7 @@ sitCheckConnection = RunService.Heartbeat:Connect(function()
 end)
 
 Tab9:AddButton({
-    Name = "Matar",
+    Name = "Kill",
     Description = "Inicia o matar com o mÃ©todo selecionado",
     Callback = function()
         if isFollowingKill or isFollowingPull or running then return end
@@ -3334,7 +3334,7 @@ Tab9:AddButton({
 })
 
 Tab9:AddButton({
-    Name = "Puxar",
+    Name = "Bring",
     Description = "Inicia o puxar com o mÃ©todo selecionado",
     Callback = function()
         if isFollowingKill or isFollowingPull or running then return end
@@ -3344,7 +3344,7 @@ Tab9:AddButton({
 })
 
 Tab9:AddButton({
-    Name = "Parar (Matar ou Puxar)",
+    Name = "Stop",
     Description = "Para o movimento de matar ou puxar",
     Callback = function()
         isFollowingKill = false
