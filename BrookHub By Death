@@ -46,7 +46,7 @@ local function createLoadingScreen()
     nameText.BackgroundTransparency = 1
     nameText.Font = Enum.Font.FredokaOne
     nameText.TextScaled = true
-    nameText.Text = "Verificando usuÃ¡rio: "..lp.Name.." (Conta: "..tostring(lp.AccountAge).." dias)"
+    nameText.Text = "User: "..lp.Name.." (age: "..tostring(lp.AccountAge).." day)"
     nameText.Parent = frame
 
     local barBG = Instance.new("Frame")
@@ -101,8 +101,8 @@ local function createLoadingScreen()
             
             -- Exibe a notificaÃ§Ã£o de boas-vindas
             StarterGui:SetCore("SendNotification", {
-                Title = "Coquette Hub",
-                Text = "Bem-vindo Ã  Coquette Hub ",
+                Title = "Death Hub",
+                Text = "Welcome",
                 Duration = 4
             })
             
@@ -129,14 +129,13 @@ local loadingPromise = createLoadingScreen()
 waitForPromise(loadingPromise)
 
 -- SEU CÃ“DIGO ABAIXO AQUI
-print("Loading completo! Agora executando o resto do script...")
+print("Loading complete! Agora executando o resto do script...")
 -- ... resto do seu cÃ³digo ...
 
-local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/minhdepzai-v/LibraryRobloc/refs/heads/main/RedzLibrary.lua"))()
-
+local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/BRENOPOOF/slapola/refs/heads/main/Main.txt"))()
 local Window = redzlib:MakeWindow({
-    Title = "FANTASMA HUB",
-    SubTitle = "by gaga",
+    Title = "Death Hub",
+    SubTitle = "by Death",
     SaveFolder = "teste"
   })
 
@@ -170,7 +169,7 @@ local Tab12 = Window:MakeTab({"Teleportes", "map-pin"})
 Tab1:AddSection({"CrÃ©ditos do Hub"})
 
 Tab1:AddDiscordInvite({
-    Name = "FANTASMA Studio",
+    Name = "Death Studio",
     Description = "entra ai",
     Logo = "rbxassetid://113088956809836",
     Invite = "https://discord.gg/E6WCkcgKY",
