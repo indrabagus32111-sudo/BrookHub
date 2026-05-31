@@ -46,7 +46,7 @@ local function createLoadingScreen()
     nameText.BackgroundTransparency = 1
     nameText.Font = Enum.Font.FredokaOne
     nameText.TextScaled = true
-    nameText.Text = "Verificando usuÃ¡rio: "..lp.Name.." (Conta: "..tostring(lp.AccountAge).." dias)"
+    nameText.Text = "User: "..lp.Name.." (Age: "..tostring(lp.AccountAge).." Day)"
     nameText.Parent = frame
 
     local barBG = Instance.new("Frame")
@@ -4803,6 +4803,14 @@ Tab11:AddButton({
     end
 })
 
+Tab11:AddButton({
+    Name = "Death Hub Troll Prop",
+    Description = "Somente para Brookhaven",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastefy.app/nUEVIZvQ/raw"))()
+    end
+})
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------
                                           -- === Tab 12: Teleportes === --
@@ -4817,11 +4825,11 @@ local teleportPlayer = game.Players.LocalPlayer
 local teleportLocation = "Morro" -- Valor padrÃ£o
 
 local locations = {
-    ["Morro"] = Vector3.new(-348.64, 65.94, -458.08),
-    ["PraÃ§a"] = Vector3.new(-26.17, 3.48, -0.93),
-    ["Banco"] = Vector3.new(1.99, 3.32, 236.65),
+    ["Hill"] = Vector3.new(-348.64, 65.94, -458.08),
+    ["Lobby"] = Vector3.new(-26.17, 3.48, -0.93),
+    ["Bank"] = Vector3.new(1.99, 3.32, 236.65),
     ["Hospital"] = Vector3.new(-303.2, 3.40, 13.74),
-    ["Prefeitura"] = Vector3.new(-354.65, 7.32, -102.16),
+    ["Town Hall"] = Vector3.new(-354.65, 7.32, -102.16),
     ["Fazenda"] = Vector3.new(-766.41, 2.92, -61.10),
     ["Mercado"] = Vector3.new(16.31, 3.32, -107.07),
     ["Shopping"] = Vector3.new(151.05, 3.52, -190.64),
@@ -4837,11 +4845,11 @@ Tab12:AddDropdown({
     Default = teleportLocation,
     Multi = false,
     Options = {
-        "hill",
+        "Hill",
         "Lobby",
-        "Banco",
+        "Bank",
         "Hospital",
-        "Prefeitura",
+        "Town Hall",
         "Fazenda",
         "Mercado",
         "Shop",
