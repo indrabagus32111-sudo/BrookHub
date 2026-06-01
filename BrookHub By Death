@@ -305,7 +305,7 @@ local function notifyPlayerSelected(player)
 
     StarterGui:SetCore("SendNotification", {
         Title = "Player Selected",
-        Text = player.Name .. " foi selecionado!",
+        Text = player.Name .. " was selected!",
         Icon = content,
         Duration = 5
     })
@@ -315,7 +315,7 @@ end
 Tab2:AddTextBox({
     Name = "Player Name",
     Description = "Type part of the name",
-    PlaceholderText = "ex: lo â†' Death",
+    PlaceholderText = "Player Name",
     Callback = function(Value)
         local foundPlayer = findPlayerByPartialName(Value)
         if foundPlayer then
