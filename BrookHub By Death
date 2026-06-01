@@ -2496,27 +2496,27 @@ end
 -- Dropdown "ForrÃ³"
 createMusicDropdown("ForrÃ³", {
     ["forro"] = {
-        {name = "forrÃ³ ja cansou", id = "74812784884330"},
-        {name = "lenbro ate hoje", id = "71531533552899"},
-        {name = "escolha certa", id = "107088620814881"},
-        {name = "forrÃ³ da rezenha", id = "120973520531216"},
-        {name = "forrÃ³ dudu", id = "74404168179733"},
-        {name = "forrÃ³ sao joao", id = "106364874935196"},
-        {name = "forrÃ³ engraÃ§ado paia", id = "76524290482399"},
-        {name = "100% forro vaquejada", id = "92295159623916"},
+        {name = "forró is tired", id = "74812784884330"},
+        {name = "I remember it to this day", id = "71531533552899"},
+        {name = "right choice", id = "107088620814881"},
+        {name = "forró da rezenha", id = "120973520531216"},
+        {name = "forró dudu", id = "74404168179733"},
+        {name = "forró sao joao", id = "106364874935196"},
+        {name = "funny lame forró", id = "76524290482399"},
+        {name = "100% vaquejada lining", id = "92295159623916"},
         
-        {name = "PASTOR MIRIM E A LÃNGUA DOS ANJOS", id = "71153532555470"},
-        {name = "PARA NÃƒO ESQUECER QUEM SOMOS", id = "88937498361674"},
-        {name = "Uno zero", id = "112959083808887"},
-        {name = "Iate do neymar", id = "135738534706063"},
-        {name = "Batidao na aldeia", id = "79953696595578"},
+        {name = "PASTOR MIRIM AND THE LANGUAGE OF ANGELS", id = "71153532555470"},
+        {name = "SO WE DON'T FORGET WHO WE ARE", id = "88937498361674"},
+        {name = "One zero", id = "112959083808887"},
+        {name = "Neymar's yacht", id = "135738534706063"},
+        {name = "Batidao in the village", id = "79953696595578"},
         {name = "", id = ""},
         {name = "", id = ""}
     }
 }, "Option 1")
 
 -- Dropdown "MÃºsicas e Memes AleatÃ³rio"
-createMusicDropdown("MÃºsicas e Memes AleatÃ³rio", {
+createMusicDropdown("Random Music and Memes", {
     ["forro"] = {
         {name = "ANXIETY (Amapiano Re-fix)", id = "101483901475189"}, 
         {name = "Meu corpo, minhas regras", id = "127587901595282"},
@@ -2526,20 +2526,20 @@ createMusicDropdown("MÃºsicas e Memes AleatÃ³rio", {
         {name = "Bamm Bamm", id = "128730685516895"},
         {name = "chupa cabra", id = "132890273173295"},
         {name = "longe de mais", id = "124478512057763"},
-        {name = "Garoto de Copacabana", id = "135648634110254"},
+        {name = "Boy from Copacabana", id = "135648634110254"},
         {name = "CELL!", id = "117634275895085"},
-        {name = "Boa vibe em Ubatuba", id = "139059061493558"},
+        {name = "Good vibes in Ubatuba", id = "139059061493558"},
         {name = "SLIP AWAY", id = "126152928520174"},
         {name = "Alone in Motion", id = "122379348696948"},
         {name = "Fade Away", id = "81002139735874"},
         {name = "Wounds & Wishes", id = "109347979566607"},
-        {name = "AscensÃ£o do Monarca", id = "101864243033211"},
-        {name = "carro do ovo", id = "3148329638"},
-        {name = "ingles bus (fling ou kill bus)", id = "123268013026823"},
+        {name = "Ascension of the Monarch", id = "101864243033211"},
+        {name = "egg truck", id = "3148329638"},
+        {name = "English bus (fling or kill bus)", id = "123268013026823"},
         {name = "MIKU MIKU HATSUNE", id = "112783541496955"},
         {name = "Five Nights at Freddy's", id = "110733765539890"},
         {name = "Rat Dance", id = "133496635668044"},
-        {name = "Escalando a SeleÃ§Ã£o Brasileira para a Copa", id = "116546457407236"},
+        {name = "Selecting the Brazilian National Team for the World Cup", id = "116546457407236"},
         {name = "", id = ""},
         {name = "", id = ""},
         {name = "", id = ""},
@@ -2909,7 +2909,7 @@ local function teleportToPlayer(playerName)
         local myHRP = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
         local myHumanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
         if not myHRP or not myHumanoid then
-            print("Seu personagem nÃ£o estÃ¡ totalmente carregado para teletransporte.")
+            print("Your character is not fully charged for teleportation.")
             return
         end
 
@@ -2927,7 +2927,7 @@ local function teleportToPlayer(playerName)
             myHRP.CFrame = CFrame.new(targetPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 2, 0)) -- Leve elevaÃ§Ã£o para evitar colisÃ£o com o chÃ£o
         end)
         if not success then
-            warn("Erro ao teletransportar: " .. tostring(errorMessage))
+            warn("Teleporting error: " .. tostring(errorMessage))
             return
         end
 
@@ -2947,9 +2947,9 @@ local function teleportToPlayer(playerName)
             end
         end
 
-        print("Teletransportado para o jogador: " .. playerName .. " com ancoragem segura.")
+        print("Teleported to the player: " .. playerName .. " with secure anchoring.")
     else
-        print("Jogador ou personagem nÃ£o encontrado para teletransporte.")
+        print("Player or character not found for teleportation.")
     end
 end
 
@@ -2963,8 +2963,8 @@ end)
 local valor_do_nome_do_joagdor
 
 local DropdownPlayerTab2 = Tab9:AddDropdown({
-    Name = "Selecionar Jogador",
-    Description = "Escolha um jogador para matar, puxar, visualizar ou aplicar fling",
+    Name = "Select Player",
+    Description = "Choose a player to kill, pull, view, or fling",
     Default = "",
     Multi = false,
     Options = getPlayerNames(),
@@ -3002,7 +3002,7 @@ function UptadePlayers()
     DropdownPlayerTab2:Set(playerNames)
 end
 
-Tab9:AddButton({"Atualizar lista", function()
+Tab9:AddButton({"Update list", function()
     UptadePlayers()
 end})
 
@@ -3010,8 +3010,8 @@ UptadePlayers()
 
 
 Tab9:AddButton({
-    Title = "Teleportar para Jogador",
-    Desc = "Clique para teletransportar para o jogador selecionado",
+    Title = "Teleport to Player",
+    Desc = "Click to teleport to the selected player",
     Callback = function()
         local selectedPlayerName = valor_do_nome_do_joagdor
         if selectedPlayerName and selectedPlayerName ~= "" then
@@ -3026,8 +3026,8 @@ Tab9:AddButton({
 })
 
 local SpectateToggleTab10 = Tab9:AddToggle({
-    Name = "Visualizar Jogador",
-    Description = "Ativa/desativa a visualizaÃ§Ã£o do jogador selecionado",
+    Name = "View Player",
+    Description = "Enables/disables the display of the selected player",
     Default = false,
     Callback = function(state)
         if state then
@@ -3072,9 +3072,9 @@ updateDropdown(DropdownPlayerTab2, SpectateToggleTab10)
 local Section = Tab9:AddSection({"Kill"})
 
 local DropdownKillPullMethod = Tab9:AddDropdown({
-    Name = "Selecionar MÃ©todo (Matar/Puxar)",
-    Description = "Escolha o mÃ©todo para matar ou puxar",
-    Options = {"SofÃ¡", "Ã”nibus"},
+    Name = "Select Method (Kill/Pull)",
+    Description = "Choose the method to kill or pull",
+    Options = {"Sofa", "Bus"},
     Callback = function(value)
         selectedKillPullMethod = value
     end
@@ -3321,7 +3321,7 @@ end)
 
 Tab9:AddButton({
     Name = "Kill",
-    Description = "Inicia o matar com o mÃ©todo selecionado",
+    Description = "Initiate killing using the selected method",
     Callback = function()
         if isFollowingKill or isFollowingPull or running then return end
         if not selectedPlayer or not selectedKillPullMethod then return end
@@ -3335,7 +3335,7 @@ Tab9:AddButton({
 
 Tab9:AddButton({
     Name = "Bring",
-    Description = "Inicia o puxar com o mÃ©todo selecionado",
+    Description = "Start the pull process using the selected method",
     Callback = function()
         if isFollowingKill or isFollowingPull or running then return end
         if not selectedPlayer or not selectedKillPullMethod or selectedKillPullMethod ~= "SofÃ¡" then return end
@@ -3345,7 +3345,7 @@ Tab9:AddButton({
 
 Tab9:AddButton({
     Name = "Stop",
-    Description = "Para o movimento de matar ou puxar",
+    Description = "For the killing or pulling motion",
     Callback = function()
         isFollowingKill = false
         isFollowingPull = false
@@ -3387,9 +3387,9 @@ Tab9:AddButton({
 local Section = Tab9:AddSection({" flings"})
 
 local DropdownFlingMethod = Tab9:AddDropdown({
-    Name = "Selecionar MÃ©todo de Fling",
-    Description = "Escolha o mÃ©todo para aplicar fling",
-    Options = {"SofÃ¡", "Ã”nibus", "Bola", "Bola V2", "Barco", "CaminhÃ£o"},
+    Name = "Select Fling Method",
+    Description = "Choose the method to apply fling",
+    Options = {"Sofa", "Bus", "Ball", "Ball V2", "Boat", "Truck"},
     Callback = function(value)
         selectedFlingMethod = value
     end
