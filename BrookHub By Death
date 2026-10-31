@@ -1,24 +1,7 @@
 local Players = game:GetService("Players")
 local Stats = game:GetService("Stats")
 local TeleportService = game:GetService("TeleportService")
-local MarketplaceService = game:GetService("MarketplaceService")
-local Workspace = game:GetService("Workspace")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 local LocalPlayer = Players.LocalPlayer
-local cam = workspace.CurrentCamera
-
-local function notify(title, text)
-    pcall(function()
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = title,
-            Text = text,
-            Duration = 4
-        })
-    end)
-end
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/indrabagus32111-sudo/Project/refs/heads/main/Project"))()
 
@@ -34,18 +17,20 @@ local Window = Library:CreateWindow({
     SphereIconSize = 41
 })
 
+local cg = game:GetService("CoreGui")
+local roots = { cg }
+if type(gethui) == "function" then
+    pcall(function() table.insert(roots, gethui()) end)
+end
+for _, r in ipairs(roots) do
+    for _, child in ipairs(r:GetChildren()) do
+        if child:IsA("ScreenGui") and (child.Name == "VNHUB_CustomUI" or child.Name == "VNHUB_GUI" or child.Name == "ToggleUIButton") then
+            pcall(child.Destroy, child)
+        end
+    end
+end
+
 local infoTab = Window:MakeTab({"Info", "info"})
-local playerTab = Window:MakeTab({"Player", "user"})
-local trollTab = Window:MakeTab({"Troll Player", "skull"})
-local avatarTab = Window:MakeTab({"Avatar", "shirt"})
-local worldTab = Window:MakeTab({"Protection", "shield"})
-local teleportsTab = Window:MakeTab({"Teleports", "map"})
-local espTab = Window:MakeTab({"ESP", "eye"})
-local itemsTab = Window:MakeTab({"Items", "package"})
-local effectTab = Window:MakeTab({"Effect", "sparkles"})
-local rgbTab = Window:MakeTab({"RGB", "palette"})
-local childTab = Window:MakeTab({"Child", "baby"})
-local SettingsTab = Window:MakeTab({"Settings", "settings"})
 
 local ProfileSection = infoTab:AddSection({"Player Profile"})
 local headshotUrl = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=420&h=420"
@@ -58,6 +43,7 @@ infoTab:AddParagraph({"You are using:", "Kenz Hub Brookhaven🏡"})
 local pingValue = "Unknown"
 local netStats = Stats:FindFirstChild("Network")
 local serverStats = netStats and netStats:FindFirstChild("ServerStatsItem")
+
 if serverStats and serverStats:FindFirstChild("Data Ping") then
     pingValue = serverStats["Data Ping"]:GetValueString()
 end
@@ -78,1945 +64,887 @@ infoTab:AddParagraph({"Account Age:", tostring(LocalPlayer.AccountAge) .. " days
 infoTab:AddParagraph({"Ping:", pingValue})
 infoTab:AddParagraph({"Executor:", executorName})
 
-local gameName = "Unknown"
-local creatorName = "Unknown"
-local okInfo, gameInfo = pcall(function()
-    return MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
-end)
-if okInfo and gameInfo then
-    gameName = tostring(gameInfo.Name or "Unknown")
-    if type(gameInfo.Creator) == "table" then
-        creatorName = tostring(gameInfo.Creator.Name or "Unknown")
-    end
-end
-
-infoTab:AddSection({"Game Information"})
-infoTab:AddParagraph({"Game Name:", gameName})
-infoTab:AddParagraph({"Creator:", creatorName})
-infoTab:AddParagraph({"Place ID:", tostring(game.PlaceId)})
-infoTab:AddParagraph({"Universe ID:", tostring(game.GameId)})
-infoTab:AddParagraph({"Players:", tostring(#Players:GetPlayers()) .. " / " .. tostring(Players.MaxPlayers)})
-
 infoTab:AddSection({"Rejoin"})
 infoTab:AddButton({"Rejoin", function()
     TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
 end})
 
-local function ensureSection(tab, name)
-    if not tab.LastSection then
-        tab:AddSection({name})
-    end
-    return tab.LastSection
-end
-
-playerTab.AddTextBox = function(self, data)
-    local sec = ensureSection(playerTab, "General")
-    if type(data) == "table" then
-        return sec:AddTextBox(data[1], data[2], data[3])
-    end
-end
-
-playerTab.AddSlider = function(self, data)
-    local sec = ensureSection(playerTab, "General")
-    if type(data) == "table" then
-        return sec:AddSlider(data[1], data[2], data[3], data[5], data[6])
-    end
-end
-
-playerTab.AddToggle = function(self, data)
-    local sec = ensureSection(playerTab, "General")
-    if type(data) == "table" then
-        return sec:AddToggle(data[1], data[2], data[3])
-    end
-end
-
-local oldAddButton = playerTab.AddButton
-playerTab.AddButton = function(self, data)
-    local sec = ensureSection(playerTab, "General")
-    if type(data) == "table" then
-        return sec:AddButton(data[1], data[2])
-    else
-        return oldAddButton(self, data)
-    end
-end
-
-local selectedPlayerName = nil
-local headsitActive = false
-
-playerTab:AddSection({"Player Character & Headsit"})
-
-local function headsitOnPlayer(targetPlayer)
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-    if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("Head") then
-        return false
-    end
-    local targetHead = targetPlayer.Character.Head
-    local localRoot = character:FindFirstChild("HumanoidRootPart")
-    if not localRoot then
-        return false
-    end
-
-    localRoot.CFrame = targetHead.CFrame * CFrame.new(0, 2.2, 0)
-
-    for _, v in pairs(localRoot:GetChildren()) do
-        if v:IsA("WeldConstraint") then
-            v:Destroy()
-        end
-    end
-
-    local weld = Instance.new("WeldConstraint")
-    weld.Part0 = localRoot
-    weld.Part1 = targetHead
-    weld.Parent = localRoot
-
-    if humanoid then humanoid.Sit = true end
-    return true
-end
-
-local function removeHeadsit()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local localRoot = character:FindFirstChild("HumanoidRootPart")
+local __VNHUB_VI = {
+    ["Steal"] = "Steal Eggs",
+    ["Farm"] = "Auto Farm",
+    ["Egg & Pet"] = "Eggs & Pets",
+    ["Event"] = "Events",
+    ["ESP & Visual"] = "ESP & Visuals",
+    ["Server & Player"] = "Server & Player",
+    ["Setting"] = "Settings",
+    ["Settings"] = "Settings",
     
-    if localRoot then
-        for _, v in pairs(localRoot:GetChildren()) do
-            if v:IsA("WeldConstraint") then
-                v:Destroy()
-            end
-        end
+    ["Grab matching eggs on the map and bring them back to your base."] = "Automatically capture filter-matching eggs on the map and bring them back to your base.",
+    ["Auto Steal Capture"] = "Automatically Steal Event Eggs",
+    ["Prioritizes the Capture The Egg event egg over normal field eggs."] = "Prioritizes capturing the Capture The Egg event egg over normal field eggs.",
+    ["Admin Abuse Boost"] = "Admin Boost",
+    ["Forces the capture carrier to max speed (5000 studs/s). Can rubber-band on strict servers."] = "Forces the capture carrier to maximum speed (5000 studs/s). May experience lag on strict servers.",
+    ["Fly For Capture"] = "Fly While Stealing Eggs (Fly Capture)",
+    ["Flies in a straight line above the map when going for Capture The Egg instead of following the ground path."] = "Fly straight above the map when going to steal the event egg instead of walking on the ground.",
+    ["Instant Grab"] = "Instant Egg Catching (Instant Grab)",
+    ["Fires the pickup prompt the frame you arrive instead of waiting out the hold timer."] = "Activates egg pickup immediately upon arrival without waiting to hold down the button.",
+    ["Auto Ring Event"] = "Automatic Ring Event",
+    ["Flies above each ring egg during the event and holds E until collected."] = "Automatically flies above each ring egg during the event and holds E until collected.",
+    ["Open Hop UI"] = "Open Rare Egg Hunting Board (Hop UI)",
+    ["Small window that hops servers until a target rare egg shows up."] = "Opens a small window that automatically switches servers continuously until a target rare egg is found.",
+    ["Help Friend"] = "Help Friends (Drop Off-Base)",
+    ["Drop stolen eggs just outside your base so a friend can grab them instead of slotting them."] = "Drop the stolen eggs right outside your base so a friend can grab them instead of slotting them.",
+    ["Aura Bat"] = "Automatic Bat Ring (Aura Bat)",
+    ["Swings the bat at nearby players while you walk around."] = "Automatically swings the bat at nearby players as you move.",
+    ["Low Speed ​​User"] = "Low Speed ​​Mode (<500)",
+    ["Pick one movement mode. Turning one on turns the others off."] = "Select only one movement mode. Turning one on will automatically turn off the others.",
+    ["High Speed ​​User Normal"] = "High Speed ​​Mode (Normal)",
+    ["Direct glide at your full walk speed. Best when your speed is 500+."] = "Glide straight at your maximum walk speed. Best when your walk speed is 500 or higher.",
+    ["High Speed ​​User (Fly)"] = "High Speed ​​(Fly) Mode",
+    ["Flies above obstacles on the way to the egg and back."] = "Flies over all obstacles when going to collect the egg and when bringing it back.",
+    ["Zig-Zag High Speed ​​User"] = "High Speed ​​Mode (Zig-Zag)",
+    ["Weaves side-to-side while moving so guards and bats miss you."] = "Dodging side-to-side while moving to avoid guards and bats.",
+    ["Reading your speed..."] = "Reading at your speed...",
+    ["Low Speed ​​Multiplier"] = "Low Speed ​​Multiplier (1-10)",
+    ["Controls Auto Steal speed & teleport (1-5 = Walk/Normal, 6-8 = Fast Glide, 9-10 Max = Instant Teleport)."] = "Adjusts Steal speed & teleport (1-5 = Normal, 6-8 = Fast Glide, 9-10 Max = Instant Teleport).",
+    ["Steal Speed"] = "Steal Movement Speed ​​(Max = Movement)",
+    ["Direct Auto Steal movement speed (200 = Normal, 3000 Max = Instant Teleport)."] = "Direct movement speed when stealing (200 = Normal, Max 3000 = Instant Teleport).",
+    ["Boost for Mode Low Speed"] = "Boost for Mode Low Speed",
+    ["Speeds up the return trip on Low Speed ​​mode. Turn off if you get teleported back."] = "Increases speed when bringing the eggs back in Low Speed ​​mode. Turn off if you get teleported back.",
+
+    ["Filter By Egg Name"] = "Filter by Egg Name",
+    ["Which eggs Auto Steal is allowed to grab. Leave empty for any egg."] = "Select the types of eggs you want Auto Steal to grab. Leave empty to grab any type of egg.",
+    ["Filter By Rarity"] = "Filter by Rarity",
+    ["Only grab eggs of these rarities. Leave empty for any rarity."] = "Only grab eggs of these rarities. Leave empty for any rarity.",
+    ["Select Area"] = "Select Hunting Area",
+    ["Areas Auto Steal will check. Leave empty to check all areas."] = "Areas that Auto Steal will scan. Leave empty to scan the entire map.",
+    ["Steal By Value"] = "Steal by Minimum Value",
+    ["Minimum money/s an egg must have. Leave 0 to ignore."] = "Minimum money/second an egg must have. Leave 0 to ignore this condition.",
+    ["Filter By Mutation"] = "Filter by Mutation",
+    ["Only grab eggs with these mutations. Leave empty for any mutation."] = "Only grab eggs with these mutations. Leave empty for any mutation.",
+    ["Steal By Weight"] = "Stealing by Minimum Weight",
+    ["Minimum weight (kg) an egg must have. Leave 0 to ignore."] = "Minimum weight (kg) an egg must have. Leave 0 to ignore.",
+    ["Steal Priority"] = "Steal Priority Order",
+    ["When multiple eggs match, grab the highest value or the heaviest first."] = "When multiple eggs match, prioritize picking the one with the highest value or the heaviest first.",
+    ["Highest Value"] = "Highest Value",
+    ["Heaviest"] = "Heaviest",
+    ["Auto Index"] = "Automatic Dictionary Collection (Auto Index)",
+    ["Also grab eggs you haven't discovered in your Index yet, even if they don't match your filter."] = "Automatically grab additional unlocked eggs from the Index even if they don't match your filter.",
+    
+    ["ESP Details"] = "Show ESP Details",
+    ["Show name, rarity, mutation, weight, and value above each egg."] = "Show the name, rarity, mutation, weight, and value above each egg.",
+    ["ESP Min Rarity"] = "Minimum ESP Rarity",
+    ["Hide ESP on eggs below these rarities. Leave empty to show all."] = "Hide ESP for eggs below this rarity. Leave empty to show all.",
+    ["ESP Min Value"] = "Minimum ESP Value",
+    ["Only draw ESP on eggs worth at least this much money/s (0 = all)."] = "Only draw ESP on eggs worth at least this much money/s (0 = all).",
+    ["Backpack Value/s"] = "Current Total Value of Backpack Items (/s)",
+    ["Floating readout on screen showing the total $/s of pets in your backpack."] = "Displays a floating table on the screen showing the total $/s of pets in your backpack.",
+    ["Webhook URL"] = "Discord Webhook Link",
+    ["Discord webhook link. sends a message each time you steal an egg."] = "Paste Discord Webhook link. Sends a notification each time you steal an egg.",
+    ["Disconnect Alert"] = "Disconnection Alert",
+    ["Send a webhook message if you get kicked, disconnected, or teleported out."] = "Send a warning via Webhook if you get kicked out, disconnected, or switch servers.",
+    ["Notify Rarities"] = "Notify Rarities",
+    ["Only send a webhook for eggs of these rarities. Leave empty to notify on all."] = "Only send a webhook notification for these rarities. Leave empty to notify on all types of eggs.",
+    ["Notify Minimum Value"] = "Minimum Value for Notification",
+    ["Only send a webhook when the egg's value is at least this much (0 = all)."] = "Only send a webhook when the egg's value reaches at least this much (0 = all).",
+    ["Test Webhook"] = "Test Webhook (Test)",
+    ["Send a test message to make sure your webhook URL works."] = "Send a test message to check your webhook URL.",
+
+    ["Priority Order"] = "Task Priority Order",
+    ["Drag to reorder. Tasks at the top pause lower ones while they work. Treadmill always stays at the bottom."] = "Drag to reorder. Tasks at the top will pause tasks below while they work. The treadmill always stays at the bottom.",
+    ["Active"] = "Running",
+    ["Ready"] = "Ready",
+    ["Done"] = "Completed",
+    ["Waiting"] = "Waiting",
+    ["Off"] = "Off",
+    ["Idle"] = "On break",
+    ["Paused"] = "Paused",
+    ["Selling..."] = "Selling...",
+
+    ["Auto Place Egg"] = "Auto Place Eggs",
+    ["Places eggs from your backpack onto empty slots on your plot."] = "Automatically places eggs from your backpack onto empty slots on your base plot.",
+    ["Place Egg Rarity"] = "Placed Egg Rarity Filter",
+    ["Only place eggs of these rarities. Leave empty to place any."] = "Only place eggs of these specific rarities. Leave empty to place all types.",
+    ["Auto Hatch Egg"] = "Auto Hatch Eggs",
+    ["Hatches eggs on your plot as soon as their timer finishes."] = "Automatically hatches eggs on your plot as soon as their countdown timer finishes.",
+    ["Mutate Egg Name"] = "Mutate Egg Name Filter",
+    ["Which placed eggs can be rolled with the Scrambled Egg tool."] = "Select which placed egg names are allowed to use the Scrambled Egg tool to re-roll mutations.",
+    ["Mutate Egg Rarity"] = "Mutate Egg Rarity Filter",
+    ["Only mutate placed eggs of these rarities."] = "Only re-roll mutations for placed eggs belonging to these rarities.",
+    ["Mutate Min Value (money/s)"] = "Minimum Mutation Value (money/s)",
+    ["Skip eggs whose current value is below this number."] = "Skip placed eggs whose current value is lower than this specified number.",
+    ["Retry Until Mutated"] = "Retry Until Mutated",
+    ["Keep using Scrambled Eggs on the same egg until it gets a mutation."] = "Continuously use Scrambled Eggs on the target egg until it successfully obtains a mutation.",
+    ["Auto Apply Mutation"] = "Auto Apply Mutation",
+    ["Automatically walks up and uses your Scrambled Eggs on matching placed eggs."] = "Automatically walks over and applies Scrambled Eggs to matching placed eggs on your plot.",
+    ["Apply Mutation Now"] = "Apply Mutation Now (1 Time)",
+    ["Run one mutation pass right now."] = "Execute a single mutation attempt immediately.",
+    ["Your placed eggs"] = "Placed Eggs List",
+    ["No eggs placed on your plot."] = "No eggs currently placed on your plot.",
+
+    ["Auto Sell Pet"] = "Auto Sell Pets",
+    ["Equips and sells pets in your backpack that match the filter below."] = "Automatically equips and sells pets in your backpack that match the configured filters.",
+    ["Pet Name Filter"] = "Pet Species Sell Filter",
+    ["Only sell these pet species. Leave empty to allow any species."] = "Only sell pets of these species. Leave empty to allow selling any species.",
+    ["Pet Rarity Filter"] = "Pet Rarity Sell Filter",
+    ["Only sell pets of these rarities. Pick at least one filter before enabling Auto Sell."] = "Only sell pets of these specific rarities. Pick at least one filter before enabling Auto Sell.",
+    ["Sell By Value (max money/s)"] = "Sell By Maximum Value (money/s)",
+    ["Only sell pets making at or below this money/s. Favorited pets are never sold."] = "Only sell pets generating money/second at or below this limit. Favorited pets will never be sold.",
+    ["Auto Sell Egg"] = "Auto Sell Eggs",
+    ["Equips and sells eggs in your backpack matching the rarity filter."] = "Automatically equips and sells eggs in your backpack that match the specified rarity filter.",
+    ["Egg Rarity Filter"] = "Egg Rarity Sell Filter",
+    ["Only sell eggs of these rarities. Favorited eggs are skipped."] = "Only sell eggs belonging to these rarities. Favorited eggs will be skipped.",
+
+    ["Auto Favorite"] = "Auto Lock Favorites",
+    ["Favorites matching pets in your backpack so they can't be sold or fused."] = "Automatically lock favorites on matching pets in your backpack to prevent accidental selling or fusing.",
+    ["Favorite Rule"] = "Favorite Lock Rule",
+    ["Match pets by their Rarity or by their Species name."] = "Filter pets to lock either by their Rarity or by their Species name.",
+    ["Rarity"] = "By Rarity",
+    ["Species"] = "By Species",
+    ["Rarities to Keep"] = "Rarities to Keep (Locked)",
+    ["Pets of these rarities will be favorited."] = "Pets belonging to these rarities will be automatically locked as favorites.",
+    ["Species to Keep"] = "Pet Species to Keep (Locked)",
+    ["These pet species will be favorited."] = "These specific pet species will be automatically locked as favorites.",
+    ["Unfavorite Everything"] = "Unfavorite Everything",
+    ["Removes the favorite lock from every pet and egg in your backpack."] = "Remove the favorite lock from all pets and eggs in your backpack.",
+    ["Auto Fuse"] = "Auto Pet Fusion",
+    ["Fuses 3 matching pets of the same species and rarity into a higher tier."] = "Automatically combine 3 matching pets of the same species and rarity to upgrade to a higher tier.",
+    ["Fusion Rule"] = "Fusion Rule",
+    ["Any Species fuses whatever you have 3 of. Selected Species only fuses the list below."] = "Any Species fuses any pet you have 3 of. Selected Species only fuses according to the list below.",
+    ["Any Species"] = "Any Species",
+    ["Selected Species"] = "Selected Species",
+    ["Rarities to Fuse"] = "Rarities to Fuse",
+    ["Only fuse pets of these rarities."] = "Only fuse pets belonging to these specified rarities.",
+    ["Species to Fuse"] = "Species to Fuse",
+    ["Only used when Fusion Rule is set to Selected Species."] = "Only applies when the Fusion Rule is set to Selected Species.",
+    ["Tier"] = "Fusion Tier",
+    ["Divine = ArchAngel + World Burner. Eternal = Pegasus + Skeleton Horse."] = "Divine = ArchAngel + World Burner. Eternal = Pegasus + Skeleton Horse.",
+    ["Your Pet"] = "Your Pets",
+    ["Recipe pets you own for this tier. The pet decides your pad side."] = "Recipe pets you currently own for this tier. The type of pet determines your pad side.",
+    ["Auto Select"] = "Auto Select Pet",
+    ["Use the first recipe pet found in your inventory."] = "Automatically select the first recipe pet found in your inventory.",
+    ["Status"] = "Status",
+    ["Not broadcasting."] = "Not broadcasting signal for partner.",
+    ["Broadcast: Find Partner"] = "Broadcast: Find Partner",
+    ["Stop Broadcast"] = "Stop Broadcast",
+    ["Tell other players you are waiting at the shrine. Only works if you own the recipe pet."] = "Inform other players that you are waiting at the fusion shrine. Only works if you own the recipe pet.",
+    ["Players looking for a partner"] = "Players Looking for Partner",
+    ["Nobody is broadcasting right now."] = "No one is broadcasting right now.",
+    ["Auto Equip Best"] = "Auto Equip Best Pets",
+    ["Equips your highest money/s pets onto your plot every 5 seconds."] = "Automatically equip your highest money/second pets onto your plot every 5 seconds.",
+    ["Auto Collect Cash"] = "Auto Collect Cash",
+    ["Collects the money sitting on your plot pads every second."] = "Automatically harvest money from all plot pads every second.",
+    ["Collect Offline Income"] = "Collect Offline Income",
+    ["Claims the offline earnings popup when you join."] = "Automatically claim offline earnings popup upon joining the game.",
+    ["Auto Upgrade Base"] = "Auto Upgrade Base",
+    ["Upgrades your plot tier whenever you have enough cash."] = "Automatically upgrade your base plot tier whenever you have enough cash.",
+    ["Auto Claim Almanac"] = "Auto Claim Almanac Rewards",
+    ["Claims discovery rewards from your Index / Almanac."] = "Automatically claim discovery rewards from your Index / Almanac.",
+    ["Equip Best Now"] = "Equip Best Now",
+    ["Upgrade Base Now"] = "Upgrade Base Now",
+    ["Run the action once right now."] = "Execute this action once immediately.",
+
+    ["Reading your wisp progress..."] = "Reading your Wisp progress...",
+    ["Auto Wisp Quest"] = "Auto Wisp Quest",
+    ["Walks through the daily Wisp shrine steps when unlocked."] = "Automatically completes the daily Wisp shrine quest steps when unlocked.",
+    ["Auto Banjo Cricket"] = "Auto Banjo Cricket",
+    ["Catches the Banjo Cricket when it spawns for the Wisp quest."] = "Catches the Banjo Cricket automatically when it spawns for the Wisp quest.",
+    ["Reading the Bloom schedule..."] = "Reading the Bloom schedule...",
+    ["Butterflies Caught"] = "Butterflies Caught",
+    ["Auto Claim Net"] = "Auto Claim Butterfly Net",
+    ["Picks up the free butterfly net from the Bloom NPC every cooldown."] = "Automatically collects the free butterfly net from the Bloom NPC every cooldown.",
+    ["Auto Catch"] = "Auto Catch Butterflies",
+    ["Catches butterflies during the 10-minute Bloom window."] = "Automatically catches butterflies during the 10-minute Bloom event window.",
+    ["Catch Mode"] = "Butterfly Catch Mode",
+    ["Tween glides your character to each butterfly. Instant fires the catch remote in place."] = "Tween glides your character to each butterfly. Instant catches them remotely from your current position.",
+    ["Tween to Butterfly"] = "Tween to Butterfly",
+    ["Instant"] = "Instant Catch",
+    ["Catch Tiers"] = "Catch Butterfly Tiers",
+    ["Which butterfly tiers to catch. Leave empty to catch all tiers."] = "Select which butterfly tiers to catch. Leave empty to catch all tiers.",
+    ["Butterfly ESP"] = "Butterfly ESP",
+    ["Highlights butterflies in the world with their tier color."] = "Highlights butterflies across the map using their corresponding tier colors.",
+    ["Auto Trade Up"] = "Auto Trade-Up Butterflies",
+    ["Trades lower butterflies up into higher tiers at the NPC."] = "Automatically trades lower tier butterflies for higher tiers at the NPC.",
+    ["Trade Recipe"] = "Butterfly Trade Recipe",
+    ["Which trade-up recipes to run."] = "Select which trade-up recipes to execute.",
+    ["All Recipes"] = "All Recipes",
+    ["Auto Craft Essence"] = "Auto Craft Bloom Essence",
+    ["Submits butterflies to craft Bloom Essence when you have the materials."] = "Submits butterflies to craft Bloom Essence whenever you have enough materials.",
+    ["Claim Net Now"] = "Claim Net Now",
+    ["Trade Up Now"] = "Trade Up Now",
+    ["One-shot actions for the Bloom NPC."] = "One-time actions for the Bloom NPC.",
+    ["Craft Essence Now"] = "Craft Essence Now",
+    ["Submit one essence craft right now."] = "Executes a single essence craft immediately.",
+    ["About This Event"] = "About This Event",
+    ["Star Alert"] = "Shooting Star Alert",
+    ["Shows a notification as soon as a Shooting Star spawns."] = "Displays a notification as soon as a Shooting Star spawns on the map.",
+    ["Auto Catch Star"] = "Auto Catch Shooting Star",
+    ["Moves to the falling star and collects it when one lands."] = "Automatically moves to the falling star location and collects it upon landing.",
+    ["No star right now."] = "No active shooting star right now.",
+    ["Waiting for the event to start."] = "Waiting for the event to start.",
+    ["Auto Trade-In"] = "Auto Pet Trade-In",
+    ["Submits matching pets from your backpack to the Trade-In machine for Experimental Pets."] = "Submits matching pets from your backpack to the Trade-In machine for Experimental Pets.",
+    ["Auto Free Reroll"] = "Auto Free Reroll",
+    ["Uses your daily free reroll when the current recipe isn't on a banner you want."] = "Uses your daily free reroll when the active recipe is not on your targeted banner.",
+    ["Target Banners"] = "Target Banners",
+    ["Only trade in when the machine is showing one of these banners."] = "Only performs trade-ins when the machine displays one of these target banners.",
+    ["Trade-In Once"] = "Trade-In Once",
+    ["Use Free Reroll"] = "Use Free Reroll",
+    ["Manual actions for the Trade-In machine."] = "Manual actions for the Trade-In machine.",
+    ["Open Trade-In UI"] = "Open Trade-In Window",
+    ["Opens the in-game Experimental Pet trade-in window from anywhere."] = "Opens the in-game Experimental Pet trade-in window from anywhere.",
+    ["Turn a trade-in toggle on to start reading the recipe."] = "Enable a trade-in toggle to start reading the recipe requirement.",
+    ["Auto Boss"] = "Auto Boss Fight",
+    ["Joins the Mech Boss fight, dodges attacks, and fires cannons when the event is live."] = "Joins the Mech Boss fight, dodges incoming attacks, and fires cannons while live.",
+    ["Turn Auto Boss on. It sits idle until the boss event goes live."] = "Enable Auto Boss. It will wait idle until the boss event goes live.",
+
+    ["Auto Treadmill"] = "Auto Treadmill Training",
+    ["Trains your walk speed on the best treadmill you can use while other tasks are idle."] = "Trains your walk speed on the best available treadmill when other tasks are idle.",
+    ["Startup Boost"] = "Startup Optimization Boost",
+    ["Light cleanup that runs as soon as the script loads."] = "Performs a light effect cleanup as soon as the script loads.",
+    ["Boost FPS"] = "Boost FPS (Reduce Lag)",
+    ["Strips particles, decals, and lighting effects for smoother framerates."] = "Disables particles, decals, and extra lighting for smoother performance.",
+    ["Uncap FPS"] = "Unlock FPS Limit (240 FPS)",
+    ["Raises the frame cap to 240 FPS if your executor supports setfpscap."] = "Raises the FPS limit to 240 if supported by your executor.",
+    ["Anti Guard Knockback"] = "Anti Guard Knockback",
+    ["Stops NPC guards and player bats from flinging your character."] = "Prevents NPC guards and player bats from flinging your character.",
+    ["Anti Hit Guard"] = "Anti Guard Hit",
+    ["Keeps guards from registering hits on you while carrying an egg."] = "Prevents guards from registering hits on you while carrying an egg.",
+    ["Egg Logs"] = "Egg Logs Window",
+    ["Floating window listing every egg that spawns or gets stolen."] = "Opens a floating window listing every egg spawned or stolen.",
+    ["Egg Board"] = "Field Egg Board",
+    ["Live list of eggs currently on the field."] = "Displays a real-time list of eggs currently available on the field.",
+    ["Inventory & Base"] = "Inventory & Base Manager",
+    ["Shows your backpack pets, eggs, and plot slots in one panel."] = "Shows backpack pets, eggs, and plot slots all in one consolidated panel.",
+    ["Egg Checker"] = "Egg & Base Stats Checker",
+    ["Check any egg's stats, value, and owner."] = "Allows inspecting any egg's stats, value, and current owner.",
+    ["Egg Data & History"] = "Egg Dictionary & Steal History",
+    ["Browse every egg in the game and your recent steal history."] = "Browse all eggs in the game and view your recent steal history.",
+    ["Farm Stats"] = "Farming Session Stats",
+    ["Session timer, steals per hour, and money earned."] = "Displays session duration, steals per hour rate, and total money earned.",
+    ["Open All Windows"] = "Open All Sub-Windows",
+    ["Close All Windows"] = "Close All Sub-Windows",
+    ["Show or hide every floating window at once."] = "Show or hide all floating windows simultaneously.",
+    ["Anti Treadmill"] = "Anti Treadmill Trigger",
+    ["Removes treadmill touch triggers so you don't accidentally step onto one while walking."] = "Removes treadmill touch sensors so you don't accidentally step onto one while walking.",
+    ["Hop When Nothing Matches"] = "Hop Server When No Eggs Match Filter",
+    ["Hop to a new server when no eggs on the map match your Auto Steal filter."] = "Automatically switch servers when no field eggs match your Auto Steal filter.",
+    ["Hop Cooldown"] = "Server Hop Cooldown (Seconds)",
+    ["Seconds to wait on a server before hopping away."] = "Number of seconds to wait on a server before performing a hop.",
+    ["Checking..."] = "Checking server status...",
+    ["Max Players"] = "Max Players Limit",
+    ["Look for servers with at most this many players (1 = nearly empty)."] = "Search for servers with at most this many players (1 = nearly empty).",
+    ["Hop Server Now"] = "Hop Server Now (1 Time)",
+    ["Jump to a matching low-player server once."] = "Immediately hop to a suitable low-player server once.",
+    ["Auto Hop"] = "Continuous Auto Server Hop",
+    ["Keeps hopping until it lands on a server within your Max Players limit."] = "Continuously hops servers until joining one within your Max Players limit.",
+    ["Waypoint"] = "Teleport Waypoints",
+    ["Saved map locations you can teleport to."] = "Saved key locations on the map for quick teleportation.",
+    ["Teleport To Waypoint"] = "Teleport To Selected Waypoint",
+    ["Teleports your character to the selected waypoint."] = "Teleports your character directly to the selected waypoint.",
+    ["Place Everything Now"] = "Place All Eggs Now",
+    ["Hatch Everything Ready"] = "Hatch All Ready Eggs",
+    ["One-shot plot actions."] = "Perform instant base actions.",
+    ["Sell Pets Now"] = "Sell Pets Now",
+    ["Sell Eggs Now"] = "Sell Eggs Now",
+    ["Runs your sell filters once right now."] = "Executes your pet/egg sell filters immediately.",
+    ["Botting Mode"] = "Low-Resource Botting Mode",
+    ["Blanks the 3D viewport and drops rendering cost for AFK farming."] = "Blanks the 3D viewport to minimize GPU rendering load while AFK farming.",
+    ["Anti Cutscene"] = "Anti Cutscene (Skip Cameras)",
+    ["Skips hatch and event camera cutscenes."] = "Skips camera animations during egg hatching and events.",
+    ["Rejoin This Server"] = "Rejoin Current Server",
+    ["Stop & Unload"] = "Stop & Unload Script",
+    ["Rejoin the current server or cleanly shut down the hub."] = "Rejoin your current server or cleanly close the script hub.",
+    ["Anti AFK"] = "Anti-AFK Disconnect Protection",
+    ["Stops Roblox from kicking you after 20 minutes of being idle."] = "Prevents Roblox from kicking you after 20 minutes of inactivity.",
+    ["Auto Reconnect"] = "Auto Reconnect On Disconnect",
+    ["Rejoins the game automatically if a disconnect prompt appears."] = "Automatically reconnects to the game if a disconnection message pops up.",
+    ["Auto Execute (Rejoin)"] = "Auto Re-Execute On Server Hop",
+    ["Re-runs the script automatically after you hop or rejoin a server."] = "Automatically re-runs the script hub after hopping or rejoining servers.",
+    ["Walk Speed"] = "Character Walk Speed",
+    [" Your current character walk speed."] = "Your current character walk speed.",
+    ["Your current character walk speed."] = "Your current character walk speed.",
+
+    ["Auto Steal From Players"] = "Auto Steal From Players",
+    ["Steals matching eggs off other players' plots across the server."] = "Automatically steals matching eggs placed on other players' base plots across the server.",
+    ["Rarity Filter"] = "Steal Rarity Filter",
+    ["Only steal player eggs of these rarities. Leave empty for any."] = "Only steal player eggs belonging to these rarities. Leave empty for any.",
+    ["Minimum Value"] = "Minimum Value Filter",
+    ["Only steal player eggs worth at least this much money/s (0 = any)."] = "Only steal player eggs generating at least this much money/second (0 = any).",
+    ["Players in this server"] = "Players In This Server",
+    ["Nobody else is in this server."] = "No other players currently in this server.",
+    ["History of stolen eggs from players"] = "Stolen Eggs History (From Players)",
+    ["No player steals yet."] = "No player steals recorded yet.",
+    ["Clear History"] = "Clear Steal History",
+    ["Wipes the stolen egg history list."] = "Clears the entire stolen egg history list.",
+
+    ["Type"] = "Item Type",
+    ["Spawn a visual egg or pet in your hand."] = "Spawn a visual fake egg or pet in your character's hand.",
+    ["Select Egg / Pet"] = "Select Egg / Pet Model",
+    ["Choose which model to preview."] = "Choose which model to preview visually.",
+    ["Mutation"] = "Mutation Appearance",
+    ["Apply a mutation look (Golden, Rainbow, etc.)."] = "Apply a visual mutation skin effect (Golden, Rainbow, etc.).",
+    ["Size / Flex"] = "Model Size / Weight (Kg)",
+    ["Scale the model up as if it weighed this many kg."] = "Scale the visual model up as if it weighed this many kilograms.",
+    ["Add to Backpack (Kg)"] = "Add Visual To Backpack (Kg)",
+    ["Remove Egg / Pet Visuals"] = "Remove All Visual Models",
+    ["Creates a fake tool in your backpack or clears all spawned visuals."] = "Creates a fake visual tool in your backpack or clears all spawned visual items.",
+
+    ["Walk"] = "Walk",
+    ["Glide"] = "Fast Glide",
+    ["Zigzag"] = "Zig-Zag",
+    ["Fly"] = "Fly Mode",
+    ["Booster"] = "Teleport Booster",
+    ["Conveyor"] = "Conveyor Belt",
+    ["Base Slot"] = "Base Slot",
+    ["Both"] = "Both (Conveyor + Base Slot)",
+    ["Safe Zone"] = "Safe Zone Area",
+    ["Rebirth Focus"] = "Rebirth Priority Focus",
+    ["Money Focus"] = "Money Earnings Focus",
+    ["Any"] = "Any",
+    ["Egg"] = "Egg",
+    ["Pet"] = "Pet",
+    ["Common"] = "Common",
+    ["Uncommon"] = "Uncommon",
+    ["Rare"] = "Rare",
+    ["Epic"] = "Epic",
+    ["Legendary"] = "Legendary",
+    ["Mythic"] = "Mythic",
+    ["Secret"] = "Secret",
+    ["Divine"] = "Divine",
+    ["Eternal"] = "Eternal",
+    ["Celestial"] = "Celestial",
+    ["Exotic"] = "Exotic",
+    ["Godly"] = "Godly",
+    ["None"] = "No Mutation",
+    ["Normal"] = "Normal",
+    ["Gold"] = "Gold",
+    ["Golden"] = "Golden",
+    ["Diamond"] = "Diamond",
+    ["Rainbow"] = "Rainbow",
+    ["Shiny"] = "Shiny",
+    ["Corrupt"] = "Corrupt",
+    ["Corrupted"] = "Corrupted",
+    ["Galaxy"] = "Galaxy",
+    ["Void"] = "Void",
+    ["Radioactive"] = "Radioactive",
+    ["Bloodmoon"] = "Bloodmoon",
+    ["Electric"] = "Electric",
+    ["Frozen"] = "Frozen",
+    ["Lava"] = "Lava",
+    ["Crystal"] = "Crystal",
+    ["Mythical"] = "Mythical",
+
+    ["Activity Logs"] = "Activity Logs",
+    ["Live stream of hub actions and events"] = "Live stream of hub actions and events",
+    ["Field Eggs"] = "Field Eggs",
+    ["Live scanner for conveyor and base eggs"] = "Live scanner for conveyor and base eggs",
+    ["Inventory Viewer"] = "Inventory Viewer",
+    ["Browse your eggs, pets, and total value"] = "Browse your eggs, pets, and total value",
+    ["Base Checker"] = "Base Checker",
+    ["Inspect other players' placed eggs and pets"] = "Inspect other players' placed eggs and pets",
+    ["Egg Database"] = "Egg Database",
+    ["Reference catalog of all eggs, rarities, and odds"] = "Reference catalog of all eggs, rarities, and odds",
+    ["Session Stats"] = "Session Stats",
+    ["Runtime counters, earnings, and steal history"] = "Runtime counters, earnings, and steal history",
+    ["Copy"] = "Copy",
+    ["Clear"] = "Clear",
+    ["Pause"] = "Pause",
+    ["Resume"] = "Resume",
+    ["Refresh"] = "Refresh",
+    ["Close"] = "Close",
+    ["All"] = "All",
+    ["Eggs"] = "Eggs",
+    ["Pets"] = "Pets",
+    ["Select All"] = "Select All",
+    ["Hop Now"] = "Hop Now",
+    ["Enable"] = "Enable",
+    ["Disable"] = "Disable",
+    ["Target Eggs"] = "Target Eggs",
+    ["Mutations"] = "Mutations",
+    ["Target Egg"] = "Target Egg",
+    ["STEAL PROGRESS"] = "STEAL PROGRESS",
+    ["BRINGING EGG BACK"] = "BRINGING EGG BACK",
+    ["STEAL COMPLETE"] = "STEAL COMPLETE",
+    ["STEAL FAILED"] = "STEAL FAILED",
+    ["ACTIVE"] = "ACTIVE",
+    ["DONE"] = "DONE",
+    ["STOPPED"] = "STOPPED",
+    ["Find"] = "Find",
+    ["Grab"] = "Grab",
+    ["Return"] = "Return",
+    ["Almost done"] = "Almost done",
+    ["Dropped in safe zone"] = "Dropped in safe zone",
+    ["Egg secured"] = "Egg secured",
+    ["Attempt ended"] = "Attempt ended",
+    ["Egg disappeared"] = "Egg disappeared",
+    ["Could not reach the egg"] = "Could not reach the egg",
+    ["Carry interrupted"] = "Carry interrupted",
+    ["Character reset"] = "Character reset",
+    ["Safe zone missing"] = "Safe zone missing",
+    ["Base slot missing"] = "Base slot missing",
+    ["Scanning field eggs"] = "Scanning field eggs",
+    ["Heading to target egg"] = "Heading to target egg",
+    ["Securing target egg"] = "Securing target egg",
+    ["Bringing egg back"] = "Bringing egg back",
+    ["Depositing egg"] = "Depositing egg",
+    ["Safe return complete"] = "Safe return complete",
+    ["Dropped for a friend"] = "Dropped for a friend",
+    ["Steal unavailable — retrying"] = "Steal unavailable — retrying",
+    ["Could not reach the egg — retrying"] = "Could not reach the egg — retrying",
+    ["Target egg no longer available"] = "Target egg no longer available",
+    ["Target destination unavailable"] = "Target destination unavailable",
+    ["Character unavailable"] = "Character unavailable",
+
+    ["Steal Eggs"] = "Steal Eggs",
+    ["Auto Steal Eggs"] = "Auto Steal Eggs",
+    ["Automatically steal eggs matching your filter and bring them safely to your base."] = "Automatically steal eggs matching your filter and bring them safely to your base.",
+    ["Help Friend (Drop Outside Base)"] = "Help Friend (Drop Outside Base)",
+    ["Drops carried eggs right outside your safe zone so a friend can pick them up."] = "Drops carried eggs right outside your safe zone so a friend can pick them up.",
+    ["Min Egg Value ($/s)"] = "Min Egg Value ($/s)",
+    ["Drag slider to set minimum $/s value to steal (0 = Any value)."] = "Drag slider to set minimum $/s value to steal (0 = Any value).",
+    ["Steal Priority (Order)"] = "Steal Priority (Order)",
+    ["Which matching egg to prioritize first when multiple are available."] = "Which matching egg to prioritize first when multiple are available.",
+    ["Automatically prioritize stealing eggs not yet unlocked in your Index across all areas."] = "Automatically prioritize stealing eggs not yet unlocked in your Index across all areas.",
+    ["Detailed Filters"] = "Detailed Filters",
+    ["Only steal eggs of the selected rarities (Leave empty = Any rarity)."] = "Only steal eggs of the selected rarities (Leave empty = Any rarity).",
+    ["Only steal the selected egg types (Leave empty = Any egg)."] = "Only steal the selected egg types (Leave empty = Any egg).",
+    ["Select Steal Area"] = "Select Steal Area",
+    ["Only steal eggs in the selected areas (Leave empty = All areas)."] = "Only steal eggs in the selected areas (Leave empty = All areas).",
+    ["Only steal eggs with the selected mutations (Leave empty = Any mutation)."] = "Only steal eggs with the selected mutations (Leave empty = Any mutation).",
+    ["Chase players carrying valuable eggs on the field, knock the egg loose, and steal it."] = "Chase players carrying valuable eggs on the field, knock the egg loose, and steal it.",
+    ["Player Egg Rarity Filter"] = "Player Egg Rarity Filter",
+    ["Only chase players holding eggs of these rarities (Leave empty = Use main filter)."] = "Only chase players holding eggs of these rarities (Leave empty = Use main filter).",
+    ["Min Player Egg Value ($/s)"] = "Min Player Egg Value ($/s)",
+    ["Ignore players carrying eggs below this $/s value."] = "Ignore players carrying eggs below this $/s value.",
+    ["Select Player To Steal From"] = "Select Player To Steal From",
+    ["Steal History (Players)"] = "Steal History (Players)",
+    ["Players in server"] = "Players in server",
+    ["No other players in this server."] = "No other players in this server.",
+    ["History of eggs stolen from players"] = "History of eggs stolen from players",
+    ["No player steal history yet."] = "No player steal history yet.",
+    ["Clear Steal History"] = "Clear Steal History",
+    ["Clear the player steal history list above."] = "Clear the player steal history list above.",
+    ["Base & Pets"] = "Base & Pets",
+    ["Auto Upgrade Base"] = "Auto Upgrade Base",
+    ["Automatically upgrade your base tier whenever you have enough cash."] = "Automatically upgrade your base tier whenever you have enough cash.",
+    ["Auto Equip Best Pets"] = "Auto Equip Best Pets",
+    ["Automatically equip your highest earning pets onto your base."] = "Automatically equip your highest earning pets onto your base.",
+    ["Auto Claim Offline Cash"] = "Auto Claim Offline Cash",
+    ["Automatically claim offline earnings accumulated while you were away."] = "Automatically claim offline earnings accumulated while you were away.",
+    ["Automatically claim all completed milestones in the Pet Index / Almanac."] = "Automatically claim all completed milestones in the Pet Index / Almanac.",
+    ["Upgrade Base Now (Once)"] = "Upgrade Base Now (Once)",
+    ["Purchase one base tier upgrade right now."] = "Purchase one base tier upgrade right now.",
+    ["Speed Treadmill"] = "Speed Treadmill",
+    ["Auto Treadmill (Idle)"] = "Auto Treadmill (Idle)",
+    ["Automatically train walk speed on the treadmill while other tasks are idle."] = "Automatically train walk speed on the treadmill while other tasks are idle.",
+    ["Auto Upgrade Treadmill"] = "Auto Upgrade Treadmill",
+    ["Automatically upgrade your treadmill tier with cash when affordable."] = "Automatically upgrade your treadmill tier with cash when affordable.",
+    ["Anti Treadmill (Prevent Stuck)"] = "Anti Treadmill (Prevent Stuck)",
+    ["Automatically jump off treadmills and disable treadmill touch triggers."] = "Automatically jump off treadmills and disable treadmill touch triggers.",
+    ["Priority Order (Tasks)"] = "Priority Order (Tasks)",
+    ["Tasks higher on the list take priority over lower tasks."] = "Tasks higher on the list take priority over lower tasks.",
+    ["Runs while other tasks are idle"] = "Runs while other tasks are idle",
+    ["Enable Auto Steal, Auto Place, or other tasks to reorder them here."] = "Enable Auto Steal, Auto Place, or other tasks to reorder them here.",
+    ["Place & Hatch Eggs"] = "Place & Hatch Eggs",
+    ["Automatically place eggs from your backpack onto empty base slots (heaviest first)."] = "Automatically place eggs from your backpack onto empty base slots (heaviest first).",
+    ["Place Egg Rarity Filter"] = "Place Egg Rarity Filter",
+    ["Only place eggs of the selected rarities (Leave empty = Place all)."] = "Only place eggs of the selected rarities (Leave empty = Place all).",
+    ["Run one pass to place all matching eggs onto your base right now."] = "Run one pass to place all matching eggs onto your base right now.",
+    ["Automatically hatch all placed eggs on your base as soon as they are ready."] = "Automatically hatch all placed eggs on your base as soon as they are ready.",
+    ["Hatch All Ready Eggs Now"] = "Hatch All Ready Eggs Now",
+    ["Immediately hatch all ready eggs on your base."] = "Immediately hatch all ready eggs on your base.",
+    ["Egg Predictor (Placed Eggs)"] = "Egg Predictor (Placed Eggs)",
+    ["📊 Placed Eggs Stats & Predictor"] = "📊 Placed Eggs Stats & Predictor",
+    ["Scanning placed eggs on your base..."] = "Scanning placed eggs on your base...",
+    ["Detailed prediction list for each placed egg"] = "Detailed prediction list for each placed egg",
+    ["No eggs are currently placed on your base."] = "No eggs are currently placed on your base.",
+    ["Hatch All Ready Eggs"] = "Hatch All Ready Eggs",
+    ["Enable 3D Labels On Base"] = "Enable 3D Labels On Base",
+    ["Quickly hatch all ready eggs or enable 3D prediction labels on your placed eggs."] = "Quickly hatch all ready eggs or enable 3D prediction labels on your placed eggs.",
+    ["Hatch Now"] = "Hatch Now",
+    ["Locate"] = "Locate",
+    ["Hatched"] = "Hatched",
+    ["Highlighted"] = "Highlighted",
+    ["Auto Sell (Pets & Eggs)"] = "Auto Sell (Pets & Eggs)",
+    ["Auto Sell Pets (Filter)"] = "Auto Sell Pets (Filter)",
+    ["Automatically sell pets matching the filter below (Keeps equipped, placed, and favorited pets)."] = "Automatically sell pets matching the filter below (Keeps equipped, placed, and favorited pets).",
+    ["Sell Pet Rarity Filter"] = "Sell Pet Rarity Filter",
+    ["Select pet rarities to sell (Select All to sell all rarities)."] = "Select pet rarities to sell (Select All to sell all rarities).",
+    ["Sell Pet Name Filter (Optional)"] = "Sell Pet Name Filter (Optional)",
+    ["Select specific pet species to sell (Leave empty = Any species matching rarity/value)."] = "Select specific pet species to sell (Leave empty = Any species matching rarity/value).",
+    ["Max Pet Value To Sell ($/s)"] = "Max Pet Value To Sell ($/s)",
+    ["Only sell pets earning at or below this $/s rate (0 = No value limit)."] = "Only sell pets earning at or below this $/s rate (0 = No value limit).",
+    ["Sell Pets Now (Once)"] = "Sell Pets Now (Once)",
+    ["Run one pet selling pass using the filters above."] = "Run one pet selling pass using the filters above.",
+    ["Auto Sell Backpack Eggs"] = "Auto Sell Backpack Eggs",
+    ["Automatically sell unplaced eggs in your backpack matching the rarity and value filters below."] = "Automatically sell unplaced eggs in your backpack matching the rarity and value filters below.",
+    ["Select egg rarities to sell (Select All to sell all rarities)."] = "Select egg rarities to sell (Select All to sell all rarities).",
+    ["Max Egg Value To Sell ($/s)"] = "Max Egg Value To Sell ($/s)",
+    ["Only sell eggs worth at or below this $/s rate (0 = No value limit)."] = "Only sell eggs worth at or below this $/s rate (0 = No value limit).",
+    ["Sell Eggs Now (Once)"] = "Sell Eggs Now (Once)",
+    ["Run one egg selling pass using the filters above."] = "Run one egg selling pass using the filters above.",
+    ["Pet Fusion & Auto Favorite"] = "Pet Fusion & Auto Favorite",
+    ["Pet Fusion Machine"] = "Pet Fusion Machine",
+    ["Auto Fuse Pets"] = "Auto Fuse Pets",
+    ["Automatically fuse 3 matching pets in the Fusion machine (Never uses equipped or favorited pets)."] = "Automatically fuse 3 matching pets in the Fusion machine (Never uses equipped or favorited pets).",
+    ["Fusion Mode"] = "Fusion Mode",
+    ["Fuse any species matching rarity or only the specific species selected below."] = "Fuse any species matching rarity or only the specific species selected below.",
+    ["Fuse Rarity Filter"] = "Fuse Rarity Filter",
+    ["Only fuse pets of these rarities (Leave empty = Any rarity)."] = "Only fuse pets of these rarities (Leave empty = Any rarity).",
+    ["Select Species To Fuse"] = "Select Species To Fuse",
+    ["Used when Fusion Mode is set to Selected Species."] = "Used when Fusion Mode is set to Selected Species.",
+    ["Auto Favorite Pets"] = "Auto Favorite Pets",
+    ["Auto Favorite Rare Pets"] = "Auto Favorite Rare Pets",
+    ["Automatically favorite matching pets so Auto Sell and Auto Fuse never touch them."] = "Automatically favorite matching pets so Auto Sell and Auto Fuse never touch them.",
+    ["Favorite Rule (Mode)"] = "Favorite Rule (Mode)",
+    ["Favorite pets by Rarity or by Species."] = "Favorite pets by Rarity or by Species.",
+    ["Rarities To Favorite"] = "Rarities To Favorite",
+    ["Pet rarities that will be automatically favorited."] = "Pet rarities that will be automatically favorited.",
+    ["Species To Favorite"] = "Species To Favorite",
+    ["Pet species that will be automatically favorited."] = "Pet species that will be automatically favorited.",
+    ["Unfavorite All Pets"] = "Unfavorite All Pets",
+    ["Remove favorite lock from all pets in your backpack."] = "Remove favorite lock from all pets in your backpack.",
+    ["Mutate Placed Eggs"] = "Mutate Placed Eggs",
+    ["Auto Mutate Placed Eggs"] = "Auto Mutate Placed Eggs",
+    ["Automatically equip mutation serum and apply it to matching placed eggs on your base."] = "Automatically equip mutation serum and apply it to matching placed eggs on your base.",
+    ["Mutation Type"] = "Mutation Type",
+    ["Select which mutation tool to use."] = "Select which mutation tool to use.",
+    ["Mutate Egg Rarity Filter"] = "Mutate Egg Rarity Filter",
+    ["Only mutate placed eggs of these rarities (Leave empty = All)."] = "Only mutate placed eggs of these rarities (Leave empty = All).",
+    ["Mutate Egg Name Filter"] = "Mutate Egg Name Filter",
+    ["Only mutate the selected egg types (Leave empty = All)."] = "Only mutate the selected egg types (Leave empty = All).",
+    ["Min Egg Value To Mutate ($/s)"] = "Min Egg Value To Mutate ($/s)",
+    ["Only mutate placed eggs earning at least this $/s rate."] = "Only mutate placed eggs earning at least this $/s rate.",
+    ["Keep applying onto the same egg until it gets a mutation (10% chance per try)."] = "Keep applying onto the same egg until it gets a mutation (10% chance per try).",
+    ["Mutate Now (Once)"] = "Mutate Now (Once)",
+    ["Run one mutation pass on placed eggs right now."] = "Run one mutation pass on placed eggs right now.",
+    ["Halloween Dimension"] = "Halloween Dimension",
+    ["Halloween Monsters"] = "Halloween Monsters",
+    ["Ghost Dog & Fishing"] = "Ghost Dog & Fishing",
+    ["Phantom Express"] = "Phantom Express",
+    ["Halloween Status"] = "Halloween Status",
+    ["Auto Farm Monsters"] = "Auto Farm Monsters",
+    ["Monster Order"] = "Monster Order",
+    ["Closest"] = "Closest",
+    ["Most Tokens"] = "Most Tokens",
+    ["Auto Pumpkin Moon"] = "Auto Pumpkin Moon",
+    ["Auto Buy Halloween Dimension Egg"] = "Auto Buy Halloween Dimension Egg",
+    ["Ghost Dog Status"] = "Ghost Dog & Fishing Status",
+    ["Auto Ghost Dog Quest"] = "Auto Ghost Dog Quest",
+    ["Auto Fishing"] = "Auto Fishing",
+    ["Cast Luck"] = "Cast Luck",
+    ["Phantom Express Status"] = "Phantom Express Status",
+    ["Auto Phantom Express"] = "Auto Phantom Express Event",
+    ["Auto Vacuum Ghouler Boss"] = "Auto Vacuum Ghouler Boss",
+    ["Ghost Target"] = "Ghost Target",
+    ["Rarest First"] = "Rarest First",
+    ["Auto Trade Souls"] = "Auto Trade Souls",
+    ["Cursed Island Wars"] = "Cursed Island Wars",
+    ["Cursed Island Wars Status"] = "Cursed Island Wars Status",
+    ["Waiting for Cursed Island Wars"] = "Waiting for Cursed Island Wars",
+    ["Auto Play Cursed Island Wars"] = "Auto Play Cursed Island Wars",
+    ["Island Wars Target"] = "Island Wars Target",
+    ["Enemies And Base"] = "Enemies And Base",
+    ["Walls And Crystal"] = "Walls And Crystal",
+    ["Other Events (Wisp, Race, Shooting Star)"] = "Other Events (Wisp, Race, Shooting Star)",
+    ["Auto Wisp Quest (Enchanted Tree)"] = "Auto Wisp Quest (Enchanted Tree)",
+    ["Automatically complete Baby Wisp quests to unlock the Enchanted Tree."] = "Automatically complete Baby Wisp quests to unlock the Enchanted Tree.",
+    ["Auto Banjo Cricket (Mushroom Puzzle)"] = "Auto Banjo Cricket (Mushroom Puzzle)",
+    ["Automatically solve the 5-stage mushroom music puzzle in the Enchanted Tree."] = "Automatically solve the 5-stage mushroom music puzzle in the Enchanted Tree.",
+
+    ["Auto Race Rally"] = "Auto Race Rally",
+    ["Automatically join and finish the Race Rally every 30 minutes."] = "Automatically join and finish the Race Rally every 30 minutes.",
+    ["Auto Catch Shooting Star"] = "Auto Catch Shooting Star",
+    ["Automatically fly to and collect falling shooting stars."] = "Automatically fly to and collect falling shooting stars.",
+    ["Shooting Star Alert"] = "Shooting Star Alert",
+    ["Show a notification whenever a shooting star spawns on the map."] = "Show a notification whenever a shooting star spawns on the map.",
+    ["Egg ESP (Field & Base)"] = "Egg ESP (Field & Base)",
+    ["Enable Egg ESP"] = "Enable Egg ESP",
+    ["Display floating info labels above field eggs and placed base eggs."] = "Display floating info labels above field eggs and placed base eggs.",
+    ["ESP Label Details"] = "ESP Label Details",
+    ["Select details to show on ESP labels (Select Placed Eggs to include base eggs)."] = "Select details to show on ESP labels (Select Placed Eggs to include base eggs).",
+    ["ESP Minimum Rarity"] = "ESP Minimum Rarity Filter",
+    ["Only show ESP for eggs at or above this rarity (Any = Show all)."] = "Only show ESP for eggs at or above this rarity (Any = Show all).",
+    ["ESP Minimum Value ($/s)"] = "ESP Minimum Value Slider ($/s)",
+    ["Only show ESP labels for eggs earning at least this $/s rate (0 = Show all)."] = "Only show ESP labels for eggs earning at least this $/s rate (0 = Show all).",
+    ["Show $/s On Backpack Slots"] = "Show $/s On Backpack Slots",
+    ["Display the $/s rate of each item directly on your hotbar and backpack slots."] = "Display the $/s rate of each item directly on your hotbar and backpack slots.",
+    ["Live Egg Scanners"] = "Live Egg Scanners",
+    ["Open Live Field Egg Board"] = "Open Live Field Egg Board",
+    ["View a live list of all eggs currently on the map sorted by value."] = "View a live list of all eggs currently on the map sorted by value.",
+    ["Open Egg Spawn Logs"] = "Open Egg Spawn Logs",
+    ["Track the history of eggs that recently spawned or were stolen."] = "Track the history of eggs that recently spawned or were stolen.",
+    ["Core Admin Abuse Features"] = "Core Admin Abuse Features",
+    ["Max Speed Boost (Admin Abuse)"] = "Max Speed Boost (Admin Abuse Boost)",
+    ["Boost movement and Auto Steal speed to maximum during Admin Abuse events."] = "Boost movement and Auto Steal speed to maximum during Admin Abuse events.",
+    ["Pick up field eggs immediately on touch without waiting for the hold timer."] = "Pick up field eggs immediately on touch without waiting for the hold timer.",
+    ["Infinite Jump"] = "Infinite Jump (Infinity Jump)",
+    ["Jump continuously in mid-air without limit."] = "Jump continuously in mid-air without limit.",
+    ["Noclip (Walk Through Walls)"] = "Noclip (Walk Through Walls)",
+    ["Walk straight through walls and obstacles."] = "Walk straight through walls and obstacles.",
+    ["Anti Guard Knockback (No Fling)"] = "Anti Guard Knockback (No Fling)",
+    ["Prevent guards and bats from knocking back or flinging your character."] = "Prevent guards and bats from knocking back or flinging your character.",
+    ["Capture The Egg Status"] = "Capture The Egg Status",
+    ["Auto Capture Event Egg"] = "Auto Capture Event Egg",
+    ["Automatically grab the Capture The Egg event egg and hover high in the air away from players."] = "Automatically grab the Capture The Egg event egg and hover high in the air away from players.",
+    ["Take It From The Holder"] = "Take It From The Holder",
+    ["Automatically chase and hit the player holding the event egg to take it back."] = "Automatically chase and hit the player holding the event egg to take it back.",
+    ["Hold Height"] = "Hold Height",
+    ["Hover height in studs while carrying the Capture The Egg event egg."] = "Hover height in studs while carrying the Capture The Egg event egg.",
+    ["Keep Away Distance"] = "Keep Away Distance",
+    ["Distance to keep away from other players and guards while holding the egg."] = "Distance to keep away from other players and guards while holding the egg.",
+    ["Admin Treadmill Status"] = "Admin Treadmill Status",
+    ["Use Admin Treadmill"] = "Use Admin Treadmill",
+    ["Automatically find and run on the Admin Treadmill (massive speed boost) whenever it spawns."] = "Automatically find and run on the Admin Treadmill (massive speed boost) whenever it spawns.",
+    ["Minigame Eggs Status"] = "Minigame Eggs Status",
+    ["Auto Steal Minigame Egg"] = "Auto Steal Minigame Egg",
+    ["Automatically detect and steal Red Light Green Light & T-Rex Run minigame eggs as soon as they spawn."] = "Automatically detect and steal Red Light Green Light & T-Rex Run minigame eggs as soon as they spawn.",
+    ["Find Low Player Server"] = "Find Low Player Server",
+    ["Current Server Status"] = "Current Server Status",
+    ["Checking player count..."] = "Checking player count...",
+    ["Max Other Players In Server"] = "Max Other Players In Server",
+    ["Counts only other players (excludes you). Example: selecting 1 allows 1 other player + you (2 total)."] = "Counts only other players (excludes you). Example: selecting 1 allows 1 other player + you (2 total).",
+    ["Auto Hop Until Low Player Server"] = "Auto Hop Until Low Player Server",
+    ["Keep hopping servers until the number of other players (excluding you) is within your limit."] = "Keep hopping servers until the number of other players (excluding you) is within your limit.",
+    ["Hop When No Matching Eggs"] = "Hop When No Matching Eggs",
+    ["Automatically hop to another server when no eggs on the field match your filter."] = "Automatically hop to another server when no eggs on the field match your filter.",
+    ["Hop Cooldown (Seconds)"] = "Hop Cooldown (Seconds)",
+    ["Delay in seconds between automatic server hops."] = "Delay in seconds between automatic server hops.",
+    ["Hop To Low Player Server Now"] = "Hop To Low Player Server Now",
+    ["Immediately jump to a low-player server."] = "Immediately jump to a low-player server.",
+    ["Find Rich / High-Player Server"] = "Find Rich / High-Player Server",
+    ["💎 Rich Server & Rare Egg Radar"] = "💎 Rich Server & Rare Egg Radar",
+    ["Analyzing current server eggs and value..."] = "Analyzing current server eggs and value...",
+    ["Auto Hop For Rich Server / Good Eggs"] = "Auto Hop For Rich Server / Good Eggs",
+    ["Automatically hop through full servers and stop when an egg matching the filter below is found."] = "Automatically hop through full servers and stop when an egg matching the filter below is found.",
+    ["Server Hunt Mode"] = "Server Hunt Mode (Hop Mode)",
+    ["Until An Egg Matches: stop when matched  •  Steal Then Hop: steal then hop again."] = "Until An Egg Matches: stop when matched  •  Steal Then Hop: steal then hop again.",
+    ["Minimum Rarity To Find"] = "Minimum Rarity To Find",
+    ["Look for servers containing eggs at or above this rarity."] = "Look for servers containing eggs at or above this rarity.",
+    ["Minimum Egg Value To Find ($/s)"] = "Minimum Egg Value To Find ($/s)",
+    ["Skip servers without eggs reaching this $/s rate (0 = No value filter)."] = "Skip servers without eggs reaching this $/s rate (0 = No value filter).",
+    ["Sync With Auto Steal Filter"] = "Sync With Auto Steal Filter",
+    ["Automatically use the minimum $/s value from your Auto Steal filter."] = "Automatically use the minimum $/s value from your Auto Steal filter.",
+    ["Hop To Most Players Server Now"] = "Hop To Most Players Server Now",
+    ["Open Rare Egg Hunter UI"] = "Open Rare Egg Hunter UI",
+    ["Jump straight to a high-player server or open the Rare Egg Hunter window."] = "Jump straight to a high-player server or open the Rare Egg Hunter window.",
+    ["Performance & AFK"] = "Performance & AFK",
+    ["Boost FPS (Optimize Performance)"] = "Boost FPS (Optimize Performance)",
+    ["Remove extra particles, map clutter, and other bases' effects for maximum FPS."] = "Remove extra particles, map clutter, and other bases' effects for maximum FPS.",
+    ["Startup Boost (Fast Load)"] = "Startup Boost (Fast Load)",
+    ["Light graphics optimization on startup for faster map loading."] = "Light graphics optimization on startup for faster map loading.",
+    ["Uncap FPS (Up To 1000 FPS)"] = "Uncap FPS (Up To 1000 FPS)",
+    ["Unlock the frame rate cap up to 1000 FPS."] = "Unlock the frame rate cap up to 1000 FPS.",
+    ["Disable 3D rendering with a black screen overlay to save 95% GPU/CPU while AFK farming."] = "Disable 3D rendering with a black screen overlay to save 95% GPU/CPU while AFK farming.",
+    ["AFK Utilities"] = "AFK Utilities",
+    ["Anti AFK (Prevent Idle Kick)"] = "Anti AFK (Prevent Idle Kick)",
+    ["Prevent Roblox from kicking you after 20 minutes of inactivity."] = "Prevent Roblox from kicking you after 20 minutes of inactivity.",
+    ["Auto Reconnect On Disconnect"] = "Auto Reconnect On Disconnect",
+    ["Automatically rejoin when disconnected or kicked."] = "Automatically rejoin when disconnected or kicked.",
+    ["Auto Execute Script On Server Hop"] = "Auto Execute Script On Server Hop",
+    ["Automatically re-run VN HUB after hopping or rejoining a server."] = "Automatically re-run VN HUB after hopping or rejoining a server.",
+    ["Anti Cutscene (Skip Animations)"] = "Anti Cutscene (Skip Animations)",
+    ["Automatically skip hatch and event camera cutscenes."] = "Automatically skip hatch and event camera cutscenes.",
+    ["Save & Share Config"] = "Save & Share Config",
+    ["💾 Auto-Save Configuration"] = "💾 Auto-Save Configuration",
+    ["Every toggle, slider, and dropdown change is automatically saved immediately."] = "Every toggle, slider, and dropdown change is automatically saved immediately.",
+    ["Shareable Config Code (JSON)"] = "Shareable Config Code (JSON)",
+    ["Paste a friend's JSON config code here and click Import Config below."] = "Paste a friend's JSON config code here and click Import Config below.",
+    ["Paste JSON config string here..."] = "Paste JSON config string here...",
+    ["Share Config (Copy JSON)"] = "Share Config (Copy JSON)",
+    ["Import Config (Load JSON)"] = "Import Config (Load JSON)",
+    ["Copy your current config JSON to clipboard to share, or import from the input box above."] = "Copy your current config JSON to clipboard to share, or import from the input box above.",
+    ["Save Config Now"] = "Save Config Now",
+    ["Reset Config (Default OFF)"] = "Reset Config (Default OFF)",
+    ["Manually save all current settings or reset all features back to OFF."] = "Manually save all current settings or reset all features back to OFF.",
+    ["Script Control"] = "Script Control",
+    ["Stop & Unload Script"] = "Stop & Unload Script",
+    ["Rejoin Current Server"] = "Rejoin Current Server",
+    ["Stop all running tasks, restore character state, and close the UI."] = "Stop all running tasks, restore character state, and close the UI.",
+    ["Min Value ($/s)"] = "Min Value ($/s)",
+    ["Drag slider to select $/s threshold (0 = Off). You can also type 250k, 50m, 1.5b."] = "Drag slider to select $/s threshold (0 = Off). You can also type 250k, 50m, 1.5b."
+}
+
+local __VNHUB_EN = {
+    ["Trộm Trứng"] = "Steal Eggs",
+    ["Tự Động Farm"] = "Auto Farm",
+    ["Trứng"] = "Eggs",
+    ["Sự Kiện"] = "Events",
+    ["Cài Đặt"] = "Settings",
+    ["Tắt"] = "Off",
+    ["Tắt ($0/s)"] = "Off ($0/s)"
+}
+
+for enK, viV in pairs(__VNHUB_VI) do
+    if type(viV) == "string" and viV ~= "" then
+        __VNHUB_EN[viV] = enK
     end
-    if humanoid then humanoid.Sit = false end
 end
 
-local function findPlayerByPartialName(partial)
-    partial = partial:lower()
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Name:lower():sub(1, #partial) == partial then
-            return player
-        end
-    end
-    return nil
-end
-
-playerTab:AddTextBox({"Player Name (Partial)", "", function(Value)
-    local foundPlayer = findPlayerByPartialName(Value)
-    if foundPlayer then
-        selectedPlayerName = foundPlayer.Name
-        getgenv().Target = foundPlayer.Name
-        notify("Player Selected", foundPlayer.Name .. " selected!")
-    else
-        notify("Error", "No player found.")
-    end
-end})
-
-playerTab:AddButton({"Enable / Disable Headsit", function()
-    if not selectedPlayerName then return end
-
-    if not headsitActive then
-        local target = Players:FindFirstChild(selectedPlayerName)
-        if target and headsitOnPlayer(target) then
-            headsitActive = true
-        end
-    else
-        removeHeadsit()
-        headsitActive = false
-    end
-end})
-
-playerTab:AddSection({"Movement Modifiers"})
-
-local readySpeed = false
-playerTab:AddSlider({"Speed Player", 0, 500, 1, 16, function(value)
-    if readySpeed then
-        local character = LocalPlayer.Character
-        if character then
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = value
+if type(_G.__VNHUB_LANG) ~= "string" then
+    local savedLang = "EN"
+    pcall(function()
+        if type(isfile) == "function" and type(readfile) == "function" and isfile("VNHUB_SAE/lang.txt") then
+            local raw = tostring(readfile("VNHUB_SAE/lang.txt") or ""):match("^%s*(.-)%s*$")
+            if raw == "EN" or raw == "VI" then
+                savedLang = raw
             end
         end
-    end
-end})
-readySpeed = true
-
-local readyJump = false
-playerTab:AddSlider({"Jumppower", 0, 500, 1, 50, function(value)
-    if readyJump then
-        local character = LocalPlayer.Character
-        if character then
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.JumpPower = value
-            end
-        end
-    end
-end})
-readyJump = true
-
-local readyGrav = false
-playerTab:AddSlider({"Gravity", 0, 500, 1, 196, function(value)
-    if readyGrav then
-        Workspace.Gravity = value
-    end
-end})
-readyGrav = true
-
-local InfiniteJumpEnabled = false
-UserInputService.JumpRequest:Connect(function()
-    if InfiniteJumpEnabled then
-        local character = LocalPlayer.Character
-        if character then
-            local humanoid = character:FindFirstChild("Humanoid")
-            if humanoid then
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-            end
-        end
-    end
-end)
-
-playerTab:AddToggle({"Infinite Jump", false, function(Value)
-    InfiniteJumpEnabled = Value
-end})
-
-playerTab:AddButton({"Reset Speed / Gravity / Jumppower", function()
-    local character = LocalPlayer.Character
-    if character then
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = 16
-            humanoid.JumpPower = 50
-        end
-    end
-    Workspace.Gravity = 196.2
-    InfiniteJumpEnabled = false
-end})
-
-playerTab:AddSection({"Utility & Protection"})
-
-local UltimateNoclip = { Enabled = false, Connections = {}, SoccerBalls = {} }
-
-local function managePlayerCollisions(character)
-    if not character then return end
-    for _, part in ipairs(character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.CanCollide = not UltimateNoclip.Enabled
-            part.Anchored = false
-        end
-    end
-end
-
-local function voidProtection(rootPart)
-    if rootPart.Position.Y < -500 then
-        local safeCFrame = CFrame.new(0, 100, 0)
-        local rayParams = RaycastParams.new()
-        rayParams.FilterDescendantsInstances = {LocalPlayer.Character}
-        local result = Workspace:Raycast(rootPart.Position, Vector3.new(0, 500, 0), rayParams)
-        rootPart.CFrame = result and CFrame.new(result.Position + Vector3.new(0, 5, 0)) or safeCFrame
-    end
-end
-
-local function manageSoccerBalls()
-    local soccerFolder = Workspace:FindFirstChild("Com", true) and Workspace.Com:FindFirstChild("001_SoccerBalls")
-    if soccerFolder then
-        for _, ball in ipairs(soccerFolder:GetChildren()) do
-            if ball.Name:match("^Soccer") then
-                pcall(function()
-                    ball.CanCollide = not UltimateNoclip.Enabled
-                    ball.Anchored = UltimateNoclip.Enabled
-                end)
-                UltimateNoclip.SoccerBalls[ball] = true
-            end
-        end
-    end
-end
-
-local function noclipMainLoop()
-    UltimateNoclip.Connections.Heartbeat = RunService.Heartbeat:Connect(function()
-        local character = LocalPlayer.Character
-        if character then
-            managePlayerCollisions(character)
-            local rootPart = character:FindFirstChild("HumanoidRootPart")
-            if rootPart then voidProtection(rootPart) end
-        end
-        if tick() % 2 < 0.1 then manageSoccerBalls() end
     end)
+    _G.__VNHUB_LANG = savedLang
 end
 
-playerTab:AddToggle({"Ultimate Noclip", false, function(state)
-    UltimateNoclip.Enabled = state
-    if state then
-        noclipMainLoop()
-        manageSoccerBalls()
-        UltimateNoclip.Connections.CharAdded = LocalPlayer.CharacterAdded:Connect(function()
-            task.wait(0.5)
-            managePlayerCollisions(LocalPlayer.Character)
-        end)
-    else
-        for _, conn in pairs(UltimateNoclip.Connections) do conn:Disconnect() end
-        if LocalPlayer.Character then managePlayerCollisions(LocalPlayer.Character) end
-        for ball in pairs(UltimateNoclip.SoccerBalls) do
-            if ball.Parent then pcall(function() ball.CanCollide = true; ball.Anchored = false end) end
-        end
+local function __VNHUB_TO_EN(s)
+    if type(s) ~= "string" or s == "" then
+        return s
     end
-end})
-
-local antiSitConnection = nil
-local antiSitEnabled = false
-
-playerTab:AddToggle({"Anti-Sit", false, function(state)
-    antiSitEnabled = state
-    if state then
-        local function applyAntiSit(character)
-            local humanoid = character:FindFirstChild("Humanoid")
-            if humanoid then
-                humanoid.Sit = false
-                humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-                if antiSitConnection then antiSitConnection:Disconnect() end
-                antiSitConnection = humanoid.Seated:Connect(function(isSeated)
-                    if isSeated then
-                        humanoid.Sit = false
-                        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-                    end
-                end)
-            end
-        end
-        if LocalPlayer.Character then applyAntiSit(LocalPlayer.Character) end
-        LocalPlayer.CharacterAdded:Connect(function(character)
-            if antiSitEnabled then
-                local humanoid = character:WaitForChild("Humanoid", 5)
-                if humanoid then applyAntiSit(character) end
-            end
-        end)
-    else
-        if antiSitConnection then antiSitConnection:Disconnect(); antiSitConnection = nil end
-        if LocalPlayer.Character then
-            local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
-            if humanoid then humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true) end
-        end
+    local direct = __VNHUB_EN[s]
+    if direct then
+        return direct
     end
-end})
+    local trimmed = s:match("^%s*(.-)%s*$")
+    if trimmed and __VNHUB_EN[trimmed] then
+        return __VNHUB_EN[trimmed]
+    end
+    local m1 = s:match("^Đang chạy %((.+)%)$")
+    if m1 then
+        return "Active (" .. __VNHUB_TO_EN(m1) .. ")"
+    end
+    m1 = s:match("^Đang chờ %((.+)%)$")
+    if m1 then
+        return "Waiting (" .. __VNHUB_TO_EN(m1) .. ")"
+    end
+    m1 = s:match("^Trộm: (.+)$")
+    if m1 then
+        return "Steal: " .. __VNHUB_TO_EN(m1)
+    end
+    m1 = s:match("^Chờ (.+)$")
+    if m1 then
+        return "Wait " .. m1
+    end
+    m1 = s:match("^Tiếp theo sau (.+)$")
+    if m1 then
+        return "Next in " .. m1
+    end
+    m1 = s:match("^Hồi chiêu (.+)$")
+    if m1 then
+        return "Cooldown " .. m1
+    end
+    m1 = s:match("^Đặt (.+)$")
+    if m1 then
+        return "Place " .. m1
+    end
+    m1 = s:match("^Cần (.+)$")
+    if m1 then
+        return "Need " .. m1
+    end
+    m1 = s:match("^Quét (.+)$")
+    if m1 then
+        return "Scan " .. m1
+    end
+    m1 = s:match("^Nạp (.+)$")
+    if m1 then
+        return "Feed " .. m1
+    end
+    m1 = s:match("^Còn ~(%d+)s$")
+    if m1 then
+        return "~" .. m1 .. "s left"
+    end
+    m1 = s:match("^(%d+) Drone trên sân$")
+    if m1 then
+        return m1 .. " Drone(s) in field"
+    end
+    local m1_2, m2 = s:match("^x([%d%.]+)  •  (.+)$")
+    if m1_2 and m2 then
+        return "x" .. m1_2 .. "  •  " .. __VNHUB_TO_EN(m2)
+    end
+    m1_2, m2 = s:match("^Bậc (%d+): (.+)$")
+    if m1_2 and m2 then
+        return "Tier " .. m1_2 .. ": " .. __VNHUB_TO_EN(m2)
+    end
+    m1 = s:match("^Tầng (%d+)$")
+    if m1 then
+        return "Floor " .. m1
+    end
+    m1_2, m2 = s:match("^Đã mở khóa (%d+)/(%d+)$")
+    if m1_2 and m2 then
+        return m1_2 .. " of " .. m2 .. " unlocked"
+    end
+    m1 = s:match("^Đang có (%d+)$")
+    if m1 then
+        return m1 .. " owned"
+    end
+    m1 = s:match("^(%d+) trứng$")
+    if m1 then
+        return m1 .. " egg(s)"
+    end
+    m1 = s:match("^(%d+) thú cưng$")
+    if m1 then
+        return m1 .. " pet(s)"
+    end
+    m1 = s:match("^(%d+) kết quả$")
+    if m1 then
+        return m1 .. " match(es)"
+    end
+    m1 = s:match("^Tự động tải hiện tại: (.+)$")
+    if m1 then
+        return "Current Auto-Load: " .. (m1 == "Không có" and "None" or m1)
+    end
+    return s
+end
 
-playerTab:AddButton({"Enable Fly GUI", function()
-    local success, _ = pcall(function()
-        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Fly-gui-v3-30439"))()
-    end)
-    notify(success and "Success" or "Error", success and "Fly GUI loaded!" or "Failed to load Fly GUI.")
-end})
+local StealTab = Window:MakeTab({__VNHUB_VI["Steal"] or "Steal Eggs", "skull"})
+local FarmTab = Window:MakeTab({__VNHUB_VI["Farm"] or "Auto Farm", "home"})
+local EggTab = Window:MakeTab({__VNHUB_VI["Egg & Pet"] or "Eggs & Pets", "eye"})
+local EventTab = Window:MakeTab({__VNHUB_VI["Event"] or "Events", "settings"})
+local VisualTab = Window:MakeTab({__VNHUB_VI["ESP & Visual"] or "ESP & Visuals", "eye"})
+local ServerTab = Window:MakeTab({__VNHUB_VI["Server & Player"] or "Server & Player", "info"})
+local SettingsTab = Window:MakeTab({__VNHUB_VI["Settings"] or "Settings", "settings"})
 
-local SettingsPage = SettingsTab:CreatePage("Configurations")
-local ConfigSection = SettingsPage:CreateSection("Save / Load Config")
+local StealSection = StealTab:AddSection({"Auto Steal Options"})
+StealSection:AddParagraph({"Description:", __VNHUB_VI["Grab matching eggs on the map and bring them back to your base."]})
+
+local AdminAbuseSection = StealTab:AddSection({"Core Admin Abuse Features"})
+AdminAbuseSection:AddParagraph({"Max Speed Boost:", __VNHUB_VI["Max Speed Boost (Admin Abuse)"]})
+AdminAbuseSection:AddParagraph({"Instant Grab:", __VNHUB_VI["Pick up field eggs immediately on touch without waiting for the hold timer."]})
+
+local PlayerStealSection = StealTab:AddSection({"Steal From Players"})
+PlayerStealSection:AddParagraph({"Auto Steal Players:", __VNHUB_VI["Steals matching eggs off other players' plots across the server."]})
+PlayerStealSection:AddParagraph({"History:", __VNHUB_VI["History of stolen eggs from players"]})
+
+local FarmSection = FarmTab:AddSection({"Treadmill & Auto Farm"})
+FarmSection:AddParagraph({"Auto Treadmill:", __VNHUB_VI["Trains your walk speed on the best treadmill you can use while other tasks are idle."]})
+FarmSection:AddParagraph({"Anti Treadmill:", __VNHUB_VI["Removes treadmill touch triggers so you don't accidentally step onto one while walking."]})
+FarmSection:AddParagraph({"Admin Treadmill:", __VNHUB_VI["Use Admin Treadmill"]})
+
+local EventSection = EventTab:AddSection({"Event Management"})
+EventSection:AddParagraph({"Wisp Quest:", __VNHUB_VI["Walks through the daily Wisp shrine steps when unlocked."]})
+EventSection:AddParagraph({"Butterfly Catch:", __VNHUB_VI["Catches butterflies during the 10-minute Bloom window."]})
+EventSection:AddParagraph({"Auto Boss:", __VNHUB_VI["Joins the Mech Boss fight, dodges attacks, and fires cannons when the event is live."]})
+EventSection:AddParagraph({"Halloween Dimension:", __VNHUB_VI["Halloween Dimension"]})
+EventSection:AddParagraph({"Capture The Egg:", __VNHUB_VI["Auto Capture Event Egg"]})
+
+local VisualSection = VisualTab:AddSection({"Egg ESP & Displays"})
+VisualSection:AddParagraph({"Egg ESP:", __VNHUB_VI["Enable Egg ESP"]})
+VisualSection:AddParagraph({"Egg Logs:", __VNHUB_VI["Floating window listing every egg that spawns or gets stolen."]})
+VisualSection:AddParagraph({"Egg Board:", __VNHUB_VI["Live list of eggs currently on the field."]})
+VisualSection:AddParagraph({"Inventory & Base:", __VNHUB_VI["Shows your backpack pets, eggs, and plot slots in one panel."]})
+VisualSection:AddParagraph({"Farm Stats:", __VNHUB_VI["Session timer, steals per hour, and money earned."]})
+
+local SpawnerSection = VisualTab:AddSection({"Visual Spawner (Fake Items)"})
+SpawnerSection:AddParagraph({"Visual Spawner:", __VNHUB_VI["Spawn a visual egg or pet in your hand."]})
+
+local ServerSection = ServerTab:AddSection({"Server Hop & Utilities"})
+ServerSection:AddParagraph({"Low Player Server:", __VNHUB_VI["Find Low Player Server"]})
+ServerSection:AddParagraph({"Rich Server Radar:", __VNHUB_VI["💎 Rich Server & Rare Egg Radar"]})
+ServerSection:AddParagraph({"Auto Hop:", __VNHUB_VI["Keeps hopping until it lands on a server within your Max Players limit."]})
+
+local SettingsSection = SettingsTab:AddSection({"Performance & System Settings"})
+SettingsSection:AddParagraph({"FPS Boost:", __VNHUB_VI["Strips particles, decals, and lighting effects for smoother framerates."]})
+SettingsSection:AddParagraph({"Anti-AFK:", __VNHUB_VI["Stops Roblox from kicking you after 20 minutes of being idle."]})
+SettingsSection:AddParagraph({"Botting Mode:", __VNHUB_VI["Blanks the 3D viewport and drops rendering cost for AFK farming."]})
+
+local ConfigSection = SettingsTab:AddSection({"Config Manager & Save"})
+ConfigSection:AddParagraph({"Auto-Save:", __VNHUB_VI["💾 Auto-Save Configuration"]})
 ConfigSection:AddConfigManager("KenzHub_Configs")
-
-local methodKill = nil
-getgenv().Target = nil
-local Character = LocalPlayer.Character
-local Humanoid = Character and Character:WaitForChild("Humanoid")
-local RootPart = Character and Character:WaitForChild("HumanoidRootPart")
-
-local function cleanupCouch()
-    local char = LocalPlayer.Character
-    if char then
-        local couch = char:FindFirstChild("Zyronis.Couch") or LocalPlayer.Backpack:FindFirstChild("Zyronis.Couch")
-        if couch then
-            couch:Destroy()
-        end
-    end
-    ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools")
-end
-
-LocalPlayer.CharacterAdded:Connect(function(newCharacter)
-    Character = newCharacter
-    Humanoid = newCharacter:WaitForChild("Humanoid")
-    RootPart = newCharacter:WaitForChild("HumanoidRootPart")
-    cleanupCouch()
-    Humanoid.Died:Connect(function()
-        cleanupCouch()
-    end)
-end)
-
-if Humanoid then
-    Humanoid.Died:Connect(function()
-        cleanupCouch()
-    end)
-end
-
-local function KillPlayerCouch()
-    if not selectedPlayerName then return end
-    local target = Players:FindFirstChild(selectedPlayerName)
-    if not target or not target.Character then return end
-
-    local char = LocalPlayer.Character
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
-    local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
-    if not hum or not root or not tRoot then return end
-
-    local originalPos = root.Position 
-    local sitPos = Vector3.new(145.51, -350.09, 21.58)
-
-    ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools")
-    task.wait(0.2)
-
-    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-    task.wait(0.3)
-
-    local tool = LocalPlayer.Backpack:FindFirstChild("Couch")
-    if tool then tool.Parent = char end
-    task.wait(0.1)
-
-    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
-    task.wait(0.1)
-
-    hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-    hum.PlatformStand = false
-    cam.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
-
-    local align = Instance.new("BodyPosition")
-    align.Name = "BringPosition"
-    align.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    align.D = 10
-    align.P = 30000
-    align.Position = root.Position
-    align.Parent = tRoot
-
-    task.spawn(function()
-        local angle = 0
-        local startTime = tick()
-        while tick() - startTime < 5 and target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") do
-            local tHum = target.Character:FindFirstChildOfClass("Humanoid")
-            if not tHum or tHum.Sit then break end
-
-            local hrp = target.Character.HumanoidRootPart
-            local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
-
-            angle += 50
-            root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
-            align.Position = root.Position + Vector3.new(2, 0, 0)
-
-            task.wait()
-        end
-
-        align:Destroy()
-        hum:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-        hum.PlatformStand = false
-        cam.CameraSubject = hum
-
-        for _, p in pairs(char:GetDescendants()) do
-            if p:IsA("BasePart") then
-                p.Velocity = Vector3.zero
-                p.RotVelocity = Vector3.zero
-            end
-        end
-
-        task.wait(0.1)
-        root.CFrame = CFrame.new(sitPos)
-        task.wait(0.3)
-
-        local tool = char:FindFirstChild("Couch")
-        if tool then tool.Parent = LocalPlayer.Backpack end
-
-        task.wait(0.01)
-        ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-        task.wait(0.2)
-        root.CFrame = CFrame.new(originalPos)
-    end)
-end
-
-local function BringPlayerLLL()
-    if not selectedPlayerName then return end
-    local target = Players:FindFirstChild(selectedPlayerName)
-    if not target or not target.Character then return end
-
-    local char = LocalPlayer.Character
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
-    local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
-    if not hum or not root or not tRoot then return end
-
-    local originalPos = root.Position 
-    ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools")
-    task.wait(0.2)
-
-    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-    task.wait(0.3)
-
-    local tool = LocalPlayer.Backpack:FindFirstChild("Couch")
-    if tool then tool.Parent = char end
-    task.wait(0.1)
-
-    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
-    task.wait(0.1)
-
-    hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-    hum.PlatformStand = false
-    cam.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
-
-    local align = Instance.new("BodyPosition")
-    align.Name = "BringPosition"
-    align.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    align.D = 10
-    align.P = 30000
-    align.Position = root.Position
-    align.Parent = tRoot
-
-    task.spawn(function()
-        local angle = 0
-        local startTime = tick()
-        while tick() - startTime < 5 and target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") do
-            local tHum = target.Character:FindFirstChildOfClass("Humanoid")
-            if not tHum or tHum.Sit then break end
-
-            local hrp = target.Character.HumanoidRootPart
-            local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
-
-            angle += 50
-            root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
-            align.Position = root.Position + Vector3.new(2, 0, 0)
-
-            task.wait()
-        end
-
-        align:Destroy()
-        hum:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-        hum.PlatformStand = false
-        cam.CameraSubject = hum
-
-        for _, p in pairs(char:GetDescendants()) do
-            if p:IsA("BasePart") then
-                p.Velocity = Vector3.zero
-                p.RotVelocity = Vector3.zero
-            end
-        end
-
-        task.wait(0.1)
-        root.Anchored = true
-        root.CFrame = CFrame.new(originalPos)
-        task.wait(0.001)
-        root.Anchored = false
-
-        task.wait(0.7)
-        local tool = char:FindFirstChild("Couch")
-        if tool then tool.Parent = LocalPlayer.Backpack end
-
-        task.wait(0.001)
-        ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-    end)
-end
-
-local function BringWithCouch()
-    local targetPlayer = Players:FindFirstChild(getgenv().Target)
-    if not targetPlayer or not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
-
-    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer("ClearAllTools")
-    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-
-    local couch = LocalPlayer.Backpack:WaitForChild("Couch", 2)
-    if not couch then return end
-
-    couch.Name = "Zyronis.Couch"
-    local seat1 = couch:FindFirstChild("Seat1")
-    local seat2 = couch:FindFirstChild("Seat2")
-    local handle = couch:FindFirstChild("Handle")
-    if seat1 and seat2 and handle then
-        seat1.Disabled = true
-        seat2.Disabled = true
-        handle.Name = "Handle "
-    else
-        return
-    end
-    couch.Parent = LocalPlayer.Character
-
-    local tet = Instance.new("BodyVelocity", seat1)
-    tet.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    tet.P = 1250
-    tet.Velocity = Vector3.new(0, 0, 0)
-    tet.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
-
-    repeat
-        for m = 1, 35 do
-            local pos = { x = 0, y = 0, z = 0 }
-            local tRoot = targetPlayer.Character and targetPlayer.Character.HumanoidRootPart
-            if not tRoot then break end
-            pos.x = tRoot.Position.X + (tRoot.Velocity.X / 2)
-            pos.y = tRoot.Position.Y + (tRoot.Velocity.Y / 2)
-            pos.z = tRoot.Position.Z + (tRoot.Velocity.Z / 2)
-            seat1.CFrame = CFrame.new(Vector3.new(pos.x, pos.y, pos.z)) * CFrame.new(-2, 2, 0)
-            task.wait()
-        end
-        tet:Destroy()
-        couch.Parent = LocalPlayer.Backpack
-        task.wait()
-        couch:FindFirstChild("Handle ").Name = "Handle"
-        task.wait(0.2)
-        couch.Parent = LocalPlayer.Character
-        task.wait()
-        couch.Parent = LocalPlayer.Backpack
-        couch.Handle.Name = "Handle "
-        task.wait(0.2)
-        couch.Parent = LocalPlayer.Character
-        tet = Instance.new("BodyVelocity", seat1)
-        tet.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        tet.P = 1250
-        tet.Velocity = Vector3.new(0, 0, 0)
-        tet.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
-    until targetPlayer.Character and targetPlayer.Character.Humanoid and targetPlayer.Character.Humanoid.Sit == true
-    task.wait()
-    tet:Destroy()
-    couch.Parent = LocalPlayer.Backpack
-    task.wait()
-    couch:FindFirstChild("Handle ").Name = "Handle"
-    task.wait(0.3)
-    couch.Parent = LocalPlayer.Character
-    task.wait(0.3)
-    couch.Grip = CFrame.new(Vector3.new(0, 0, 0))
-    task.wait(0.3)
-    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer("ClearAllTools")
-end
-
-local function KillWithCouch()
-    local targetPlayer = Players:FindFirstChild(getgenv().Target)
-    if not targetPlayer or not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
-
-    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer("ClearAllTools")
-    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-
-    local couch = LocalPlayer.Backpack:WaitForChild("Couch", 2)
-    if not couch then return end
-
-    couch.Name = "Zyronis.Couch"
-    local seat1 = couch:FindFirstChild("Seat1")
-    local seat2 = couch:FindFirstChild("Seat2")
-    local handle = couch:FindFirstChild("Handle")
-    if seat1 and seat2 and handle then
-        seat1.Disabled = true
-        seat2.Disabled = true
-        handle.Name = "Handle "
-    else
-        return
-    end
-    couch.Parent = LocalPlayer.Character
-
-    local tet = Instance.new("BodyVelocity", seat1)
-    tet.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    tet.P = 1250
-    tet.Velocity = Vector3.new(0, 0, 0)
-    tet.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
-
-    repeat
-        for m = 1, 35 do
-            local pos = { x = 0, y = 0, z = 0 }
-            local tRoot = targetPlayer.Character and targetPlayer.Character.HumanoidRootPart
-            if not tRoot then break end
-            pos.x = tRoot.Position.X + (tRoot.Velocity.X / 2)
-            pos.y = tRoot.Position.Y + (tRoot.Velocity.Y / 2)
-            pos.z = tRoot.Position.Z + (tRoot.Velocity.Z / 2)
-            seat1.CFrame = CFrame.new(Vector3.new(pos.x, pos.y, pos.z)) * CFrame.new(-2, 2, 0)
-            task.wait()
-        end
-        tet:Destroy()
-        couch.Parent = LocalPlayer.Backpack
-        task.wait()
-        couch:FindFirstChild("Handle ").Name = "Handle"
-        task.wait(0.2)
-        couch.Parent = LocalPlayer.Character
-        task.wait()
-        couch.Parent = LocalPlayer.Backpack
-        couch.Handle.Name = "Handle "
-        task.wait(0.2)
-        couch.Parent = LocalPlayer.Character
-        tet = Instance.new("BodyVelocity", seat1)
-        tet.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        tet.P = 1250
-        tet.Velocity = Vector3.new(0, 0, 0)
-        tet.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
-    until targetPlayer.Character and targetPlayer.Character.Humanoid and targetPlayer.Character.Humanoid.Sit == true
-    task.wait()
-    couch.Parent = LocalPlayer.Backpack
-    seat1.CFrame = CFrame.new(Vector3.new(9999, -450, 9999))
-    seat2.CFrame = CFrame.new(Vector3.new(9999, -450, 9999))
-    couch.Parent = LocalPlayer.Character
-    task.wait(0.1)
-    couch.Parent = LocalPlayer.Backpack
-    task.wait(2)
-    local bv = seat1:FindFirstChild("#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W")
-    if bv then bv:Destroy() end
-    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer("ClearAllTools")
-end
-
-trollTab:AddSection({"Troll Player"})
-
-local function getPlayerList()
-    local players = Players:GetPlayers()
-    local playerNames = {}
-    for _, player in ipairs(players) do
-        if player ~= LocalPlayer then
-            table.insert(playerNames, player.Name)
-        end
-    end
-    return playerNames
-end
-
-local killDropdown = trollTab:AddDropdown({"Selecionar Jogador", getPlayerList(), "", function(value)
-    selectedPlayerName = value
-    getgenv().Target = value
-end})
-
-trollTab:AddButton({"Atualizar Player List", function()
-    local tablePlayers = Players:GetPlayers()
-    local newPlayers = {}
-    if killDropdown and #tablePlayers > 0 then
-        for _, player in ipairs(tablePlayers) do
-            if player.Name ~= LocalPlayer.Name then
-                table.insert(newPlayers, player.Name)
-            end
-        end
-        killDropdown:Set(newPlayers)
-        if selectedPlayerName and not Players:FindFirstChild(selectedPlayerName) then
-            selectedPlayerName = nil
-            getgenv().Target = nil
-            killDropdown:SetValue("")
-        end
-    end
-end})
-
-trollTab:AddButton({"Teleportar hingga ke Player", function()
-    if not selectedPlayerName or not Players:FindFirstChild(selectedPlayerName) then return end
-    local character = LocalPlayer.Character
-    local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
-    if not humanoidRootPart then return end
-
-    local targetPlayer = Players:FindFirstChild(selectedPlayerName)
-    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        humanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
-    end
-end})
-
-trollTab:AddToggle({"Spectar Player", false, function(value)
-    local function UpdateCamera()
-        if value then
-            local targetPlayer = Players:FindFirstChild(selectedPlayerName)
-            if targetPlayer and targetPlayer.Character then
-                local humanoid = targetPlayer.Character:FindFirstChild("Humanoid")
-                if humanoid then cam.CameraSubject = humanoid end
-            end
-        else
-            if LocalPlayer.Character then
-                local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
-                if humanoid then cam.CameraSubject = humanoid end
-            end
-        end
-    end
-
-    if value then
-        if not getgenv().CameraConnection then
-            getgenv().CameraConnection = RunService.Heartbeat:Connect(UpdateCamera)
-        end
-    else
-        if getgenv().CameraConnection then
-            getgenv().CameraConnection:Disconnect()
-            getgenv().CameraConnection = nil
-        end
-        UpdateCamera()
-    end
-end})
-
-trollTab:AddSection({"Metode"})
-
-trollTab:AddDropdown({"Selecionar Método para Matar", {"Bus", "Couch", "Couch Sem ir até o alvo [BETA]"}, "", function(value)
-    methodKill = value
-end})
-
-trollTab:AddButton({"Matar Player", function()
-    if not selectedPlayerName or not Players:FindFirstChild(selectedPlayerName) then return end
-    if methodKill == "Couch" then
-        KillPlayerCouch()
-    elseif methodKill == "Couch Sem ir até o alvo [BETA]" then
-        KillWithCouch()
-    else
-        local character = LocalPlayer.Character
-        local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
-        if not humanoidRootPart then return end
-
-        local originalPosition = humanoidRootPart.CFrame
-        local function GetBus()
-            local vehicles = Workspace:FindFirstChild("Vehicles")
-            if vehicles then return vehicles:FindFirstChild(LocalPlayer.Name .. "Car") end
-            return nil
-        end
-
-        local bus = GetBus()
-        if not bus then
-            humanoidRootPart.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
-            task.wait(0.5)
-            local remoteEvent = ReplicatedStorage:FindFirstChild("RE")
-            if remoteEvent and remoteEvent:FindFirstChild("1Ca1r") then
-                remoteEvent["1Ca1r"]:FireServer("PickingCar", "SchoolBus")
-            end
-            task.wait(1)
-            bus = GetBus()
-        end
-
-        if bus then
-            local seat = bus:FindFirstChild("Body") and bus.Body:FindFirstChild("VehicleSeat")
-            if seat and character:FindFirstChildOfClass("Humanoid") and not character.Humanoid.Sit then
-                repeat
-                    humanoidRootPart.CFrame = seat.CFrame * CFrame.new(0, 2, 0)
-                    task.wait()
-                until character.Humanoid.Sit or not bus.Parent
-            end
-        end
-
-        spawn(function()
-            while true do
-                if selectedPlayerName then
-                    local targetPlayer = Players:FindFirstChild(selectedPlayerName)
-                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local targetHumanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
-                        if targetHumanoid and targetHumanoid.Sit then
-                            if character.Humanoid then
-                                bus:SetPrimaryPartCFrame(CFrame.new(Vector3.new(9999, -450, 9999)))
-                                task.wait(0.2)
-                                character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                                task.wait(0.5)
-                                humanoidRootPart.CFrame = originalPosition
-                            end
-                            break
-                        else
-                            local targetRoot = targetPlayer.Character.HumanoidRootPart
-                            local time = tick() * 35
-                            bus:SetPrimaryPartCFrame(targetRoot.CFrame * CFrame.new(math.sin(time) * 4, 0, math.cos(time) * 20))
-                        end
-                    end
-                end
-                RunService.RenderStepped:Wait()
-            end
-        end)
-    end
-end})
-
-trollTab:AddButton({"Puxar Player", function()
-    if not selectedPlayerName or not Players:FindFirstChild(selectedPlayerName) then return end
-    if methodKill == "Couch" then
-        BringPlayerLLL()
-    elseif methodKill == "Couch Sem ir até o alvo [BETA]" then
-        BringWithCouch()
-    else
-        local character = LocalPlayer.Character
-        local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
-        if not humanoidRootPart then return end
-        local originalPosition = humanoidRootPart.CFrame
-
-        local function GetBus()
-            local vehicles = Workspace:FindFirstChild("Vehicles")
-            if vehicles then return vehicles:FindFirstChild(LocalPlayer.Name .. "Car") end
-            return nil
-        end
-
-        local bus = GetBus()
-        if not bus then
-            humanoidRootPart.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
-            task.wait(0.5)
-            ReplicatedStorage.RE["1Ca1r"]:FireServer("PickingCar", "SchoolBus")
-            task.wait(1)
-            bus = GetBus()
-        end
-
-        if bus then
-            local seat = bus:FindFirstChild("Body") and bus.Body:FindFirstChild("VehicleSeat")
-            if seat and character:FindFirstChildOfClass("Humanoid") and not character.Humanoid.Sit then
-                repeat
-                    humanoidRootPart.CFrame = seat.CFrame * CFrame.new(0, 2, 0)
-                    task.wait()
-                until character.Humanoid.Sit or not bus.Parent
-            end
-        end
-
-        spawn(function()
-            while true do
-                if selectedPlayerName then
-                    local targetPlayer = Players:FindFirstChild(selectedPlayerName)
-                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local targetHumanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
-                        if targetHumanoid and targetHumanoid.Sit then
-                            if character.Humanoid then
-                                bus:SetPrimaryPartCFrame(originalPosition)
-                                task.wait(0.7)
-                                ReplicatedStorage.RE["1Ca1r"]:FireServer("DeleteAllVehicles")
-                            end
-                            break
-                        else
-                            local targetRoot = targetPlayer.Character.HumanoidRootPart
-                            local time = tick() * 35
-                            bus:SetPrimaryPartCFrame(targetRoot.CFrame * CFrame.new(math.sin(time) * 4, 0, math.cos(time) * 20))
-                        end
-                    end
-                end
-                RunService.RenderStepped:Wait()
-            end
-        end)
-    end
-end})
-
-trollTab:AddButton({"House Ban Kill", function()
-    local Player = game.Players.LocalPlayer
-    local Character = Player.Character
-    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-    local RootPart = Character:FindFirstChild("HumanoidRootPart")
-    local Houses = Workspace:FindFirstChild("001_Lots")
-    local Vehicles = Workspace.Vehicles
-    local Angles = 0
-
-    local function Check()
-        return Player and Character and Humanoid and RootPart and Vehicles
-    end
-
-    local selectedPlayer = game.Players:FindFirstChild(selectedPlayerName)
-    if selectedPlayer and selectedPlayer.Character and Check() then
-        local House = Houses:FindFirstChild(Player.Name .. "House")
-        if not House then
-            local availableHouses = {}
-            for _, Lot in pairs(Houses:GetChildren()) do
-                if Lot.Name == "For Sale" then
-                    for _, num in pairs(Lot:GetDescendants()) do
-                        if num:IsA("NumberValue") and num.Name == "Number" and num.Value < 25 and num.Value > 10 then
-                            table.insert(availableHouses, {Lot = Lot, Number = num.Value})
-                            break
-                        end
-                    end
-                end
-            end
-
-            if #availableHouses > 0 then
-                local randomHouse = availableHouses[math.random(1, #availableHouses)]
-                local BuyDetector = randomHouse.Lot:FindFirstChild("BuyHouse")
-                if BuyDetector and BuyDetector:IsA("BasePart") then
-                    RootPart.CFrame = BuyDetector.CFrame + Vector3.new(0, -6, 0)
-                    task.wait(0.5)
-                    local ClickDetector = BuyDetector:FindFirstChild("ClickDetector")
-                    if ClickDetector then fireclickdetector(ClickDetector) end
-                end
-                task.wait(0.5)
-                ReplicatedStorage.Remotes["Lot:BuildProperty"]:FireServer(randomHouse.Number, "056_House")
-            else
-                return
-            end
-        end
-
-        task.wait(0.5)
-        local PreHouse = Houses:FindFirstChild(Player.Name .. "House")
-        if PreHouse then
-            local Number
-            for _, x in pairs(PreHouse:GetDescendants()) do
-                if x.Name == "Number" and x:IsA("NumberValue") then Number = x end
-            end
-            task.wait(0.5)
-            ReplicatedStorage.RE["1Gettin1gHous1e"]:FireServer("PickingCustomHouse", "049_House", Number.Value)
-        end
-
-        task.wait(0.5)
-        local PCar = Vehicles:FindFirstChild(Player.Name .. "Car")
-        if not PCar then
-            RootPart.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
-            task.wait(0.5)
-            ReplicatedStorage.RE["1Ca1r"]:FireServer("PickingCar", "SchoolBus")
-            task.wait(0.5)
-            PCar = Vehicles:FindFirstChild(Player.Name .. "Car")
-            local Seat = PCar and PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")
-            if Seat then
-                repeat task.wait(); RootPart.CFrame = Seat.CFrame * CFrame.new(0, math.random(-1, 1), 0) until Humanoid.Sit
-            end
-        end
-
-        PCar = Vehicles:FindFirstChild(Player.Name .. "Car")
-        if PCar then
-            local TargetC = selectedPlayer.Character
-            local TargetH = TargetC and TargetC:FindFirstChildOfClass("Humanoid")
-            local TargetRP = TargetC and TargetC:FindFirstChild("HumanoidRootPart")
-            if TargetC and TargetH and TargetRP then
-                while not TargetH.Sit do
-                    task.wait()
-                    Angles = Angles + 100
-                    local function Fling(alvo, pos, angulo)
-                        PCar:SetPrimaryPartCFrame(CFrame.new(alvo.Position) * pos * angulo)
-                    end
-                    Fling(TargetRP, CFrame.new(0, 1.5, 0), CFrame.Angles(math.rad(Angles), 0, 0))
-                end
-                task.wait(0.2)
-                local House = Houses:FindFirstChild(Player.Name .. "House")
-                PCar:SetPrimaryPartCFrame(CFrame.new(House.HouseSpawnPosition.Position))
-                task.wait(0.2)
-                ReplicatedStorage.RE["1Playe1rTrigge1rEven1t"]:FireServer("BanPlayerFromHouse", selectedPlayer, TargetC)
-                ReplicatedStorage.RE["1Ca1r"]:FireServer("DeleteAllVehicles")
-            end
-        end
-    end
-end})
-
-trollTab:AddToggle({"Auto Fling", false, function(state)
-    local flingActive = state
-    if state and selectedPlayerName then
-        local target = Players:FindFirstChild(selectedPlayerName)
-        if not target or not target.Character then return end
-        local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
-        if not root or not tRoot then return end
-        local char = LocalPlayer.Character
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        local original = root.CFrame
-
-        ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer("ClearAllTools")
-        task.wait(0.2)
-        ReplicatedStorage.RE["1Too1l"]:InvokeServer("PickingTools", "Couch")
-        task.wait(0.3)
-        local tool = LocalPlayer.Backpack:FindFirstChild("Couch")
-        if tool then tool.Parent = char end
-        task.wait(0.2)
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
-        task.wait(0.25)
-
-        pcall(function() Workspace.FallenPartsDestroyHeight = 0/0 end)
-        local bv = Instance.new("BodyVelocity")
-        bv.Name = "FlingForce"
-        bv.Velocity = Vector3.new(9e8, 9e8, 9e8)
-        bv.MaxForce = Vector3.new(1/0, 1/0, 1/0)
-        bv.Parent = root
-        hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-        hum.PlatformStand = false
-        cam.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
-
-        task.spawn(function()
-            local angle = 0
-            while flingActive and target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") do
-                local tHum = target.Character:FindFirstChildOfClass("Humanoid")
-                if tHum.Sit then break end
-                angle += 50
-                local hrp = target.Character.HumanoidRootPart
-                root.CFrame = CFrame.new(hrp.Position + (hrp.Velocity / 1.5)) * CFrame.Angles(math.rad(angle), 0, 0)
-                root.Velocity = Vector3.new(9e8, 9e8, 9e8)
-                root.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
-                task.wait()
-            end
-            flingActive = false
-            bv:Destroy()
-            hum:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-            hum.PlatformStand = false
-            root.CFrame = original
-            cam.CameraSubject = hum
-            hum:UnequipTools()
-        end)
-    end
-end})
-
-trollTab:AddButton({"Fling Ball", function()
-    if not selectedPlayerName then return end
-    local target = Players:FindFirstChild(selectedPlayerName)
-    if not target then return end
-
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local backpack = LocalPlayer:WaitForChild("Backpack")
-    local ServerBalls = Workspace:FindFirstChild("WorkspaceCom") and Workspace.WorkspaceCom:FindFirstChild("001_SoccerBalls") or Workspace:FindFirstChild("Com", true)
-
-    local function GetBall()
-        if not backpack:FindFirstChild("SoccerBall") then
-            ReplicatedStorage.RE["1Too1l"]:InvokeServer("PickingTools", "SoccerBall")
-        end
-        repeat task.wait() until backpack:FindFirstChild("SoccerBall")
-        backpack.SoccerBall.Parent = character
-        repeat task.wait() until ServerBalls and ServerBalls:FindFirstChild("Soccer" .. LocalPlayer.Name)
-        character.SoccerBall.Parent = backpack
-        return ServerBalls and ServerBalls:FindFirstChild("Soccer" .. LocalPlayer.Name)
-    end
-
-    local Ball = ServerBalls and ServerBalls:FindFirstChild("Soccer" .. LocalPlayer.Name) or GetBall()
-    if not Ball then return end
-    Ball.CanCollide = false
-    Ball.Massless = true
-    Ball.CustomPhysicalProperties = PhysicalProperties.new(0.0001, 0, 0)
-
-    local tchar = target.Character
-    if tchar and tchar:FindFirstChild("HumanoidRootPart") and tchar:FindFirstChild("Humanoid") then
-        local troot = tchar.HumanoidRootPart
-        local thum = tchar.Humanoid
-
-        local bv = Instance.new("BodyVelocity")
-        bv.Name = "FlingPower"
-        bv.Velocity = Vector3.new(9e8, 9e8, 9e8)
-        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        bv.Parent = Ball
-
-        cam.CameraSubject = thum
-        repeat
-            if troot.Velocity.Magnitude > 0 then
-                Ball.CFrame = CFrame.new(troot.Position + (troot.Velocity / 1.5))
-                Ball.Orientation += Vector3.new(45, 60, 30)
-            end
-            task.wait(1/6000)
-        until troot.Velocity.Magnitude > 1000 or thum.Health <= 0
-        cam.CameraSubject = humanoid
-    end
-end})
-
-trollTab:AddButton({"Fling - Boat", function()
-    if not selectedPlayerName or not Players:FindFirstChild(selectedPlayerName) then return end
-    local character = LocalPlayer.Character
-    local Humanoid = character and character:FindFirstChildOfClass("Humanoid")
-    local RootPart = character and character:FindFirstChild("HumanoidRootPart")
-    local Vehicles = Workspace:FindFirstChild("Vehicles")
-    if not Humanoid or not RootPart then return end
-
-    RootPart.CFrame = CFrame.new(1754, -2, 58)
-    task.wait(0.5)
-    ReplicatedStorage.RE["1Ca1r"]:FireServer("PickingBoat", "MilitaryBoatFree")
-    task.wait(1)
-    local PCar = Vehicles:FindFirstChild(LocalPlayer.Name .. "Car")
-    local Seat = PCar and PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")
-    if not Seat then return end
-
-    repeat task.wait(0.1); RootPart.CFrame = Seat.CFrame * CFrame.new(0, 1, 0) until Humanoid.SeatPart == Seat
-
-    local TargetPlayer = Players:FindFirstChild(selectedPlayerName)
-    local TargetRP = TargetPlayer.Character and TargetPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if not TargetRP then return end
-
-    local Spin = Instance.new("BodyAngularVelocity", PCar.PrimaryPart)
-    Spin.MaxTorque = Vector3.new(0, math.huge, 0)
-    Spin.AngularVelocity = Vector3.new(0, 369, 0)
-
-    task.spawn(function()
-        while PCar and PCar.Parent and TargetRP and TargetRP.Parent do
-            task.wait(0.01)
-            PCar:SetPrimaryPartCFrame(CFrame.new(TargetRP.Position + Vector3.new(0, 1.5, 0)) * CFrame.Angles(math.rad(math.random(-369, 369)), math.rad(math.random(-369, 369)), math.rad(math.random(-369, 369))))
-        end
-        if Spin then Spin:Destroy() end
-    end)
-end})
-
-trollTab:AddButton({"Desligar Fling - Boat", function()
-    local Character = LocalPlayer.Character
-    local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
-    local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
-    if not RootPart or not Humanoid then return end
-
-    Humanoid.PlatformStand = true
-    for _, obj in pairs(RootPart:GetChildren()) do
-        if obj:IsA("BodyAngularVelocity") or obj:IsA("BodyVelocity") then obj:Destroy() end
-    end
-    ReplicatedStorage.RE["1Ca1r"]:FireServer("DeleteAllVehicles")
-    task.wait(1.5)
-    Humanoid.PlatformStand = false
-end})
-
-trollTab:AddButton({"Click Fling Portas [Beta]", function()
-    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local HRP = Character:WaitForChild("HumanoidRootPart")
-
-    local BlackHole = Instance.new("Part")
-    BlackHole.Size = Vector3.new(100000, 100000, 100000)
-    BlackHole.Transparency = 1
-    BlackHole.Anchored = true
-    BlackHole.CanCollide = false
-    BlackHole.Name = "BlackHoleTarget"
-    BlackHole.Parent = Workspace
-
-    local baseAttachment = Instance.new("Attachment")
-    baseAttachment.Name = "Luscaa_BlackHoleAttachment"
-    baseAttachment.Parent = BlackHole
-
-    RunService.Heartbeat:Connect(function()
-        if HRP then BlackHole.CFrame = HRP.CFrame end
-    end)
-
-    local ControlledDoors = {}
-
-    local function SetupPart(part)
-        if not part:IsA("BasePart") or part.Anchored or not string.find(part.Name, "Door") then return end
-        if part:FindFirstChild("Luscaa_Attached") then return end
-
-        part.CanCollide = false
-        for _, obj in ipairs(part:GetChildren()) do
-            if obj:IsA("AlignPosition") or obj:IsA("Torque") or obj:IsA("Attachment") then
-                obj:Destroy()
-            end
-        end
-
-        local marker = Instance.new("BoolValue", part)
-        marker.Name = "Luscaa_Attached"
-        local a1 = Instance.new("Attachment", part)
-        local align = Instance.new("AlignPosition", part)
-        align.Attachment0 = a1
-        align.Attachment1 = baseAttachment
-        align.MaxForce = 1e20
-        align.MaxVelocity = math.huge
-        align.Responsiveness = 99999
-
-        local torque = Instance.new("Torque", part)
-        torque.Attachment0 = a1
-        torque.RelativeTo = Enum.ActuatorRelativeTo.World
-        torque.Torque = Vector3.new(math.random(-10e5, 10e5) * 1000, math.random(-10e5, 10e5) * 1000, math.random(-10e5, 10e5) * 1000)
-
-        table.insert(ControlledDoors, {Part = part, Align = align})
-    end
-
-    for _, obj in ipairs(Workspace:GetDescendants()) do
-        if obj:IsA("BasePart") and string.find(obj.Name, "Door") then
-            SetupPart(obj)
-        end
-    end
-
-    Workspace.DescendantAdded:Connect(function(obj)
-        if obj:IsA("BasePart") and string.find(obj.Name, "Door") then
-            SetupPart(obj)
-        end
-    end)
-
-    local function FlingPlayer(player)
-        local char = player.Character
-        if not char then return end
-        local targetHRP = char:FindFirstChild("HumanoidRootPart")
-        if not targetHRP then return end
-
-        local targetAttachment = targetHRP:FindFirstChild("SHNMAX_TargetAttachment")
-        if not targetAttachment then
-            targetAttachment = Instance.new("Attachment", targetHRP)
-            targetAttachment.Name = "SHNMAX_TargetAttachment"
-        end
-
-        for _, data in ipairs(ControlledDoors) do
-            if data.Align then
-                data.Align.Attachment1 = targetAttachment
-            end
-        end
-
-        local start = tick()
-        while tick() - start < 5 do
-            if targetHRP.Velocity.Magnitude >= 20 then break end
-            RunService.Heartbeat:Wait()
-        end
-
-        for _, data in ipairs(ControlledDoors) do
-            if data.Align then
-                data.Align.Attachment1 = baseAttachment
-            end
-        end
-    end
-
-    UserInputService.TouchTap:Connect(function(touchPositions, processed)
-        if processed then return end
-        local pos = touchPositions[1]
-        local unitRay = cam:ScreenPointToRay(pos.X, pos.Y)
-        local raycast = Workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000)
-
-        if raycast and raycast.Instance then
-            local hit = raycast.Instance
-            local player = Players:GetPlayerFromCharacter(hit:FindFirstAncestorOfClass("Model"))
-            if player and player ~= LocalPlayer then
-                FlingPlayer(player)
-            end
-        end
-    end)
-    notify("Success", "Click Fling Portas [Beta] Activated!")
-end})
-
-trollTab:AddButton({"Click Fling Couch (Tool)", function()
-    local podeClicar = true
-    local ferramentaEquipada = false
-    local NOME_FERRAMENTA = "Click Fling Couch"
-    local mochila = LocalPlayer:WaitForChild("Backpack")
-
-    if not mochila:FindFirstChild(NOME_FERRAMENTA) and not (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild(NOME_FERRAMENTA)) then
-        local ferramenta = Instance.new("Tool")
-        ferramenta.Name = NOME_FERRAMENTA
-        ferramenta.RequiresHandle = false
-        ferramenta.CanBeDropped = false
-
-        ferramenta.Equipped:Connect(function() ferramentaEquipada = true end)
-        ferramenta.Unequipped:Connect(function() ferramentaEquipada = false end)
-        ferramenta.Parent = mochila
-    end
-
-    local function jogarComSofa(alvo)
-        if not ferramentaEquipada then return end
-        if not alvo or not alvo.Character or alvo == LocalPlayer then return end
-
-        local jogando = true
-        local raiz = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        local alvoRaiz = alvo.Character and alvo.Character:FindFirstChild("HumanoidRootPart")
-        if not raiz or not alvoRaiz then return end
-
-        local boneco = LocalPlayer.Character
-        local humano = boneco:FindFirstChildOfClass("Humanoid")
-        local posOriginal = raiz.CFrame
-
-        ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools")
-        task.wait(0.2)
-
-        ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-        task.wait(0.3)
-
-        local sofa = LocalPlayer.Backpack:FindFirstChild("Couch")
-        if sofa then sofa.Parent = boneco end
-        task.wait(0.1)
-
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
-        task.wait(0.25)
-
-        pcall(function() Workspace.FallenPartsDestroyHeight = 0/0 end)
-
-        local forca = Instance.new("BodyVelocity")
-        forca.Name = "ForcaJogada"
-        forca.Velocity = Vector3.new(9e8, 9e8, 9e8)
-        forca.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        forca.Parent = raiz
-
-        humano:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-        humano.PlatformStand = false
-        cam.CameraSubject = alvo.Character:FindFirstChild("Head") or alvoRaiz or humano
-
-        task.spawn(function()
-            local angulo = 0
-            while jogando and alvo and alvo.Character and alvo.Character:FindFirstChildOfClass("Humanoid") do
-                local alvoHum = alvo.Character:FindFirstChildOfClass("Humanoid")
-                if alvoHum.Sit then break end
-                angulo += 50
-
-                local hrp = alvo.Character.HumanoidRootPart
-                local pos = hrp.Position + hrp.Velocity / 1.5
-                raiz.CFrame = CFrame.new(pos) * CFrame.Angles(math.rad(angulo), 0, 0)
-
-                raiz.Velocity = Vector3.new(9e8, 9e8, 9e8)
-                raiz.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
-                task.wait()
-            end
-
-            jogando = false
-            forca:Destroy()
-            humano:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-            humano.PlatformStand = false
-            raiz.CFrame = posOriginal
-            cam.CameraSubject = humano
-
-            for _, p in pairs(boneco:GetDescendants()) do
-                if p:IsA("BasePart") then
-                    p.Velocity = Vector3.zero
-                    p.RotVelocity = Vector3.zero
-                end
-            end
-
-            humano:UnequipTools()
-            ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-        end)
-    end
-
-    UserInputService.TouchTap:Connect(function(toques, processado)
-        if processado or not podeClicar or not ferramentaEquipada then return end
-        local pos = toques[1]
-        local raio = cam:ScreenPointToRay(pos.X, pos.Y)
-        local acerto = Workspace:Raycast(raio.Origin, raio.Direction * 1000)
-
-        if acerto and acerto.Instance then
-            local alvo = Players:GetPlayerFromCharacter(acerto.Instance:FindFirstAncestorOfClass("Model"))
-            if alvo and alvo ~= LocalPlayer then
-                podeClicar = false
-                jogarComSofa(alvo)
-                task.delay(2, function() podeClicar = true end)
-            end
-        end
-    end)
-    notify("Success", "Click Fling Couch (Tool) given to backpack!")
-end})
-
-trollTab:AddButton({"Click Fling Ball (Tool)", function()
-    local NOME_FERRAMENTA = "Click Fling Ball"
-    local ferramentaEquipada = false
-    local mochila = LocalPlayer:WaitForChild("Backpack")
-
-    if not mochila:FindFirstChild(NOME_FERRAMENTA) then
-        local ferramenta = Instance.new("Tool")
-        ferramenta.Name = NOME_FERRAMENTA
-        ferramenta.RequiresHandle = false
-        ferramenta.CanBeDropped = false
-
-        ferramenta.Equipped:Connect(function() ferramentaEquipada = true end)
-        ferramenta.Unequipped:Connect(function() ferramentaEquipada = false end)
-        ferramenta.Parent = mochila
-    end
-
-    local function FlingBallTool(target)
-        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-        local humanoid = character:WaitForChild("Humanoid")
-        local ServerBalls = Workspace:FindFirstChild("WorkspaceCom") and Workspace.WorkspaceCom:FindFirstChild("001_SoccerBalls") or Workspace:FindFirstChild("Com", true)
-
-        local function GetBall()
-            if not mochila:FindFirstChild("SoccerBall") and not character:FindFirstChild("SoccerBall") then
-                ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "SoccerBall")
-            end
-            repeat task.wait() until mochila:FindFirstChild("SoccerBall") or character:FindFirstChild("SoccerBall")
-            local ballTool = mochila:FindFirstChild("SoccerBall")
-            if ballTool then ballTool.Parent = character end
-            repeat task.wait() until ServerBalls and ServerBalls:FindFirstChild("Soccer" .. LocalPlayer.Name)
-            return ServerBalls and ServerBalls:FindFirstChild("Soccer" .. LocalPlayer.Name)
-        end
-
-        local Ball = (ServerBalls and ServerBalls:FindFirstChild("Soccer" .. LocalPlayer.Name)) or GetBall()
-        if not Ball then return end
-        Ball.CanCollide = false
-        Ball.Massless = true
-        Ball.CustomPhysicalProperties = PhysicalProperties.new(0.0001, 0, 0)
-
-        if target ~= LocalPlayer then
-            local tchar = target.Character
-            if tchar and tchar:FindFirstChild("HumanoidRootPart") and tchar:FindFirstChild("Humanoid") then
-                local troot = tchar.HumanoidRootPart
-                local thum = tchar.Humanoid
-
-                local bv = Instance.new("BodyVelocity")
-                bv.Name = "FlingPower"
-                bv.Velocity = Vector3.new(9e8, 9e8, 9e8)
-                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-                bv.Parent = Ball
-
-                cam.CameraSubject = thum
-                repeat
-                    if troot.Velocity.Magnitude > 0 then
-                        local pos = troot.Position + (troot.Velocity / 1.5)
-                        Ball.CFrame = CFrame.new(pos)
-                        Ball.Orientation += Vector3.new(45, 60, 30)
-                    end
-                    task.wait(1/6000)
-                until troot.Velocity.Magnitude > 1000 or thum.Health <= 0
-                cam.CameraSubject = humanoid
-            end
-        end
-    end
-
-    UserInputService.TouchTap:Connect(function(toques, processado)
-        if not ferramentaEquipada or processado then return end
-        local pos = toques[1]
-        local raio = cam:ScreenPointToRay(pos.X, pos.Y)
-        local hit = Workspace:Raycast(raio.Origin, raio.Direction * 1000)
-        if hit and hit.Instance then
-            local jogador = Players:GetPlayerFromCharacter(hit.Instance:FindFirstAncestorOfClass("Model"))
-            if jogador and jogador ~= LocalPlayer then
-                FlingBallTool(jogador)
-            end
-        end
-    end)
-    notify("Success", "Click Fling Ball (Tool) given to backpack!")
-end})
-
-trollTab:AddButton({"Click Kill Couch (Tool)", function()
-    local NOME_FERRAMENTA = "Click Kill Couch"
-    local ferramentaEquipada = false
-    local nomeAlvo = nil
-    local loopTP = nil
-    local sofaEquipado = false
-    local base = nil
-    local posInicial = nil
-    local raiz = nil
-
-    local mochila = LocalPlayer:WaitForChild("Backpack")
-    if not mochila:FindFirstChild(NOME_FERRAMENTA) then
-        local ferramenta = Instance.new("Tool")
-        ferramenta.Name = NOME_FERRAMENTA
-        ferramenta.RequiresHandle = false
-        ferramenta.CanBeDropped = false
-
-        ferramenta.Equipped:Connect(function() ferramentaEquipada = true end)
-        ferramenta.Unequipped:Connect(function()
-            ferramentaEquipada = false
-            nomeAlvo = nil
-            if loopTP then loopTP:Disconnect(); loopTP = nil end
-            if sofaEquipado and LocalPlayer.Character then
-                local sofa = LocalPlayer.Character:FindFirstChild("Couch")
-                if sofa then sofa.Parent = LocalPlayer.Backpack; sofaEquipado = false end
-            end
-            if base then base:Destroy(); base = nil end
-            local humano = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            if humano then humano:SetStateEnabled(Enum.HumanoidStateType.Physics, true) end
-            if posInicial and raiz then raiz.CFrame = posInicial; posInicial = nil end
-        end)
-        ferramenta.Parent = mochila
-    end
-
-    UserInputService.TouchTap:Connect(function(toques, processado)
-        if not ferramentaEquipada or processado then return end
-        local pos = toques[1]
-        local raio = cam:ScreenPointToRay(pos.X, pos.Y)
-        local hit = Workspace:Raycast(raio.Origin, raio.Direction * 1000)
-        if hit and hit.Instance then
-            local jogador = Players:GetPlayerFromCharacter(hit.Instance:FindFirstAncestorOfClass("Model"))
-            if jogador and jogador ~= LocalPlayer then
-                nomeAlvo = jogador.Name
-                local boneco = LocalPlayer.Character
-                if not boneco then return end
-                posInicial = boneco:FindFirstChild("HumanoidRootPart") and boneco.HumanoidRootPart.CFrame
-                raiz = boneco:FindFirstChild("HumanoidRootPart")
-
-                if not mochila:FindFirstChild("Couch") and not boneco:FindFirstChild("Couch") then
-                    ReplicatedStorage.RE["1Too1l"]:InvokeServer("PickingTools", "Couch")
-                    task.wait(0.1)
-                end
-                local sofa = mochila:FindFirstChild("Couch") or boneco:FindFirstChild("Couch")
-                if sofa then sofa.Parent = boneco; sofaEquipado = true end
-
-                loopTP = RunService.Heartbeat:Connect(function()
-                    local alvoAtual = Players:FindFirstChild(nomeAlvo)
-                    if not alvoAtual or not alvoAtual.Character or not alvoAtual.Character:FindFirstChild("Humanoid") then
-                        if loopTP then loopTP:Disconnect(); loopTP = nil end
-                        return
-                    end
-                    if not base then
-                        base = Instance.new("Part")
-                        base.Size = Vector3.new(10, 1, 10)
-                        base.Anchored = true
-                        base.CanCollide = true
-                        base.Transparency = 0.5
-                        base.Parent = Workspace
-                    end
-                    local rp = alvoAtual.Character:FindFirstChild("HumanoidRootPart")
-                    if rp then
-                        local destino = rp.Position + Vector3.new(math.random(-2, 2), -5.1, math.random(-2, 2))
-                        base.Position = destino
-                        raiz.CFrame = CFrame.new(destino)
-                    end
-                end)
-            end
-        end
-    end)
-    notify("Success", "Click Kill Couch (Tool) given to backpack!")
-end})
-
-trollTab:AddButton({"Kill All Bus", function()
-    local destination = Vector3.new(145.51, -374.09, 21.58) 
-    local originalPosition = nil  
-
-    local function GetBus()  
-        local vehicles = Workspace:FindFirstChild("Vehicles")  
-        if vehicles then  
-            return vehicles:FindFirstChild(LocalPlayer.Name .. "Car")  
-        end  
-        return nil  
-    end  
-
-    local function TrackPlayer(selectedPlayerName, callback)
-        while true do  
-            if selectedPlayerName then  
-                local targetPlayer = Players:FindFirstChild(selectedPlayerName)  
-                if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then  
-                    local targetHumanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")  
-                    if targetHumanoid and targetHumanoid.Sit then  
-                        local bus = GetBus()
-                        if bus then
-                            bus:SetPrimaryPartCFrame(CFrame.new(destination))   
-                            task.wait(0.2)  
-                            local function simulateJump()  
-                                local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")  
-                                if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end  
-                            end  
-                            simulateJump()  
-                            task.wait(0.4)  
-                            simulateJump()  
-                            task.wait(0.5)
-                            if originalPosition then
-                                LocalPlayer.Character.HumanoidRootPart.CFrame = originalPosition  
-                                task.wait(0.1)
-                                ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Ca1r"):FireServer("DeleteAllVehicles")
-                            end
-                        end
-                        break  
-                    else  
-                        local targetRoot = targetPlayer.Character.HumanoidRootPart  
-                        local time = tick() * 35
-                        local frontBackOffset = math.cos(time) * 20  
-                        local bus = GetBus()
-                        if bus then
-                            bus:SetPrimaryPartCFrame(targetRoot.CFrame * CFrame.new(0, 0, frontBackOffset))  
-                        end
-                    end  
-                end  
-            end  
-            RunService.RenderStepped:Wait()  
-        end
-        if callback then callback() end
-    end  
-
-    local function StartKillBusao(playerName, callback)
-        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()  
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  
-        originalPosition = humanoidRootPart.CFrame  
-        local bus = GetBus()  
-
-        if not bus then  
-            humanoidRootPart.CFrame = CFrame.new(1118.81, 75.998, -1138.61)  
-            task.wait(0.5)  
-            local remoteEvent = ReplicatedStorage:FindFirstChild("RE")  
-            if remoteEvent and remoteEvent:FindFirstChild("1Ca1r") then  
-                remoteEvent["1Ca1r"]:FireServer("PickingCar", "SchoolBus")  
-            end  
-            task.wait(1)  
-            bus = GetBus()  
-        end  
-
-        if bus then  
-            local seat = bus:FindFirstChild("Body") and bus.Body:FindFirstChild("VehicleSeat")  
-            if seat and character:FindFirstChildOfClass("Humanoid") and not character.Humanoid.Sit then  
-                repeat  
-                    humanoidRootPart.CFrame = seat.CFrame * CFrame.new(0, 2, 0)  
-                    task.wait()  
-                until character.Humanoid.Sit or not bus.Parent  
-            end  
-        end  
-
-        spawn(function()
-            TrackPlayer(playerName, callback)
-        end)
-    end
-
-    local function PerformActionForAllPlayers(playersList)
-        if #playersList == 0 then return end
-        local player = table.remove(playersList, 1)
-        if player ~= LocalPlayer then
-            StartKillBusao(player.Name, function()
-                task.wait(0.5)
-                PerformActionForAllPlayers(playersList)
-            end)
-        else
-            PerformActionForAllPlayers(playersList)
-        end
-    end
-
-    local allP = Players:GetPlayers()
-    PerformActionForAllPlayers(allP)
-end})
-
-trollTab:AddButton({"House Ban kill All", function()
-    local function executeScriptForPlayer(targetPlayer)
-        local Character = LocalPlayer.Character
-        local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
-        local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
-        local Houses = Workspace:FindFirstChild("001_Lots")
-        local Vehicles = Workspace.Vehicles
-        local Angles = 0
-
-        local function Check()
-            return LocalPlayer and Character and Humanoid and RootPart and Vehicles
-        end
-
-        if Check() then
-            local House = Houses:FindFirstChild(LocalPlayer.Name .. "House")
-            if not House then
-                local EHouse
-                for _, Lot in pairs(Houses:GetChildren()) do
-                    if Lot.Name == "For Sale" then
-                        for _, num in pairs(Lot:GetDescendants()) do
-                            if num:IsA("NumberValue") and num.Name == "Number" and num.Value < 25 and num.Value > 10 then
-                                EHouse = Lot
-                                break
-                            end
-                        end
-                    end
-                end
-
-                local BuyDetector = EHouse and EHouse:FindFirstChild("BuyHouse")
-                if BuyDetector and BuyDetector:IsA("BasePart") then
-                    RootPart.CFrame = BuyDetector.CFrame + Vector3.new(0, -6, 0)
-                    task.wait(0.5)
-                    local ClickDetector = BuyDetector:FindFirstChild("ClickDetector")
-                    if ClickDetector then fireclickdetector(ClickDetector) end
-                end
-            end
-
-            task.wait(0.5)
-            local PreHouse = Houses:FindFirstChild(LocalPlayer.Name .. "House")
-            if PreHouse then
-                task.wait(0.5)
-                local Number
-                for _, x in pairs(PreHouse:GetDescendants()) do
-                    if x.Name == "Number" and x:IsA("NumberValue") then Number = x end
-                end
-                task.wait(0.5)
-                ReplicatedStorage.RE:FindFirstChild("1Gettin1gHous1e"):FireServer("PickingCustomHouse", "049_House", Number.Value)
-            end
-
-            task.wait(0.5)
-            local PCar = Vehicles:FindFirstChild(LocalPlayer.Name .. "Car")
-            if not PCar then
-                if Check() then
-                    RootPart.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
-                    task.wait(0.5)
-                    ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer("PickingCar", "SchoolBus")
-                    task.wait(0.5)
-                    PCar = Vehicles:FindFirstChild(LocalPlayer.Name .. "Car")
-                    task.wait(0.5)
-                    local Seat = PCar and PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")
-                    if Seat then
-                        repeat task.wait(); RootPart.CFrame = Seat.CFrame * CFrame.new(0, math.random(-1, 1), 0) until Humanoid.Sit
-                    end
-                end
-            end
-
-            PCar = Vehicles:FindFirstChild(LocalPlayer.Name .. "Car")
-            if PCar then
-                if not Humanoid.Sit then
-                    local Seat = PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")
-                    if Seat then
-                        repeat task.wait(); RootPart.CFrame = Seat.CFrame * CFrame.new(0, math.random(-1, 1), 0) until Humanoid.Sit
-                    end
-                end
-
-                local TargetC = targetPlayer.Character
-                local TargetH = TargetC and TargetC:FindFirstChildOfClass("Humanoid")
-                local TargetRP = TargetC and TargetC:FindFirstChild("HumanoidRootPart")
-                if TargetC and TargetH and TargetRP then
-                    if not TargetH.Sit then
-                        while not TargetH.Sit do
-                            task.wait()
-                            local Fling = function(alvo, pos, angulo)
-                                PCar:SetPrimaryPartCFrame(CFrame.new(alvo.Position) * pos * angulo)
-                            end
-                            Angles = Angles + 100
-                            Fling(TargetRP, CFrame.new(0, 1.5, 0), CFrame.Angles(math.rad(Angles), 0, 0))
-                        end
-                        task.wait(0.2)
-                        local House = Houses:FindFirstChild(LocalPlayer.Name .. "House")
-                        PCar:SetPrimaryPartCFrame(CFrame.new(House.HouseSpawnPosition.Position))
-                        task.wait(0.2)
-                        ReplicatedStorage.RE:FindFirstChild("1Playe1rTrigge1rEven1t"):FireServer("BanPlayerFromHouse", targetPlayer, TargetC)
-                    end
-                end
-            end
-        end
-        ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer("DeleteAllVehicles")
-    end
-
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            executeScriptForPlayer(player)
-            task.wait(2)
-        end
-    end
-end})
-
-trollTab:AddButton({"Fling Boat all", function()
-    local Character = LocalPlayer.Character
-    local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
-    local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
-    local Vehicles = Workspace:FindFirstChild("Vehicles")
-    local OldPos = RootPart.CFrame
-    local PCar = Vehicles and Vehicles:FindFirstChild(LocalPlayer.Name .. "Car")
-
-    if not PCar and RootPart then  
-        RootPart.CFrame = CFrame.new(1754, -2, 58)  
-        task.wait(0.5)  
-        ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer("PickingBoat", "MilitaryBoatFree")  
-        task.wait(0.5)  
-        PCar = Vehicles:FindFirstChild(LocalPlayer.Name .. "Car")  
-        task.wait(0.5)  
-        local Seat = PCar and PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")  
-        if Seat then  
-            repeat task.wait(); RootPart.CFrame = Seat.CFrame * CFrame.new(0, math.random(-1, 1), 0) until Humanoid.Sit  
-        end  
-    end  
-
-    if PCar and not Humanoid.Sit then  
-        local Seat = PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")  
-        if Seat then  
-            repeat task.wait(); RootPart.CFrame = Seat.CFrame * CFrame.new(0, math.random(-1, 1), 0) until Humanoid.Sit  
-        end  
-    end  
-
-    local SpinGyro = Instance.new("BodyGyro")  
-    SpinGyro.Parent = PCar.PrimaryPart  
-    SpinGyro.MaxTorque = Vector3.new(1e7, 1e7, 1e7)  
-    SpinGyro.P = 1e7  
-    SpinGyro.CFrame = PCar.PrimaryPart.CFrame * CFrame.Angles(0, math.rad(90), 0)  
-
-    local function flingPlayer(TargetRP)
-        local Angles = 0  
-        local endTime = tick() + 1  
-        while tick() < endTime do  
-            Angles = Angles + 100  
-            task.wait()  
-            PCar:SetPrimaryPartCFrame(CFrame.new(TargetRP.Position) * CFrame.new(0, 3, 0) * CFrame.Angles(math.rad(Angles), 0, 0))  
-        end  
-    end  
-
-    for _, Target in pairs(Players:GetPlayers()) do  
-        if Target ~= LocalPlayer then  
-            local TargetC = Target.Character  
-            local TargetH = TargetC and TargetC:FindFirstChildOfClass("Humanoid")  
-            local TargetRP = TargetC and TargetC:FindFirstChild("HumanoidRootPart")  
-            if TargetC and TargetH and TargetRP then  
-                flingPlayer(TargetRP)  
-            end  
-        end  
-    end  
-
-    task.wait(0.5)  
-    PCar:SetPrimaryPartCFrame(CFrame.new(0, 0, 0))  
-    task.wait(0.5)  
-    Humanoid.Sit = false  
-    task.wait(0.5)  
-    RootPart.CFrame = OldPos  
-    SpinGyro:Destroy()  
-end})
-
-trollTab:AddButton({"Auto Fling All", function()
-    local function ProcessPlayer(target)
-        if not target or not target.Character or target == LocalPlayer then return end
-        local flingActive = true
-        local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
-        if not root or not tRoot then return end
-        local char = LocalPlayer.Character
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        local original = root.CFrame
-
-        ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools")
-        task.wait(0.2)
-        ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-        task.wait(0.3)
-        local tool = LocalPlayer.Backpack:FindFirstChild("Couch")
-        if tool then tool.Parent = char end
-        task.wait(0.1)
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
-        task.wait(0.25)
-
-        pcall(function() Workspace.FallenPartsDestroyHeight = 0/0 end)
-        local bv = Instance.new("BodyVelocity")
-        bv.Name = "FlingForce"
-        bv.Velocity = Vector3.new(9e8, 9e8, 9e8)
-        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        bv.Parent = root
-        hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-        hum.PlatformStand = false
-        cam.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
-
-        task.spawn(function()
-            local angle = 0
-            while flingActive and target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") do
-                local tHum = target.Character:FindFirstChildOfClass("Humanoid")
-                if tHum.Sit then break end
-                angle += 50
-                local hrp = target.Character.HumanoidRootPart
-                local pos = hrp.Position + hrp.Velocity / 1.5
-                root.CFrame = CFrame.new(pos) * CFrame.Angles(math.rad(angle), 0, 0)
-                root.Velocity = Vector3.new(9e8, 9e8, 9e8)
-                root.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
-                task.wait()
-            end
-            flingActive = false
-            bv:Destroy()
-            hum:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-            hum.PlatformStand = false
-            root.CFrame = original
-            cam.CameraSubject = hum
-            hum:UnequipTools()
-            ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
-        end)
-        while flingActive do task.wait() end
-    end
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        ProcessPlayer(player)
-    end
-end})
-
-trollTab:AddButton({"Bring All Couch [melhor]", function()
-    ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools")
-    task.wait(0.2)
-    local toolselcted = "Couch"
-    local dupeamot = 25
-    local picktoolremote = ReplicatedStorage.RE:FindFirstChild("1Too1l")
-    local oldcf = LocalPlayer.Character.HumanoidRootPart.CFrame
-    if LocalPlayer.Character.Humanoid.Sit == true then LocalPlayer.Character.Humanoid.Sit = false end
-    task.wait(0.1)
-
-    for m = 1, 2 do
-        task.wait()
-        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(999999999.414, -490, 999999999.414)
-    end
-    task.wait(0.2)
-    LocalPlayer.Character.HumanoidRootPart.Anchored = true
-    task.wait(0.5)
-
-    for m = 1, dupeamot do
-        picktoolremote:InvokeServer("PickingTools", toolselcted)
-        local tool = LocalPlayer.Backpack:WaitForChild(toolselcted, 2)
-        if tool then
-            tool.Parent = LocalPlayer.Character
-            task.wait()
-            local handle = tool:FindFirstChild("Handle")
-            if handle then handle.Name = "Hâ¥aâ¥nâ¥dâ¥lâ¥e" end
-            tool.Parent = LocalPlayer.Backpack
-            tool.Parent = LocalPlayer.Character
-        end
-        task.wait()
-    end
-    LocalPlayer.Character.HumanoidRootPart.Anchored = false
-    task.wait(0.5)
-    LocalPlayer.Character.HumanoidRootPart.CFrame = oldcf
-end})
-
-trollTab:AddButton({"Kill All Couch [melhor]", function()
-    ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools")
-    task.wait(0.2)
-    local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
-    local part = Instance.new("Part")
-    part.Size = Vector3.new(5000, 10, 5000)
-    part.Position = Vector3.new(0, -500, 0)
-    part.Anchored = true
-    part.CanCollide = true
-    part.Parent = Workspace
-    task.wait()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, -500, 0)
-    task.wait(2)
-    
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
-    task.wait(0.5)
-    ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools")
-end})
-
-trollTab:AddButton({"Fling Ball all", function()
-    local player = LocalPlayer
-    local SoccerBalls = Workspace:FindFirstChild("WorkspaceCom") and Workspace.WorkspaceCom:FindFirstChild("001_SoccerBalls") or Workspace:FindFirstChild("Com", true)
-    local MyBall = SoccerBalls and SoccerBalls:FindFirstChild("Soccer" .. player.Name)
-
-    if not MyBall then
-        if not player.Backpack:FindFirstChild("SoccerBall") then
-            ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "SoccerBall")
-            task.wait()
-            player.Backpack.SoccerBall.Parent = player.Character
-            repeat MyBall = SoccerBalls and SoccerBalls:FindFirstChild("Soccer" .. player.Name); task.wait() until MyBall
-            player.Character.SoccerBall.Parent = player.Backpack
-        end
-    end
-
-    for _, v in pairs(Players:GetPlayers()) do
-        if v ~= player then
-            local target = v
-            local TCharacter = target.Character
-            local THumanoidRootPart = TCharacter and TCharacter:FindFirstChild("HumanoidRootPart")
-            if MyBall and THumanoidRootPart then
-                local bv = Instance.new("BodyVelocity")
-                bv.Velocity = Vector3.new(9e8, 9e8, 9e8)
-                bv.MaxForce = Vector3.new(1/0, 1/0, 1/0)
-                bv.Parent = MyBall
-
-                cam.CameraSubject = THumanoidRootPart
-                local startT = tick()
-                repeat
-                    local pos = THumanoidRootPart.Position + (THumanoidRootPart.Velocity / 1.5)
-                    MyBall.CFrame = CFrame.new(pos)
-                    task.wait(1/6000)
-                until THumanoidRootPart.Velocity.Magnitude > 5000 or TCharacter.Humanoid.Health <= 0 or tick() - startT > 3
-            end
-        end
-    end
-    cam.CameraSubject = player.Character:WaitForChild("HumanoidRootPart")
-end})
