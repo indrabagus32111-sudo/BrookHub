@@ -1,6 +1,12 @@
 local Players = game:GetService("Players")
 local Stats = game:GetService("Stats")
 local TeleportService = game:GetService("TeleportService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+local CoreGui = game:GetService("CoreGui")
+
 local LocalPlayer = Players.LocalPlayer
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/indrabagus32111-sudo/Project/refs/heads/main/Project"))()
@@ -28,6 +34,74 @@ for _, r in ipairs(roots) do
             pcall(child.Destroy, child)
         end
     end
+end
+
+local Theme = {
+    BgPrimary = Color3.fromRGB(13, 15, 22),
+    BgSecondary = Color3.fromRGB(18, 21, 30),
+    BgCard = Color3.fromRGB(23, 27, 38),
+    BgCardHover = Color3.fromRGB(29, 34, 48),
+    BgInput = Color3.fromRGB(15, 18, 26),
+    BgSidebar = Color3.fromRGB(15, 17, 25),
+    Accent = Color3.fromRGB(255, 0, 0),
+    AccentDark = Color3.fromRGB(180, 0, 0),
+    AccentGlow = Color3.fromRGB(255, 75, 75),
+    Success = Color3.fromRGB(46, 204, 113),
+    Warning = Color3.fromRGB(241, 196, 15),
+    Danger = Color3.fromRGB(231, 76, 60),
+    TextPrimary = Color3.fromRGB(242, 245, 250),
+    TextSecondary = Color3.fromRGB(165, 174, 192),
+    TextMuted = Color3.fromRGB(108, 117, 138),
+    Border = Color3.fromRGB(38, 45, 64),
+    BorderAccent = Color3.fromRGB(220, 0, 0),
+    FontBold = Enum.Font.GothamBold,
+    FontSemi = Enum.Font.GothamSemibold,
+    FontReg = Enum.Font.Gotham,
+}
+
+local Icons = {
+    info = "rbxassetid://7733964719",
+    play = "rbxassetid://7743871480",
+    [" trending-up "] = "rbxassetid://7743873633",
+    ["trending-up"] = "rbxassetid://7743873633",
+    [" file-text "] = "rbxassetid://7733779610",
+    ["file-text"] = "rbxassetid://7733779610",
+    settings = "rbxassetid://7734053495",
+    check = "rbxassetid://7733715400",
+    search = "rbxassetid://7734052925",
+    refresh = "rbxassetid://7734051052",
+    trash = "rbxassetid://7743873871",
+    lock = "rbxassetid://7733992528",
+    chevron = "rbxassetid://7733717447",
+    user = "rbxassetid://7743875962",
+    bolt = "rbxassetid://7733715400",
+}
+
+local function resolveAsset(icon, fallback)
+    if type(icon) ~= "string" or icon == "" then
+        return fallback or ""
+    end
+    local trimmed = icon:match("^%s*(.-)%s*$") or icon
+    if Icons[icon] then
+        return Icons[icon]
+    end
+    if Icons[trimmed] then
+        return Icons[trimmed]
+    end
+    if trimmed:find("^rbxassetid://") or trimmed:find("^rbxasset://") or trimmed:find("^https?://") then
+        return trimmed
+    end
+    if tonumber(trimmed) then
+        return "rbxassetid://" .. trimmed
+    end
+    local sharedAssets = rawget(_G, "__VNHUB_SHARED_ASSETS")
+    if type(sharedAssets) == "table" and type(sharedAssets.resolve) == "function" then
+        local ok, res = pcall(sharedAssets.resolve, trimmed, fallback)
+        if ok and type(res) == "string" and res ~= "" then
+            return res
+        end
+    end
+    return fallback or Icons.info
 end
 
 local infoTab = Window:MakeTab({"Info", "info"})
@@ -807,51 +881,148 @@ local function __VNHUB_TO_EN(s)
     if trimmed and __VNHUB_EN[trimmed] then
         return __VNHUB_EN[trimmed]
     end
-    local m1 = s:match("^Đang chạy %((.+)%)$")
+    
+    if s:find("Walk Speed") or s:find("speed") or s:find("Placed:") or s:find("Stage ") or s:find("State:") or s:find("Stars:") or s:find("Scrambled") or s:find("Owned Eggs:") or s:find("JobId:") or s:find("Active:") or s:find("Souls:") or s:find("Bloom") or s:find("Wisp") or s:find("Boss") or s:find("Tốc độ") or s:find("Đã đặt:") or s:find("Giai đoạn") or s:find("Trạng thái:") or s:find("Trứng") or s:find("Linh hồn:") or s:find("Người chơi khác:") or s:find("Trứng xịn nhất sân:") or s:find("SẴN SÀNG NỞ") or s:find("⏳ Còn ") or s:find("Thường %(x") then
+        s = s:gsub("Walk Speed is still loading%.%.%.", "Walk Speed is loading...")
+        s = s:gsub("Đang tải chỉ số tốc độ chạy%.%.%.", "Walk Speed is loading...")
+        s = s:gsub("Your Walk Speed is ([%d%.]+) %(below 500%)%. Turn ON Low Speed User and set Low Speed Multiplier around (%d+)%. Raise the multiplier if your speed is closer to 500, or lower it if steals fail%.", "Your Walk Speed is %1 (below 500). Turn ON Low Speed User and set Low Speed Multiplier to around %2.")
+        s = s:gsub("Tốc độ chạy của bạn là ([%d%.]+) %(dưới 500%)%. Hãy BẬT Chế Độ Tốc Độ Thấp và chỉnh Hệ Số khoảng (%d+) %(hoặc kéo Max 10 để Dịch Chuyển Tức Thì%)%.", "Your Walk Speed is %1 (below 500). Turn ON Low Speed User and set Low Speed Multiplier to around %2.")
+        s = s:gsub("Your Walk Speed is ([%d%.]+) %(500%+%)%. Turn ON High Speed User and pick a Steal Mode %(Walk, Glide, Zigzag, Fly, or Booster%)%.", "Your Walk Speed is %1 (500+). Turn ON High Speed User and pick a Steal Mode.")
+        s = s:gsub("Tốc độ chạy của bạn là ([%d%.]+) %(trên 500%)%. Hãy BẬT Chế Độ Tốc Độ Cao và chọn Kiểu Di Chuyển %(hoặc kéo Max tốc độ để Dịch Chuyển Tức Thì%)%.", "Your Walk Speed is %1 (500+). Turn ON High Speed User and pick a Steal Mode.")
+        s = s:gsub("Placed: (%d+)  |  Hatching: (%d+)  |  Ready: (%d+)  |  Empty: (%d+)", "Placed: %1  |  Hatching: %2  |  Ready: %3  |  Empty: %4")
+        s = s:gsub("Đã đặt: (%d+)  |  Đang ấp: (%d+)  |  Sẵn sàng: (%d+)  |  Ô trống: (%d+)", "Placed: %1  |  Hatching: %2  |  Ready: %3  |  Empty: %4")
+        s = s:gsub("Event inactive  |  Buds: ", "Event inactive  |  Buds: ")
+        s = s:gsub("Sự kiện chưa mở  |  Mầm hoa: ", "Event inactive  |  Buds: ")
+        s = s:gsub("Stage (%d+/%d+)", "Stage %1")
+        s = s:gsub("Giai đoạn (%d+/%d+)", "Stage %1")
+        s = s:gsub("Mầm hoa: ", "Buds: ")
+        s = s:gsub("Buds: ", "Buds: ")
+        s = s:gsub("Runtime: ", "Runtime: ")
+        s = s:gsub("Hoạt động: ", "Runtime: ")
+        s = s:gsub("State: ", "State: ")
+        s = s:gsub("Trạng thái: ", "State: ")
+        s = s:gsub("Course: ", "Course: ")
+        s = s:gsub("Đường đua: ", "Course: ")
+        s = s:gsub("Position: ", "Position: ")
+        s = s:gsub("Vị trí: ", "Position: ")
+        s = s:gsub("Checkpoint: ", "Checkpoint: ")
+        s = s:gsub("Điểm mốc: ", "Checkpoint: ")
+        s = s:gsub("Starts In: ", "Starts In: ")
+        s = s:gsub("Bắt đầu sau: ", "Starts In: ")
+        s = s:gsub("Ends In: ", "Ends In: ")
+        s = s:gsub("Kết thúc sau: ", "Ends In: ")
+        s = s:gsub("Prompt: ", "Prompt: ")
+        s = s:gsub("Báo danh: ", "Prompt: ")
+        s = s:gsub("Stars: ", "Stars: ")
+        s = s:gsub("Sao: ", "Stars: ")
+        s = s:gsub("Shop Reset: ", "Shop Reset: ")
+        s = s:gsub("Làm mới tiệm: ", "Shop Reset: ")
+        s = s:gsub("Active Star: ", "Active Star: ")
+        s = s:gsub("Sao đang rơi: ", "Active Star: ")
+        s = s:gsub("Scrambled Eggs: ", "Scrambled Eggs: ")
+        s = s:gsub("Trứng Bị Xáo: ", "Scrambled Eggs: ")
+        s = s:gsub("Crackable Now: ", "Crackable Now: ")
+        s = s:gsub("Đập được ngay: ", "Crackable Now: ")
+        s = s:gsub("Selected Egg: ", "Selected Egg: ")
+        s = s:gsub("Trứng đang chọn: ", "Selected Egg: ")
+        s = s:gsub("Auto Crack: ", "Auto Crack: ")
+        s = s:gsub("Tự động đập: ", "Auto Crack: ")
+        s = s:gsub("Last Crack: ", "Last Crack: ")
+        s = s:gsub("Lần đập cuối: ", "Last Crack: ")
+        s = s:gsub("Owned Eggs: ", "Owned Eggs: ")
+        s = s:gsub("Trứng sở hữu: ", "Owned Eggs: ")
+        s = s:gsub("Eligible: ", "Eligible: ")
+        s = s:gsub("Hợp lệ: ", "Eligible: ")
+        s = s:gsub("Selected: ", "Selected: ")
+        s = s:gsub("Đã chọn: ", "Selected: ")
+        s = s:gsub("Difficulty: ", "Difficulty: ")
+        s = s:gsub("Độ khó: ", "Difficulty: ")
+        s = s:gsub("Ammo: ", "Ammo: ")
+        s = s:gsub("Đạn: ", "Ammo: ")
+        s = s:gsub("Next Spawn: ", "Next Spawn: ")
+        s = s:gsub("Xuất hiện sau: ", "Next Spawn: ")
+        s = s:gsub("Despawn: ", "Despawn: ")
+        s = s:gsub("Biến mất: ", "Despawn: ")
+        s = s:gsub("Players: ", "Players: ")
+        s = s:gsub("Người chơi: ", "Players: ")
+        s = s:gsub("Private: ", "Private: ")
+        s = s:gsub("Server VIP: ", "Private: ")
+        s = s:gsub("Subplace: ", "Subplace: ")
+        s = s:gsub("Bản đồ phụ: ", "Subplace: ")
+        s = s:gsub("Plot: ", "Plot: ")
+        s = s:gsub("Căn cứ: ", "Plot: ")
+        s = s:gsub("Auto Execute: ", "Auto Execute: ")
+        s = s:gsub("Tự chạy lại: ", "Auto Execute: ")
+        s = s:gsub("Active: None", "Active: None")
+        s = s:gsub("Đang có: Không", "Active: None")
+        s = s:gsub("Active: ", "Active: ")
+        s = s:gsub("Đang mở: ", "Active: ")
+        s = s:gsub("Souls: ", "Souls: ")
+        s = s:gsub("Linh hồn: ", "Souls: ")
+        s = s:gsub("Summon State: Summoned", "Summon State: Summoned")
+        s = s:gsub("Trạng thái: Đã triệu hồi", "Summon State: Summoned")
+        s = s:gsub("Summon State: Idle", "Summon State: Idle")
+        s = s:gsub("Trạng thái: Đang nghỉ", "Summon State: Idle")
+        s = s:gsub("🥚 Đang đặt: (%d+/%d+) quả  •  ✅ Sẵn sàng nở: (%d+) quả\n💰 Tổng thu nhập dự đoán: (.-)  •  ⚖️ Quả nặng nhất: (.+)", "🥚 Placed: %1 eggs  •  ✅ Ready to hatch: %2 eggs\n💰 Est. Total Income: %3  •  ⚖️ Heaviest: %4")
+        s = s:gsub("👥 Người chơi khác: (%d+) %(Tổng: (%d+/%d+)%)  •  Mục tiêu <= (.-) người khác\n⚡ (.+)", "👥 Other players: %1 (Total: %2)  •  Target <= %3 others\n⚡ %4")
+        s = s:gsub("🔥 Trứng xịn nhất sân: (.-)\n🎯 Khớp bộ lọc săn: (%d+) quả  •  Độ hiếm >= (.-)  •  Giá trị >= (.-)\n⚡ Trạng thái: (.+)", "🔥 Best field egg: %1\n🎯 Matching hunt filter: %2 eggs  •  Rarity >= %3  •  Value >= %4\n⚡ Status: %5")
+        s = s:gsub("✅ SẴN SÀNG NỞ!", "✅ READY TO HATCH!")
+        s = s:gsub("⏳ Còn ", "⏳ ")
+        s = s:gsub("🧬 Thường %(x", "🧬 Normal (x")
+        s = s:gsub("Sẵn sàng", "Ready")
+        s = s:gsub("Đã tắt", "Off")
+        s = s:gsub("Không có", "None")
+    end
+
+    local m1 = s:match("^Đang chạy %((.+)%)$") or s:match("^Active %((.+)%)$")
     if m1 then
         return "Active (" .. __VNHUB_TO_EN(m1) .. ")"
     end
-    m1 = s:match("^Đang chờ %((.+)%)$")
+    m1 = s:match("^Đang chờ %((.+)%)$") or s:match("^Waiting %((.+)%)$")
     if m1 then
         return "Waiting (" .. __VNHUB_TO_EN(m1) .. ")"
     end
-    m1 = s:match("^Trộm: (.+)$")
+    m1 = s:match("^Trộm: (.+)$") or s:match("^Steal: (.+)$")
     if m1 then
         return "Steal: " .. __VNHUB_TO_EN(m1)
     end
-    m1 = s:match("^Chờ (.+)$")
+    m1 = s:match("^(.-) đã trộm$")
+    if m1 then
+        return m1 .. " stolen"
+    end
+    m1 = s:match("^Chờ (.+)$") or s:match("^Wait (.+)$")
     if m1 then
         return "Wait " .. m1
     end
-    m1 = s:match("^Tiếp theo sau (.+)$")
+    m1 = s:match("^Tiếp theo sau (.+)$") or s:match("^Next in (.+)$")
     if m1 then
         return "Next in " .. m1
     end
-    m1 = s:match("^Hồi chiêu (.+)$")
+    m1 = s:match("^Hồi chiêu (.+)$") or s:match("^Cooldown (.+)$")
     if m1 then
         return "Cooldown " .. m1
     end
-    m1 = s:match("^Đặt (.+)$")
+    m1 = s:match("^Đặt (.+)$") or s:match("^Place (.+)$")
     if m1 then
         return "Place " .. m1
     end
-    m1 = s:match("^Cần (.+)$")
+    m1 = s:match("^Cần (.+)$") or s:match("^Need (.+)$")
     if m1 then
         return "Need " .. m1
     end
-    m1 = s:match("^Quét (.+)$")
+    m1 = s:match("^Quét (.+)$") or s:match("^Scan (.+)$")
     if m1 then
         return "Scan " .. m1
     end
-    m1 = s:match("^Nạp (.+)$")
+    m1 = s:match("^Nạp (.+)$") or s:match("^Feed (.+)$")
     if m1 then
         return "Feed " .. m1
     end
-    m1 = s:match("^Còn ~(%d+)s$")
+    m1 = s:match("^Còn ~(%d+)s$") or s:match("^~(%d+)s left$")
     if m1 then
         return "~" .. m1 .. "s left"
     end
-    m1 = s:match("^(%d+) Drone trên sân$")
+    m1 = s:match("^(%d+) Drone trên sân$") or s:match("^(%d+) Drone%(s%) in field$")
     if m1 then
         return m1 .. " Drone(s) in field"
     end
@@ -859,39 +1030,112 @@ local function __VNHUB_TO_EN(s)
     if m1_2 and m2 then
         return "x" .. m1_2 .. "  •  " .. __VNHUB_TO_EN(m2)
     end
-    m1_2, m2 = s:match("^Bậc (%d+): (.+)$")
+    m1_2, m2 = s:match("^Bậc (%d+): (.+)$") or s:match("^Tier (%d+): (.+)$")
     if m1_2 and m2 then
         return "Tier " .. m1_2 .. ": " .. __VNHUB_TO_EN(m2)
     end
-    m1 = s:match("^Tầng (%d+)$")
+    m1 = s:match("^Tầng (%d+)$") or s:match("^Floor (%d+)$")
     if m1 then
         return "Floor " .. m1
     end
-    m1_2, m2 = s:match("^Đã mở khóa (%d+)/(%d+)$")
+    m1_2, m2 = s:match("^Đã mở khóa (%d+)/(%d+)$") or s:match("^(%d+) of (%d+) unlocked$")
     if m1_2 and m2 then
         return m1_2 .. " of " .. m2 .. " unlocked"
     end
-    m1 = s:match("^Đang có (%d+)$")
+    m1 = s:match("^Đang có (%d+)$") or s:match("^(%d+) owned$")
     if m1 then
         return m1 .. " owned"
     end
-    m1 = s:match("^(%d+) trứng$")
+    m1 = s:match("^(%d+) trứng$") or s:match("^(%d+) eggs?$")
     if m1 then
         return m1 .. " egg(s)"
     end
-    m1 = s:match("^(%d+) thú cưng$")
+    m1 = s:match("^(%d+) thú cưng$") or s:match("^(%d+) pets?$")
     if m1 then
         return m1 .. " pet(s)"
     end
-    m1 = s:match("^(%d+) kết quả$")
+    m1 = s:match("^(%d+) kết quả$") or s:match("^(%d+) match%(es%)$")
     if m1 then
         return m1 .. " match(es)"
     end
-    m1 = s:match("^Tự động tải hiện tại: (.+)$")
+    m1 = s:match("^Tự động tải hiện tại: (.+)$") or s:match("^Current Auto%-Load: (.+)$")
     if m1 then
         return "Current Auto-Load: " .. (m1 == "Không có" and "None" or m1)
     end
     return s
+end
+
+local function syncInstLanguage(inst)
+    if not inst or inst:GetAttribute("VNHUB_SkipLang") == true then return end
+    if inst:IsA("TextLabel") or inst:IsA("TextButton") then
+        local cur = inst.Text
+        if type(cur) == "string" and cur ~= "" and cur ~= "—" and cur ~= "✕" and cur ~= "+" and cur ~= "-" and cur ~= "✓" then
+            local last = inst:GetAttribute("VNHUB_LastText")
+            local viStr = inst:GetAttribute("VNHUB_VI")
+            local enStr = inst:GetAttribute("VNHUB_EN")
+            if cur ~= last or type(viStr) ~= "string" or type(enStr) ~= "string" then
+                viStr = __VNHUB_VI[cur] or cur
+                enStr = __VNHUB_TO_EN(cur)
+                inst:SetAttribute("VNHUB_VI", viStr)
+                inst:SetAttribute("VNHUB_EN", enStr)
+            end
+            local target = (_G.__VNHUB_LANG == "EN") and enStr or viStr
+            inst:SetAttribute("VNHUB_LastText", target)
+            if inst.Text ~= target then
+                inst.Text = target
+            end
+        end
+    elseif inst:IsA("TextBox") then
+        local pCur = inst.PlaceholderText
+        if type(pCur) == "string" and pCur ~= "" then
+            local pLast = inst:GetAttribute("VNHUB_LastPlaceholder")
+            local pVi = inst:GetAttribute("VNHUB_P_VI")
+            local pEn = inst:GetAttribute("VNHUB_P_EN")
+            if pCur ~= pLast or type(pVi) ~= "string" or type(pEn) ~= "string" then
+                pVi = __VNHUB_VI[pCur] or pCur
+                pEn = __VNHUB_TO_EN(pCur)
+                inst:SetAttribute("VNHUB_P_VI", pVi)
+                inst:SetAttribute("VNHUB_P_EN", pEn)
+            end
+            local pTarget = (_G.__VNHUB_LANG == "EN") and pEn or pVi
+            inst:SetAttribute("VNHUB_LastPlaceholder", pTarget)
+            if inst.PlaceholderText ~= pTarget then
+                inst.PlaceholderText = pTarget
+            end
+        end
+    end
+end
+
+local function __VNHUB_TR(s)
+    if _G.__VNHUB_LANG == "EN" then
+        return __VNHUB_TO_EN(s)
+    end
+    return __VNHUB_VI[s] or s
+end
+
+local function __VNHUB_LOAD_UILIB()
+    local function getGuiParent()
+        local ok, hui = pcall(function()
+            if type(gethui) == "function" then
+                return gethui()
+            end
+            return nil
+        end)
+        if ok and hui then
+            return hui
+        end
+        local ok2, cgParent = pcall(function()
+            return CoreGui
+        end)
+        if ok2 and cgParent then
+            return cgParent
+        end
+        if LocalPlayer then
+            return LocalPlayer:FindFirstChildOfClass("PlayerGui")
+        end
+        return nil
+    end
+    return getGuiParent()
 end
 
 local StealTab = Window:MakeTab({__VNHUB_VI["Steal"] or "Steal Eggs", "skull"})
