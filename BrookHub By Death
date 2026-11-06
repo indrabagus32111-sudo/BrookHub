@@ -36,7 +36,7 @@ if identifyexecutor then
 end
 
 -- ==================== TAB INFO (DEFAULT ACTIVE) ====================
-local InfoTab = Window:CreateTab("Info", "user")
+local InfoTab = Window:CreateTab("Info", "info")
 local PageInfo = InfoTab:CreatePage("Info")
 
 local SecInfo1 = PageInfo:CreateSection("Welcome back")
@@ -53,7 +53,7 @@ SecInfo2:AddButton("Rejoin Server", function()
 end)
 
 -- ==================== TAB PLAYER ====================
-local PlayerTab = Window:CreateTab("Player", "accessibility")
+local PlayerTab = Window:CreateTab("Player", "user")
 local PagePlayer = PlayerTab:CreatePage("Player Menu")
 
 local SecPlayer1 = PagePlayer:CreateSection("Player Character & Headsit")
