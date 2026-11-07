@@ -2737,6 +2737,2208 @@ task.spawn(function()
     end
 end)
 
+-- ==================== PAGE 2: TROLL PLAYERS v2 ====================
+local TrollPage2 = TrollTab:CreatePage("Troll v2")
+
+local v34 = game
+local v35 = game
+local v36 = game
+local v37 = game
+local v38 = game
+
+local v39 = {
+  Players = v34:GetService("Players"),
+  ReplicatedStorage = v35:GetService("ReplicatedStorage"),
+  RunService = v36:GetService("RunService"),
+  Workspace = v37:GetService("Workspace"),
+  UserInputService = v38:GetService("UserInputService"),
+}
+
+local localPlayer22 = v39.Players.LocalPlayer
+
+local function f32()
+  return pcall(function()
+    for index27, value41 in ipairs(localPlayer22.Backpack:GetChildren()) do
+      if value41:IsA("Tool") and value41.Name == "Couch" then
+        value41.Grip = CFrame.new(0, 2, -2.5)
+        value41.Parent = localPlayer22.Character
+        return true
+      end
+    end
+
+    v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch")
+    local v40 = tick()
+
+    while tick() - v40 < 0.5 do
+      for index28, value42 in ipairs(localPlayer22.Backpack:GetChildren()) do
+        if value42:IsA("Tool") and value42.Name == "Couch" then
+          value42.Grip = CFrame.new(0, 2, -2.5)
+          value42.Parent = localPlayer22.Character
+          return true
+        end
+      end
+
+      task.wait(0.1)
+    end
+  end) or false
+end
+
+local function f33(p16)
+  local v41, v42 = pcall(function()
+    if not p16 or not p16.Character then
+      return false
+    else
+      local humanoid17 = p16.Character:FindFirstChildOfClass("Humanoid")
+
+      if not humanoid17 then
+        return false
+      elseif humanoid17.Sit then
+        return true
+      else
+        if humanoid17.SeatPart then
+          return true
+        end
+
+        return false
+      end
+    end
+  end)
+
+  return v41 and v42 or false
+end
+
+local SecTargetConfig = TrollPage2:CreateSection("Target Configuration")
+
+local function f34()
+  local playerNames = {}
+  for _, p in ipairs(v39.Players:GetPlayers()) do
+    if p ~= localPlayer22 then
+      table.insert(playerNames, p.Name)
+    end
+  end
+  return playerNames
+end
+
+local v43 = false
+local v44, v45
+
+local selectTargetAddDropdown = SecTargetConfig:AddDropdown("Select Target", f34(), "", function(value43)
+    pcall(function()
+      if v43 then
+        return
+      end
+
+      if value43 and value43 ~= "" then
+        v44 = value43
+        v45 = value43
+        getgenv().Target = value43
+        selectedPlayerName = value43
+      else
+        v44 = nil
+        v45 = nil
+        getgenv().Target = nil
+        selectedPlayerName = nil
+      end
+    end)
+end)
+
+SecTargetConfig:AddButton("Refresh Player List", function()
+    pcall(function()
+      if not selectTargetAddDropdown then
+        return
+      end
+
+      v43 = true
+      local v46 = f34()
+      pcall(function() selectTargetAddDropdown:Set(v46) end)
+      v44 = nil
+      v45 = nil
+      v43 = false
+    end)
+end)
+
+task.spawn(function()
+  task.wait(1)
+
+  pcall(function()
+    local v47 = f34()
+    if selectTargetAddDropdown.Refresh then
+      selectTargetAddDropdown:Refresh(v47)
+    end
+    selectTargetAddDropdown:Set(v47)
+  end)
+end)
+
+SecTargetConfig:AddToggle("Spectate Target", false, function(value44)
+    local Camera = v39.Workspace.CurrentCamera
+    if value44 then
+        if v45 then
+            local targetPlayer = v39.Players:FindFirstChild(v45)
+            if targetPlayer and targetPlayer.Character then
+                local humanoid = targetPlayer.Character:FindFirstChild("Humanoid")
+                if humanoid then
+                    Camera.CameraSubject = humanoid
+                end
+            end
+        end
+    else
+        if localPlayer22.Character then
+            local humanoid = localPlayer22.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                Camera.CameraSubject = humanoid
+            end
+        end
+    end
+end)
+
+SecTargetConfig:AddButton("Teleport To Target", function()
+    pcall(function()
+      if not v45 then
+        return
+      else
+        local findFirstChild2 = v39.Players:FindFirstChild(v45)
+
+        if findFirstChild2 and findFirstChild2.Character then
+          local humanoidRootPart2 = localPlayer22.Character
+            and localPlayer22.Character:FindFirstChild("HumanoidRootPart")
+
+          local humanoidRootPart3 = findFirstChild2.Character:FindFirstChild("HumanoidRootPart")
+
+          if humanoidRootPart2 and humanoidRootPart3 then
+            humanoidRootPart2.CFrame = humanoidRootPart3.CFrame * CFrame.new(0, 0, 3)
+          end
+        end
+
+        return
+      end
+    end)
+end)
+
+local standardMethod = "Bus"
+
+SecTargetConfig:AddDropdown("Standard Method", { "Ball", "Couch", "Boat", "PoliceBoat", "Bus", "TowTruck" }, "Bus", function(value45)
+    pcall(function() standardMethod = value45 end)
+end)
+
+local function f35(p17)
+  pcall(function()
+    local character16 = localPlayer22.Character or localPlayer22.CharacterAdded:Wait()
+    local humanoid18 = character16:WaitForChild("Humanoid")
+    local backpack = localPlayer22:WaitForChild("Backpack")
+    local waitForChild = v39.Workspace:FindFirstChild("WorkspaceCom") and v39.Workspace.WorkspaceCom:WaitForChild("001_SoccerBalls") or v39.Workspace:FindFirstChild("Com", true) and v39.Workspace.Com:FindFirstChild("001_SoccerBalls")
+
+    local function f36()
+      if not backpack:FindFirstChild("SoccerBall") then
+        v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(
+          "PickingTools", "SoccerBall"
+        )
+      end
+
+      backpack:FindFirstChild("SoccerBall")
+      local v48
+
+      repeat
+        task.wait()
+        v48 = backpack
+      until v48:FindFirstChild("SoccerBall")
+
+      backpack.SoccerBall.Parent = character16
+      if waitForChild then
+        waitForChild:FindFirstChild("Soccer" .. localPlayer22.Name)
+        local v49
+
+        repeat
+          task.wait()
+          v49 = waitForChild
+        until v49:FindFirstChild("Soccer" .. localPlayer22.Name)
+
+        character16.SoccerBall.Parent = backpack
+        return waitForChild:FindFirstChild("Soccer" .. localPlayer22.Name)
+      end
+    end
+
+    local findFirstChild3 = waitForChild and waitForChild:FindFirstChild("Soccer" .. localPlayer22.Name) or f36()
+    if not findFirstChild3 then return end
+    findFirstChild3.CanCollide = false
+    findFirstChild3.Massless = true
+    findFirstChild3.CustomPhysicalProperties = PhysicalProperties.new(0.0001, 0, 0)
+
+    local character17 = p17.Character
+
+    local humanoid19 = character17 and character17:FindFirstChild("HumanoidRootPart")
+      and character17:FindFirstChild("Humanoid")
+
+    local v50
+
+    if humanoid19 then
+      local humanoidRootPart4 = character17.HumanoidRootPart
+      local humanoid20 = character17.Humanoid
+
+      if findFirstChild3:FindFirstChildWhichIsA("BodyVelocity") then
+        findFirstChild3:FindFirstChildWhichIsA("BodyVelocity"):Destroy()
+      end
+
+      local bodyVelocity = Instance.new("BodyVelocity")
+      bodyVelocity.Velocity = Vector3.new(31500000000, 31500000000, 31500000000)
+      bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+      bodyVelocity.P = math.huge
+      bodyVelocity.Parent = findFirstChild3
+
+      v39.Workspace.CurrentCamera.CameraSubject = humanoid20
+
+      repeat
+        if humanoidRootPart4.Velocity.Magnitude > 0 then
+          findFirstChild3.CFrame = CFrame.new(humanoidRootPart4.Position.X
+            + humanoidRootPart4.Velocity.X / 1.5, humanoidRootPart4.Position.Y
+            + humanoidRootPart4.Velocity.Y / 1.5, humanoidRootPart4.Position.Z
+            + humanoidRootPart4.Velocity.Z / 1.5)
+
+          findFirstChild3.Orientation = findFirstChild3.Orientation + Vector3.new(45, 60, 30)
+        else
+          for key8, value46 in pairs(character17:GetChildren()) do
+            if value46:IsA("BasePart") and value46.CanCollide and not value46.Anchored then
+              findFirstChild3.CFrame = value46.CFrame
+              task.wait(0.00016666666666667)
+            end
+          end
+        end
+
+        task.wait(0.00016666666666667)
+        local v51 = humanoidRootPart4.Velocity.Magnitude > 1000
+
+        v50 = v51
+        v50 = v51 or humanoid20.Health <= 0 or not character17:IsDescendantOf(v39.Workspace)
+      until v50
+
+      v39.Workspace.CurrentCamera.CameraSubject = humanoid18
+    end
+  end)
+end
+
+local function f37(p18, p19)
+end
+
+local function f38(p20, p21)
+  pcall(function()
+    local character18 = localPlayer22.Character
+    local humanoidRootPart5 = character18 and character18:FindFirstChild("HumanoidRootPart")
+
+    local humanoid21 = character18
+    humanoid21 = character18 and character18:FindFirstChildOfClass("Humanoid")
+
+    local v52 = not humanoidRootPart5
+    local v53 = humanoid21
+    local v54, cframe, findFirstChild4, v55, v56
+
+    if v52 or not v53 then
+      return
+    else
+      cframe = humanoidRootPart5.CFrame
+      local vehicles = v39.Workspace:FindFirstChild("Vehicles")
+
+      if p21 == "Boat" then
+        humanoidRootPart5.CFrame = CFrame.new(1754, -2, 58)
+        task.wait(0.5)
+
+        v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer(
+          "PickingBoat", "MilitaryBoatFree"
+        )
+      elseif p21 == "PoliceBoat" then
+        humanoidRootPart5.CFrame = CFrame.new(1754, -2, 58)
+        task.wait(0.5)
+
+        v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer(
+          "PickingBoat", "PoliceBoatChangeable"
+        )
+      else
+        humanoidRootPart5.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
+        task.wait(0.5)
+
+        local v57 = p21 == "Bus" and { "PickingCar", "SchoolBus" }
+          or { "PickingCar", "TowTruck" }
+
+        v39.ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Ca1r"):FireServer(unpack(v57))
+      end
+
+      task.wait(1.5)
+      findFirstChild4 = vehicles:FindFirstChild(localPlayer22.Name .. "Car")
+
+      if not findFirstChild4 then
+        humanoidRootPart5.CFrame = cframe
+        return
+      end
+
+      v55 = {}
+
+      for key9, value47 in pairs({
+        findFirstChild4:FindFirstChild("Body"), findFirstChild4:FindFirstChild("Seats"),
+      }) do
+        if value47 then
+          for key10, value48 in pairs(value47:GetChildren()) do
+            if value48:IsA("Seat") or value48:IsA("VehicleSeat") then
+              table.insert(v55, value48)
+            end
+          end
+        end
+      end
+
+      if #v55 == 0 then
+        humanoidRootPart5.CFrame = cframe
+        return
+      else
+        local v58 = v55[1]
+        local count2 = 0
+
+        repeat
+          humanoidRootPart5.CFrame = v58.CFrame * CFrame.new(0, 2, 0)
+          task.wait(0.1)
+          count2 = count2 + 1
+          local sit = v53.Sit
+
+          v54 = sit
+          v54 = sit or count2 > 50 or not findFirstChild4.Parent
+        until v54
+
+        if not v53.Sit then
+          humanoidRootPart5.CFrame = cframe
+          return
+        end
+
+        v39.Workspace.FallenPartsDestroyHeight = (0 / 0)
+        v56 = true
+
+        task.spawn(function()
+          local v59 = tick()
+
+          while v56 and findFirstChild4 and findFirstChild4.Parent do
+            local character19 = p20.Character
+
+            if not character19 then
+              break
+            else
+              local humanoidRootPart6 = character19:FindFirstChild("HumanoidRootPart")
+              local humanoid22 = character19:FindFirstChildOfClass("Humanoid")
+
+              if not humanoidRootPart6 or not humanoid22 or humanoid22.Health <= 0 then
+                break
+              elseif humanoid22.Sit then
+                for m = 1, 30 do
+                  findFirstChild4:SetPrimaryPartCFrame(cframe * CFrame.new(0, 5, -3))
+                  task.wait(0.03)
+
+                  if (humanoidRootPart6.Position - cframe.Position).Magnitude < 10 then
+                    break
+                  end
+                end
+
+                break
+              else
+                if (humanoidRootPart6.Position - cframe.Position).Magnitude < 10 then
+                  break
+                end
+
+                for key11, value49 in pairs(v55) do
+                  local v60 = tick()
+                  local v61 = math.rad((v60 * 100 + key11 * 60) % 360)
+                  local v62 = math.cos(v61)
+                  local v63 = math.sin(v61)
+
+                  value49.CFrame = humanoidRootPart6.CFrame * CFrame.new(v62 * 3, 2, v63 * 3)
+                  value49.Velocity = Vector3.new(0, 50, 0)
+                  value49.CanTouch = false
+                end
+
+                if tick() - v59 > 30 then
+                  break
+                end
+
+                v39.RunService.RenderStepped:Wait()
+              end
+            end
+          end
+
+          v56 = false
+        end)
+
+        while v56 do
+          task.wait(0.1)
+        end
+
+        task.wait(0.3)
+
+        if v53 then
+          v53:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+
+        task.wait(0.7)
+
+        if humanoidRootPart5 then
+          humanoidRootPart5.CFrame = cframe
+          humanoidRootPart5.Velocity = Vector3.new(0, 0, 0)
+          humanoidRootPart5.RotVelocity = Vector3.new(0, 0, 0)
+        end
+
+        task.wait(0.5)
+        v39.Workspace.FallenPartsDestroyHeight = -500
+        return
+      end
+    end
+  end)
+end
+
+local function f39(p22, p23)
+  pcall(function()
+    local character20 = localPlayer22.Character
+    local humanoid23 = character20 and character20:FindFirstChildOfClass("Humanoid")
+    local rootPart = humanoid23 and humanoid23.RootPart
+    local character21 = p22.Character
+    local humanoid24 = character21 and character21:FindFirstChildOfClass("Humanoid")
+    local rootPart2 = humanoid24 and humanoid24.RootPart
+    local head = character21 and character21:FindFirstChild("Head")
+
+    local v64 = character20 and humanoid23 and rootPart and character21 and humanoid24
+      and rootPart2
+
+    local f40
+
+    if not v64 then
+      return
+    else
+      if rootPart.Velocity.Magnitude < 50 then
+        getgenv().OldPos = rootPart.CFrame
+      end
+
+      if head then
+        v39.Workspace.CurrentCamera.CameraSubject = head
+      elseif humanoid24 then
+        v39.Workspace.CurrentCamera.CameraSubject = humanoid24
+      end
+
+      function f40(p24, p25, p26)
+        rootPart.CFrame = CFrame.new(p24.Position) * p25 * p26
+        character20:SetPrimaryPartCFrame(CFrame.new(p24.Position) * p25 * p26)
+
+        rootPart.Velocity = Vector3.new(3150000000, 31500000000, 3150000000)
+        rootPart.RotVelocity = Vector3.new(31500000000, 31500000000, 31500000000)
+      end
+
+      local function f41(p27)
+        local v65 = tick()
+        local total = 0
+        local sit2
+
+        repeat
+          if rootPart and humanoid24 then
+            if p27.Velocity.Magnitude < 50 then
+              total = total + 100
+
+              f40(p27, CFrame.new(0, 1.5, 0)
+                + humanoid24.MoveDirection * p27.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(total), 0, 0))
+
+              task.wait()
+
+              f40(p27, CFrame.new(0, -1.5, 0)
+                + humanoid24.MoveDirection * p27.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(total), 0, 0))
+
+              task.wait()
+
+              f40(p27, CFrame.new(2.25, 1.5, -2.25)
+                + humanoid24.MoveDirection * p27.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(total), 0, 0))
+
+              task.wait()
+
+              f40(p27, CFrame.new(-2.25, -1.5, 2.25)
+                + humanoid24.MoveDirection * p27.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(total), 0, 0))
+
+              task.wait()
+
+              f40(
+                p27, CFrame.new(0, 1.5, 0) + humanoid24.MoveDirection,
+                CFrame.Angles(math.rad(total), 0, 0)
+              )
+
+              task.wait()
+
+              f40(
+                p27, CFrame.new(0, -1.5, 0) + humanoid24.MoveDirection,
+                CFrame.Angles(math.rad(total), 0, 0)
+              )
+
+              task.wait()
+            else
+              f40(
+                p27, CFrame.new(0, 1.5, humanoid24.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0)
+              )
+
+              task.wait()
+              f40(p27, CFrame.new(0, -1.5, -humanoid24.WalkSpeed), CFrame.Angles(0, 0, 0))
+              task.wait()
+
+              f40(
+                p27, CFrame.new(0, 1.5, humanoid24.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0)
+              )
+
+              task.wait()
+
+              f40(
+                p27, CFrame.new(0, 1.5, rootPart2.Velocity.Magnitude / 1.25),
+                CFrame.Angles(math.rad(90), 0, 0)
+              )
+
+              task.wait()
+
+              f40(
+                p27, CFrame.new(0, -1.5, -rootPart2.Velocity.Magnitude / 1.25),
+                CFrame.Angles(0, 0, 0)
+              )
+
+              task.wait()
+
+              f40(
+                p27, CFrame.new(0, 1.5, rootPart2.Velocity.Magnitude / 1.25),
+                CFrame.Angles(math.rad(90), 0, 0)
+              )
+
+              task.wait()
+              f40(p27, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(90), 0, 0))
+              task.wait()
+              f40(p27, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+              task.wait()
+              f40(p27, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(-90), 0, 0))
+              task.wait()
+              f40(p27, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+              task.wait()
+            end
+
+            local v66 = p27.Velocity.Magnitude > 500
+            sit2 = v66 or not p27.Parent or not p22.Character or humanoid24.Sit
+              or humanoid23.Health <= 0 or tick() > v65 + 5
+          else
+            break
+          end
+        until sit2
+      end
+
+      local bodyVelocity2 = Instance.new("BodyVelocity")
+      bodyVelocity2.Parent = rootPart
+      bodyVelocity2.Velocity = Vector3.new(900000000, 900000000, 900000000)
+      bodyVelocity2.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+
+      humanoid23:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+
+      if rootPart2 and head then
+        if (rootPart2.CFrame.p - head.CFrame.p).Magnitude > 5 then
+          f41(head)
+        else
+          f41(rootPart2)
+        end
+      elseif rootPart2 then
+        f41(rootPart2)
+      elseif head then
+        f41(head)
+      end
+
+      bodyVelocity2:Destroy()
+      humanoid23:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+      v39.Workspace.CurrentCamera.CameraSubject = humanoid23
+      task.wait(0.5)
+
+      if p23 and rootPart then
+        rootPart.CFrame = p23
+        rootPart.Velocity = Vector3.new(0, 0, 0)
+        rootPart.RotVelocity = Vector3.new(0, 0, 0)
+      end
+
+      task.wait(0.3)
+      v39.Workspace.FallenPartsDestroyHeight = -500
+      return
+    end
+  end)
+end
+
+local function f42(p28)
+  pcall(function()
+    local v67 = not p28.Character or not p28.Character:FindFirstChild("HumanoidRootPart")
+    local humanoid25
+
+    if v67 then
+      return
+    else
+      v39.ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer(unpack({ "ClearAllTools" }))
+
+      v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(unpack({
+        "PickingTools", "Couch",
+      }))
+
+      local chaosCouch = localPlayer22.Backpack:WaitForChild("Couch", 2)
+
+      if not chaosCouch then
+        return
+      else
+        chaosCouch.Name = "Chaos.Couch"
+        local seat1 = chaosCouch:FindFirstChild("Seat1")
+        local seat2 = chaosCouch:FindFirstChild("Seat2")
+        local handle = chaosCouch:FindFirstChild("Handle")
+
+        if seat1 and seat2 and handle then
+          seat1.Disabled = true
+          seat2.Disabled = true
+          handle.Name = "Handle "
+          chaosCouch.Parent = localPlayer22.Character
+
+          local mOVOOEPFFGEREVEWVW = Instance.new("BodyVelocity", seat1)
+          mOVOOEPFFGEREVEWVW.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+          mOVOOEPFFGEREVEWVW.P = 1250
+          mOVOOEPFFGEREVEWVW.Velocity = Vector3.new(0, 0, 0)
+          mOVOOEPFFGEREVEWVW.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
+
+          repeat
+            for n = 1, 35 do
+              local v68 = { x = 0, y = 0, z = 0 }
+              local humanoidRootPart7 = p28.Character and p28.Character.HumanoidRootPart
+
+              if not humanoidRootPart7 then
+                break
+              end
+
+              v68.x = humanoidRootPart7.Position.X + humanoidRootPart7.Velocity.X / 2
+              v68.y = humanoidRootPart7.Position.Y + humanoidRootPart7.Velocity.Y / 2
+              v68.z = humanoidRootPart7.Position.Z + humanoidRootPart7.Velocity.Z / 2
+
+              seat1.CFrame = CFrame.new(Vector3.new(v68.x, v68.y, v68.z)) * CFrame.new(-2, 2, 0)
+              task.wait()
+            end
+
+            mOVOOEPFFGEREVEWVW:Destroy()
+            chaosCouch.Parent = localPlayer22.Backpack
+            task.wait()
+            chaosCouch:FindFirstChild("Handle ").Name = "Handle"
+            task.wait(0.2)
+            chaosCouch.Parent = localPlayer22.Character
+            task.wait()
+
+            chaosCouch.Parent = localPlayer22.Backpack
+            chaosCouch.Handle.Name = "Handle "
+
+            task.wait(0.2)
+            chaosCouch.Parent = localPlayer22.Character
+
+            mOVOOEPFFGEREVEWVW = Instance.new("BodyVelocity", seat1)
+            mOVOOEPFFGEREVEWVW.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            mOVOOEPFFGEREVEWVW.P = 1250
+            mOVOOEPFFGEREVEWVW.Velocity = Vector3.new(0, 0, 0)
+            mOVOOEPFFGEREVEWVW.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
+
+            local character22 = p28.Character
+            humanoid25 = character22 and p28.Character.Humanoid and p28.Character.Humanoid.Sit == true
+          until humanoid25
+
+          task.wait()
+          mOVOOEPFFGEREVEWVW:Destroy()
+          chaosCouch.Parent = localPlayer22.Backpack
+          task.wait()
+          chaosCouch:FindFirstChild("Handle ").Name = "Handle"
+          task.wait(0.3)
+          chaosCouch.Parent = localPlayer22.Character
+          task.wait(0.3)
+          chaosCouch.Grip = CFrame.new(Vector3.new(0, 0, 0))
+          task.wait(0.3)
+          v39.ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer("ClearAllTools")
+          return
+        end
+        return
+      end
+    end
+  end)
+end
+
+local function f43(p29)
+  pcall(function()
+    if f33(p29) then
+      return
+    else
+      local humanoidRootPart8 = localPlayer22.Character
+        and localPlayer22.Character:FindFirstChild("HumanoidRootPart")
+
+      if not humanoidRootPart8 then
+        return
+      else
+        local cframe2 = humanoidRootPart8.CFrame
+        v39.Workspace.FallenPartsDestroyHeight = (0 / 0)
+
+        if not f32() then
+          v39.Workspace.FallenPartsDestroyHeight = -500
+          return
+        end
+
+        while not p29.Character do
+          task.wait(0.1)
+        end
+
+        f39(p29, cframe2)
+        return
+      end
+    end
+  end)
+end
+
+local SecStandardActions = TrollPage2:CreateSection("Standard Actions")
+
+SecStandardActions:AddButton("Execute Kill", function()
+    pcall(function()
+      if not v45 or v45 == "" then
+        return
+      else
+        local findFirstChild5 = v39.Players:FindFirstChild(v45)
+
+        if not findFirstChild5 then
+          return
+        end
+
+        if f33(findFirstChild5) then
+          return
+        end
+
+        if standardMethod == "Ball" then
+          f35(findFirstChild5)
+        elseif standardMethod == "Couch" then
+          f43(findFirstChild5)
+        elseif standardMethod == "Boat" then
+          f37(findFirstChild5, "Boat")
+        elseif standardMethod == "PoliceBoat" then
+          f37(findFirstChild5, "PoliceBoat")
+        elseif standardMethod == "Bus" then
+          f37(findFirstChild5, "Bus")
+        elseif standardMethod == "TowTruck" then
+          f37(findFirstChild5, "TowTruck")
+        end
+
+        return
+      end
+    end)
+end)
+
+SecStandardActions:AddButton("Execute Bring", function()
+    pcall(function()
+      if not v45 or v45 == "" then
+        return
+      else
+        local findFirstChild6 = v39.Players:FindFirstChild(v45)
+
+        if not findFirstChild6 then
+          return
+        end
+
+        if standardMethod == "Couch" then
+          f42(findFirstChild6)
+        elseif standardMethod == "Boat" then
+          f38(findFirstChild6, "Boat")
+        elseif standardMethod == "PoliceBoat" then
+          f38(findFirstChild6, "PoliceBoat")
+        elseif standardMethod == "Bus" then
+          f38(findFirstChild6, "Bus")
+        elseif standardMethod == "TowTruck" then
+          f38(findFirstChild6, "TowTruck")
+        end
+
+        return
+      end
+    end)
+end)
+
+local SecAdvancedMethods = TrollPage2:CreateSection("Advanced Target Methods")
+
+local v69 = false
+
+SecAdvancedMethods:AddToggle("Fling Couch (English Method) [TOP 1]", false, function(value50)
+    pcall(function()
+      v69 = value50
+
+      if v69 then
+        task.spawn(function()
+          while v69 do
+            if v45 then
+              local findFirstChild7 = v39.Players:FindFirstChild(v45)
+
+              if findFirstChild7 and findFirstChild7.Character then
+                local character23 = localPlayer22.Character
+                local humanoidRootPart9 = character23 and character23:FindFirstChild("HumanoidRootPart")
+                local humanoidRootPart10 = findFirstChild7.Character:FindFirstChild("HumanoidRootPart")
+                local humanoid26 = findFirstChild7.Character:FindFirstChildOfClass("Humanoid")
+                local humanoid27 = character23 and character23:FindFirstChildOfClass("Humanoid")
+
+                if humanoidRootPart9 and humanoidRootPart10 and humanoid26 and humanoid27 then
+                  local v70 = { "ClearAllTools" }
+
+                  if v39.ReplicatedStorage.RE:FindFirstChild("1Clea1rTool1s") then
+                    v39.ReplicatedStorage.RE:FindFirstChild("1Clea1rTool1s"):FireServer(unpack(v70))
+                  end
+
+                  task.wait(0.3)
+
+                  if v39.ReplicatedStorage.RE:FindFirstChild("1Too1l") then
+                    v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(
+                      "PickingTools", "Couch"
+                    )
+                  end
+
+                  local cframe3 = humanoidRootPart9.CFrame
+                  local tool = localPlayer22.Backpack:FindFirstChildOfClass("Tool")
+
+                  if tool then
+                    tool.Parent = character23
+                  end
+
+                  v39.Workspace.FallenPartsDestroyHeight = -math.huge
+
+                  local flingForce = Instance.new("BodyVelocity")
+                  flingForce.Name = "FlingForce"
+                  flingForce.Velocity = Vector3.new(900000000, 900000000, 900000000)
+                  flingForce.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                  flingForce.Parent = humanoidRootPart9
+
+                  humanoid27:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+                  humanoid27.PlatformStand = false
+
+                  v39.Workspace.CurrentCamera.CameraSubject = humanoidRootPart10
+                  local total2 = 0
+
+                  while v69 and findFirstChild7 and findFirstChild7.Character
+                    and findFirstChild7.Character:FindFirstChildOfClass("Humanoid") do
+                    local humanoid28 = findFirstChild7.Character:FindFirstChildOfClass("Humanoid")
+                    local humanoidRootPart11 = findFirstChild7.Character:FindFirstChild("HumanoidRootPart")
+
+                    if not humanoidRootPart11 or humanoid28.Sit
+                      or humanoidRootPart11.Position.Y >= 70000 then
+                      break
+                    else
+                      local moveDirection = humanoid28.MoveDirection
+                      local v71 = Vector3.new(0, 0, 0)
+
+                      if moveDirection.Magnitude >= 0.01 then
+                        local walkSpeed = humanoid28.WalkSpeed
+                        local v72 = 13
+
+                        if walkSpeed > 16 then
+                          v72 = v72 + math.floor((walkSpeed - 16) / 9) * 9
+                        end
+
+                        v71 = moveDirection.Unit * v72
+                      end
+
+                      total2 = total2 + 30
+
+                      humanoidRootPart9.CFrame = CFrame.new(humanoidRootPart11.Position + v71
+                          + Vector3.new(0, 1, 0))
+                        * CFrame.Angles(math.rad(total2), 0, 0)
+
+                      humanoidRootPart9.Velocity = Vector3.new(900000000, 900000000, 900000000)
+                      humanoidRootPart9.RotVelocity = Vector3.new(900000000, 900000000, 900000000)
+
+                      task.wait()
+                    end
+                  end
+
+                  flingForce:Destroy()
+
+                  humanoid27:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+                  humanoid27.PlatformStand = false
+
+                  humanoidRootPart9.CFrame = cframe3
+                  v39.Workspace.CurrentCamera.CameraSubject = humanoid27
+
+                  for key12, value51 in pairs(character23:GetDescendants()) do
+                    if value51:IsA("BasePart") then
+                      value51.Velocity = Vector3.zero
+                      value51.RotVelocity = Vector3.zero
+                    end
+                  end
+
+                  humanoid27:UnequipTools()
+
+                  if v39.ReplicatedStorage.RE:FindFirstChild("1Too1l") then
+                    v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(
+                      "PickingTools", "Couch"
+                    )
+                  end
+                end
+              end
+            end
+
+            task.wait(0.5)
+          end
+        end)
+      end
+    end)
+end)
+
+SecAdvancedMethods:AddToggle("Fling Couch (Brazilian Server Method)", false, function(value52) end)
+
+SecAdvancedMethods:AddButton("Glitch / Fling Couch", function()
+    pcall(function()
+      if not v45 then
+        return
+      else
+        local findFirstChild8 = v39.Players:FindFirstChild(v45)
+
+        if not findFirstChild8 or not findFirstChild8.Character then
+          return
+        else
+          local character24 = localPlayer22.Character
+          local humanoidRootPart12 = character24 and character24:FindFirstChild("HumanoidRootPart")
+          local humanoidRootPart13 = findFirstChild8.Character:FindFirstChild("HumanoidRootPart")
+          local humanoid29 = findFirstChild8.Character:FindFirstChildOfClass("Humanoid")
+          local humanoid30 = character24 and character24:FindFirstChildOfClass("Humanoid")
+
+          if not (humanoidRootPart12 and humanoidRootPart13 and humanoid29 and humanoid30) then
+            return
+          else
+            local v73 = { "ClearAllTools" }
+
+            if v39.ReplicatedStorage.RE:FindFirstChild("1Clea1rTool1s") then
+              v39.ReplicatedStorage.RE:FindFirstChild("1Clea1rTool1s"):FireServer(unpack(v73))
+            end
+
+            task.wait(0.3)
+
+            if v39.ReplicatedStorage.RE:FindFirstChild("1Too1l") then
+              v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(
+                "PickingTools", "Couch"
+              )
+            end
+
+            local cframe4 = humanoidRootPart12.CFrame
+            local tool2 = localPlayer22.Backpack:FindFirstChildOfClass("Tool")
+
+            if tool2 then
+              tool2.Parent = character24
+            end
+
+            v39.Workspace.FallenPartsDestroyHeight = -math.huge
+
+            local flingForce2 = Instance.new("BodyVelocity")
+            flingForce2.Name = "FlingForce"
+            flingForce2.Velocity = Vector3.new(900000000, 900000000, 900000000)
+            flingForce2.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            flingForce2.Parent = humanoidRootPart12
+
+            humanoid30:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+            humanoid30.PlatformStand = false
+
+            v39.Workspace.CurrentCamera.CameraSubject = humanoidRootPart13
+            local total3 = 0
+            local v74 = tick()
+
+            while tick() - v74 < 3 and findFirstChild8 and findFirstChild8.Character
+              and findFirstChild8.Character:FindFirstChildOfClass("Humanoid") do
+              local humanoidRootPart14 = findFirstChild8.Character:FindFirstChild("HumanoidRootPart")
+
+              if not humanoidRootPart14 then
+                break
+              end
+
+              total3 = total3 + 30
+
+              humanoidRootPart12.CFrame = CFrame.new(humanoidRootPart14.Position
+                  + Vector3.new(0, 1, 0))
+                * CFrame.Angles(math.rad(total3), 0, 0)
+
+              humanoidRootPart12.Velocity = Vector3.new(900000000, 900000000, 900000000)
+              humanoidRootPart12.RotVelocity = Vector3.new(900000000, 900000000, 900000000)
+
+              task.wait()
+            end
+
+            flingForce2:Destroy()
+
+            humanoid30:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+            humanoid30.PlatformStand = false
+
+            humanoidRootPart12.CFrame = cframe4
+            v39.Workspace.CurrentCamera.CameraSubject = humanoid30
+
+            for key13, value53 in pairs(character24:GetDescendants()) do
+              if value53:IsA("BasePart") then
+                value53.Velocity = Vector3.zero
+                value53.RotVelocity = Vector3.zero
+              end
+            end
+
+            humanoid30:UnequipTools()
+
+            if v39.ReplicatedStorage.RE:FindFirstChild("1Too1l") then
+              v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(
+                "PickingTools", "Couch"
+              )
+            end
+
+            return
+          end
+        end
+      end
+    end)
+end)
+
+SecAdvancedMethods:AddButton("Fling Doors", function()
+    pcall(function()
+      if not v45 then
+        return
+      end
+
+      local findFirstChild9 = v39.Players:FindFirstChild(v45)
+
+      if not findFirstChild9 or not findFirstChild9.Character
+        or not findFirstChild9.Character:FindFirstChild("HumanoidRootPart") then
+        return
+      end
+
+      local character25 = localPlayer22.Character or localPlayer22.CharacterAdded:Wait()
+      local humanoidRootPart15 = character25:WaitForChild("HumanoidRootPart")
+
+      local redzHubBlackHoleTarget = v39.Workspace:FindFirstChild("RedzHub_BlackHoleTarget")
+        or Instance.new("Part")
+
+      redzHubBlackHoleTarget.Size = Vector3.new(100000, 100000, 100000)
+      redzHubBlackHoleTarget.Transparency = 1
+      redzHubBlackHoleTarget.Anchored = true
+      redzHubBlackHoleTarget.CanCollide = false
+      redzHubBlackHoleTarget.Name = "RedzHub_BlackHoleTarget"
+      redzHubBlackHoleTarget.Parent = v39.Workspace
+
+      local redzHubBlackHoleAttachment = redzHubBlackHoleTarget:FindFirstChild("RedzHub_BlackHoleAttachment")
+        or Instance.new("Attachment")
+
+      redzHubBlackHoleAttachment.Name = "RedzHub_BlackHoleAttachment"
+      redzHubBlackHoleAttachment.Parent = redzHubBlackHoleTarget
+
+      v39.RunService.Heartbeat:Connect(function()
+        pcall(function()
+          if character25 and character25:FindFirstChild("HumanoidRootPart") then
+            redzHubBlackHoleTarget.CFrame = humanoidRootPart15.CFrame
+          end
+        end)
+      end)
+
+      local v75 = {}
+      local f44
+
+      function f44(p30)
+        if not p30:IsA("BasePart") or p30.Anchored or not string.find(p30.Name, "Door") then
+          return
+        elseif p30:FindFirstChild("RedzHub_Attached") then
+          return
+        else
+          p30.CanCollide = false
+
+          for index29, value54 in ipairs(p30:GetChildren()) do
+            if value54:IsA("AlignPosition") or value54:IsA("Torque")
+              or value54:IsA("Attachment") then
+              value54:Destroy()
+            end
+          end
+
+          Instance.new("BoolValue", p30).Name = "RedzHub_Attached"
+          local instance13 = Instance.new("Attachment", p30)
+          local instance14 = Instance.new("AlignPosition", p30)
+          instance14.Attachment0 = instance13
+          instance14.Attachment1 = redzHubBlackHoleAttachment
+          instance14.MaxForce = 100000000000000000000
+          instance14.MaxVelocity = math.huge
+          instance14.Responsiveness = 99999
+
+          local instance15 = Instance.new("Torque", p30)
+          instance15.Attachment0 = instance13
+          instance15.RelativeTo = Enum.ActuatorRelativeTo.World
+
+          instance15.Torque = Vector3.new(
+            math.random(-1000000, 1000000) * 1000, math.random(-1000000, 1000000) * 10000,
+            math.random(-1000000, 1000000) * 100
+          )
+
+          table.insert(v75, { Part = p30, Align = instance14 })
+          return
+        end
+      end
+
+      for index30, value55 in ipairs(v39.Workspace:GetDescendants()) do
+        if value55:IsA("BasePart") and string.find(value55.Name, "Door") then
+          f44(value55)
+        end
+      end
+
+      v39.Workspace.DescendantAdded:Connect(function(descendant)
+        if descendant:IsA("BasePart") and string.find(descendant.Name, "Door") then
+          f44(descendant)
+        end
+      end)
+
+      local f45
+      function f45(p31)
+        local character26 = p31.Character
+
+        if not character26 then
+          return
+        else
+          local humanoidRootPart16 = character26:FindFirstChild("HumanoidRootPart")
+
+          if not humanoidRootPart16 then
+            return
+          else
+            local redzHubTargetAttachment = humanoidRootPart16:FindFirstChild("RedzHub_TargetAttachment")
+
+            if not redzHubTargetAttachment then
+              redzHubTargetAttachment = Instance.new("Attachment", humanoidRootPart16)
+              redzHubTargetAttachment.Name = "RedzHub_TargetAttachment"
+            end
+
+            for index31, value56 in ipairs(v75) do
+              if value56.Align then
+                value56.Align.Attachment1 = redzHubTargetAttachment
+              end
+            end
+
+            local v76 = tick()
+
+            while tick() - v76 < 6 do
+              if not character25 or not humanoidRootPart15 or not p31.Character
+                or not humanoidRootPart16 then
+                break
+              else
+                local magnitude = (humanoidRootPart15.Position - humanoidRootPart16.Position).Magnitude
+                redzHubBlackHoleTarget.CFrame = humanoidRootPart16.CFrame
+
+                if magnitude >= 3000 then
+                  break
+                end
+
+                v39.RunService.Heartbeat:Wait()
+              end
+            end
+
+            for index32, value57 in ipairs(v75) do
+              if value57.Align then
+                value57.Align.Attachment1 = redzHubBlackHoleAttachment
+              end
+            end
+
+            redzHubBlackHoleTarget.CFrame = humanoidRootPart15.CFrame
+            return
+          end
+        end
+      end
+
+      task.defer(function() f45(findFirstChild9) end)
+    end)
+end)
+
+SecAdvancedMethods:AddButton("Fling Ball Car", function()
+    pcall(function()
+      if not v45 then
+        return
+      end
+
+      local findFirstChild10 = v39.Players:FindFirstChild(v45)
+      local soccerBall, findFirstChild11, findFirstChild12
+
+      if not findFirstChild10 then
+        return
+      else
+        local character27 = localPlayer22.Character or localPlayer22.CharacterAdded:Wait()
+        local backpack2 = localPlayer22:WaitForChild("Backpack")
+        local waitForChild2 = v39.Workspace:WaitForChild("WorkspaceCom"):WaitForChild("001_SoccerBalls")
+
+        if not backpack2:FindFirstChild("SoccerBall")
+          and not character27:FindFirstChild("SoccerBall") then
+          v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(
+            "PickingTools", "SoccerBall"
+          )
+        end
+
+        if not backpack2:FindFirstChild("SoccerBall") then
+          character27:FindFirstChild("SoccerBall")
+        end
+
+        repeat
+          task.wait()
+          local soccerBall2 = backpack2:FindFirstChild("SoccerBall")
+
+          soccerBall = soccerBall2
+          soccerBall = soccerBall2 or character27:FindFirstChild("SoccerBall")
+        until soccerBall
+
+        local soccerBall3 = backpack2:FindFirstChild("SoccerBall")
+
+        if soccerBall3 then
+          soccerBall3.Parent = character27
+        end
+
+        waitForChild2:FindFirstChild("Soccer" .. localPlayer22.Name)
+
+        repeat
+          task.wait()
+        until waitForChild2:FindFirstChild("Soccer" .. localPlayer22.Name)
+
+        findFirstChild11 = waitForChild2:FindFirstChild("Soccer" .. localPlayer22.Name)
+        findFirstChild11.CanCollide = false
+        findFirstChild11.Massless = true
+        findFirstChild11.CustomPhysicalProperties = PhysicalProperties.new(0.0001, 0, 0)
+
+        local vehicles2 = v39.Workspace:FindFirstChild("Vehicles")
+
+        if not vehicles2 then
+          return
+        end
+
+        findFirstChild12 = vehicles2:FindFirstChild(findFirstChild10.Name .. "Car")
+
+        if not findFirstChild12 then
+          return
+        else
+          if findFirstChild11:FindFirstChildWhichIsA("BodyVelocity") then
+            findFirstChild11:FindFirstChildWhichIsA("BodyVelocity"):Destroy()
+          end
+
+          local flingPower = Instance.new("BodyVelocity")
+          flingPower.Name = "FlingPower"
+          flingPower.Velocity = Vector3.new(900000000, 900000000, 900000000)
+          flingPower.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+          flingPower.P = math.huge
+          flingPower.Parent = findFirstChild11
+
+          task.spawn(function()
+            while findFirstChild12 and findFirstChild12:IsDescendantOf(v39.Workspace)
+              and findFirstChild10.Parent == v39.Players do
+              if findFirstChild12.PrimaryPart then
+                local v77 = tick()
+                local v78 = math.sin(v77 * 3)
+                local v79 = Vector3.new(0, v78 * 2, 0)
+
+                findFirstChild11.CFrame = CFrame.new(findFirstChild12.PrimaryPart.Position + v79)
+                  * CFrame.Angles(0, tick() * 2, 0)
+              else
+                local basePart = findFirstChild12:FindFirstChildWhichIsA("BasePart")
+
+                if basePart then
+                  local v80 = tick()
+                  local v81 = math.sin(v80 * 3)
+                  local v82 = Vector3.new(0, v81 * 2, 0)
+                  findFirstChild11.CFrame = CFrame.new(basePart.Position + v82)
+                end
+              end
+
+              task.wait(0.016666666666667)
+            end
+          end)
+
+          return
+        end
+      end
+    end)
+end)
+
+SecAdvancedMethods:AddButton("Fling Canoe", function()
+    pcall(function()
+      local sit3, instance16, instance17
+
+      if not v45 then
+        return
+      else
+        local findFirstChild13 = v39.Players:FindFirstChild(v45)
+
+        if not findFirstChild13 then
+          return
+        else
+          local character28 = localPlayer22.Character or localPlayer22.CharacterAdded:Wait()
+          local humanoid31 = character28:WaitForChild("Humanoid")
+          local humanoidRootPart17 = character28:WaitForChild("HumanoidRootPart")
+
+          if humanoid31.Sit then
+            humanoid31.Sit = false
+            task.wait(0.5)
+          end
+
+          humanoidRootPart17.CFrame = v39.Workspace.WorkspaceCom["001_CanoeCloneButton"].Button.CFrame
+          task.wait(0.4)
+
+          fireclickdetector(
+            v39.Workspace.WorkspaceCom["001_CanoeCloneButton"].Button.ClickDetector, 0
+          )
+
+          task.wait(0.4)
+          local canoe = v39.Workspace.WorkspaceCom["001_CanoeStorage"].Canoe
+          local vehicleSeat = canoe:FindFirstChild("VehicleSeat")
+
+          if not canoe.PrimaryPart then
+            canoe.PrimaryPart = vehicleSeat
+          end
+
+          local count3 = 0
+
+          repeat
+            character28:MoveTo(vehicleSeat.Position + Vector3.new(0, 3, 0))
+            task.wait(0.05)
+            vehicleSeat:Sit(humanoid31)
+            count3 = count3 + 1
+            sit3 = humanoid31.Sit or count3 > 100
+          until sit3
+
+          if not humanoid31.Sit then
+            return
+          else
+            local character29 = findFirstChild13.Character
+              or findFirstChild13.CharacterAdded:Wait()
+
+            local humanoidRootPart18 = character29:WaitForChild("HumanoidRootPart")
+            local humanoid32 = character29:WaitForChild("Humanoid")
+            instance16 = Instance.new("BodyForce", canoe.PrimaryPart)
+            instance17 = Instance.new("BodyAngularVelocity", canoe.PrimaryPart)
+            instance17.MaxTorque = Vector3.new(1000000000, 1000000000, 1000000000)
+            instance17.AngularVelocity = Vector3.new(1000, 5000, 1000)
+            instance17.P = 1000000000
+
+            local v83 = 1
+            local v84 = tick()
+
+            while tick() - v84 < 10 and humanoid31.Sit and character29 and humanoid32
+              and humanoid32.Health > 0 do
+              canoe:SetPrimaryPartCFrame(CFrame.new(humanoidRootPart18.Position
+                + humanoidRootPart18.CFrame.LookVector * 10 * v83, humanoidRootPart18.Position))
+
+              v83 = -v83
+              local primaryPart = canoe.PrimaryPart
+
+              instance16.Force = (humanoidRootPart18.Position - canoe.PrimaryPart.Position).Unit * 1000000 + Vector3.new(
+                0, v39.Workspace.Gravity * primaryPart:GetMass(), 0
+              )
+
+              task.wait()
+            end
+
+            pcall(function() instance16:Destroy() end)
+            pcall(function() instance17:Destroy() end)
+
+            return
+          end
+        end
+      end
+    end)
+end)
+
+SecAdvancedMethods:AddButton("Car Bring Target", function()
+    pcall(function()
+      local sit4, cframe5, v85
+
+      if not v45 then
+        return
+      else
+        local character30 = localPlayer22.Character or localPlayer22.CharacterAdded:Wait()
+        local humanoidRootPart19 = character30:FindFirstChild("HumanoidRootPart")
+
+        if not humanoidRootPart19 then
+          return
+        else
+          local humanoid33 = character30:FindFirstChildOfClass("Humanoid")
+
+          if not humanoid33 then
+            return
+          else
+            cframe5 = humanoidRootPart19.CFrame
+
+            local function f46()
+              local vehicles3 = v39.Workspace:FindFirstChild("Vehicles")
+
+              if vehicles3 then
+                return vehicles3:FindFirstChild(localPlayer22.Name .. "Car")
+              end
+
+              return nil
+            end
+
+            v85 = f46()
+
+            if not v85 then
+              humanoidRootPart19.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
+              task.wait(0.5)
+              local re = v39.ReplicatedStorage:FindFirstChild("RE")
+
+              if re and re:FindFirstChild("1Ca1r") then
+                re["1Ca1r"]:FireServer("PickingCar", "SchoolBus")
+              end
+
+              task.wait(1)
+              v85 = f46()
+            end
+
+            if not v85 or not v85.PrimaryPart then
+              return
+            else
+              humanoidRootPart19.CFrame = CFrame.new(1108.079956, 78.852867, -1146.426147)
+              task.wait(0.4)
+
+              local vehicleSeat2 = v85:FindFirstChild("Body")
+                and v85.Body:FindFirstChild("VehicleSeat")
+
+              if vehicleSeat2 and not humanoid33.Sit then
+                for i6 = 1, 5 do
+                  vehicleSeat2:Sit(humanoid33)
+                  local v86 = tick() + 1
+
+                  if not humanoid33.Sit then
+                    tick()
+                  end
+
+                  repeat
+                    task.wait(0.2)
+                    sit4 = humanoid33.Sit or tick() > v86
+                  until sit4
+
+                  if humanoid33.Sit then
+                    break
+                  end
+                end
+              end
+
+              task.spawn(function()
+                while true do
+                  if v45 then
+                    local findFirstChild14 = v39.Players:FindFirstChild(v45)
+
+                    if findFirstChild14 and findFirstChild14.Character
+                      and findFirstChild14.Character:FindFirstChild("HumanoidRootPart") then
+                      local humanoidRootPart20 = findFirstChild14.Character.HumanoidRootPart
+                      local humanoid34 = findFirstChild14.Character:FindFirstChildOfClass("Humanoid")
+
+                      if humanoid34 and humanoid34.Sit then
+                        v85:SetPrimaryPartCFrame(cframe5)
+                        task.wait(0.7)
+
+                        v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer(unpack({
+                          "DeleteAllVehicles",
+                        }))
+
+                        break
+                      end
+
+                      local v87 = tick() * 35
+                      local v88 = math.sin(v87)
+                      local v89 = math.cos(v87)
+
+                      v85:SetPrimaryPartCFrame(humanoidRootPart20.CFrame
+                        * CFrame.new(v88 * 4, 0, v89 * 20))
+                    end
+                  end
+
+                  v39.RunService.RenderStepped:Wait()
+                end
+              end)
+
+              return
+            end
+          end
+        end
+      end
+    end)
+end)
+
+SecAdvancedMethods:AddButton("Car Kill Target", function()
+    pcall(function()
+      local sit5, findFirstChild15
+
+      if not v45 then
+        return
+      else
+        local character31 = localPlayer22.Character or localPlayer22.CharacterAdded:Wait()
+        local humanoid35 = character31:FindFirstChildOfClass("Humanoid")
+        local humanoidRootPart21 = character31:FindFirstChild("HumanoidRootPart")
+        local vehicles4 = v39.Workspace:FindFirstChild("Vehicles")
+        local cframe6 = humanoidRootPart21 and humanoidRootPart21.CFrame
+
+        if not humanoid35 or not humanoidRootPart21 then
+          return
+        else
+          humanoidRootPart21.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
+          task.wait(0.5)
+          findFirstChild15 = vehicles4 and vehicles4:FindFirstChild(localPlayer22.Name .. "Car")
+
+          if not findFirstChild15 then
+            v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer(
+              "PickingCar", "SchoolBus"
+            )
+
+            task.wait(1)
+            findFirstChild15 = vehicles4:FindFirstChild(localPlayer22.Name .. "Car")
+          end
+
+          humanoidRootPart21.CFrame = CFrame.new(1108.079956, 78.852867, -1146.426147)
+          task.wait(0.4)
+
+          if findFirstChild15 then
+            local vehicleSeat3 = findFirstChild15:FindFirstChild("Body")
+              and findFirstChild15.Body:FindFirstChild("VehicleSeat")
+
+            if vehicleSeat3 then
+              for i7 = 1, 2 do
+                vehicleSeat3:Sit(humanoid35)
+                local v90 = tick() + 1
+
+                if not humanoid35.Sit then
+                  tick()
+                end
+
+                repeat
+                  task.wait(0.2)
+                  sit5 = humanoid35.Sit or tick() > v90
+                until sit5
+
+                if humanoid35.Sit then
+                  break
+                end
+              end
+            end
+          end
+
+          if findFirstChild15 and not findFirstChild15.PrimaryPart then
+            local body = findFirstChild15:FindFirstChild("Body")
+
+            if body and body:FindFirstChild("VehicleSeat") then
+              findFirstChild15.PrimaryPart = body.VehicleSeat
+            end
+          end
+
+          local findFirstChild16 = v39.Players:FindFirstChild(v45)
+
+          if findFirstChild16 then
+            local character32 = findFirstChild16.Character
+            local humanoid36 = character32 and character32:FindFirstChildOfClass("Humanoid")
+            local humanoidRootPart22 = character32 and character32:FindFirstChild("HumanoidRootPart")
+
+            if character32 and humanoid36 and humanoidRootPart22 and not humanoid36.Sit then
+              while humanoid36.Health > 0 and not humanoid36.Sit do
+                task.wait()
+                local v91 = math.random(-360, 360)
+                local v92 = math.random(-360, 360)
+                local v93 = math.random(-360, 360)
+
+                local function f47(p32, p33, p34)
+                  if findFirstChild15 and findFirstChild15.PrimaryPart then
+                    findFirstChild15:PivotTo(CFrame.new(p32.Position) * p33 * p34)
+                  end
+                end
+
+                local v94 = humanoid36.MoveDirection
+                  * (humanoidRootPart22.Velocity.Magnitude / 1.05)
+
+                f47(
+                  humanoidRootPart22, CFrame.new(0, 1, 0) + v94,
+                  CFrame.Angles(math.rad(v91), math.rad(v92), math.rad(v93))
+                )
+
+                f47(
+                  humanoidRootPart22, CFrame.new(0, -2.25, 5) + v94,
+                  CFrame.Angles(math.rad(v91), math.rad(v92), math.rad(v93))
+                )
+
+                f47(
+                  humanoidRootPart22, CFrame.new(0, 2.25, 0.25) + v94,
+                  CFrame.Angles(math.rad(v91), math.rad(v92), math.rad(v93))
+                )
+
+                f47(
+                  humanoidRootPart22, CFrame.new(-2.25, -1.5, 2.25) + v94,
+                  CFrame.Angles(math.rad(v91), math.rad(v92), math.rad(v93))
+                )
+
+                f47(
+                  humanoidRootPart22, CFrame.new(0, 1.5, 0) + v94,
+                  CFrame.Angles(math.rad(v91), math.rad(v92), math.rad(v93))
+                )
+
+                f47(
+                  humanoidRootPart22, CFrame.new(0, -1.5, 0) + v94,
+                  CFrame.Angles(math.rad(v91), math.rad(v92), math.rad(v93))
+                )
+              end
+
+              task.wait(0.1)
+
+              if findFirstChild15 and findFirstChild15.PrimaryPart then
+                findFirstChild15:PivotTo(CFrame.new(0, -470, 0))
+              end
+
+              task.wait(0.2)
+              humanoid35.Sit = false
+              task.wait(0.1)
+              humanoidRootPart21.CFrame = cframe6
+
+              v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer(unpack({
+                "DeleteAllVehicles",
+              }))
+            end
+          end
+
+          return
+        end
+      end
+    end)
+end)
+
+SecAdvancedMethods:AddButton("Fling Boat", function()
+    pcall(function()
+      local humanoid37, humanoidRootPart23, vehicles5, findFirstChild17, bodyGyro, humanoid38,
+        humanoidRootPart24, f48
+
+      if not v45 then
+        return
+      else
+        local character33 = localPlayer22.Character
+        humanoid37 = character33 and character33:FindFirstChildOfClass("Humanoid")
+        humanoidRootPart23 = character33 and character33:FindFirstChild("HumanoidRootPart")
+        vehicles5 = v39.Workspace:FindFirstChild("Vehicles")
+
+        if not humanoid37 or not humanoidRootPart23 then
+          return
+        else
+          local function f49()
+            humanoidRootPart23.CFrame = CFrame.new(1754, -2, 58)
+            task.wait(0.5)
+
+            v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer(
+              "PickingBoat", "MilitaryBoatFree"
+            )
+
+            task.wait(1)
+            return vehicles5 and vehicles5:FindFirstChild(localPlayer22.Name .. "Car")
+          end
+
+          findFirstChild17 = vehicles5 and vehicles5:FindFirstChild(localPlayer22.Name .. "Car")
+            or f49()
+
+          if not findFirstChild17 then
+            return
+          else
+            local vehicleSeat4 = findFirstChild17:FindFirstChild("Body")
+              and findFirstChild17.Body:FindFirstChild("VehicleSeat")
+
+            if not vehicleSeat4 then
+              return
+            else
+              repeat
+                task.wait()
+                humanoidRootPart23.CFrame = vehicleSeat4.CFrame
+                  * CFrame.new(0, math.random(-1, 1), 0)
+              until humanoid37.Sit
+
+              bodyGyro = Instance.new("BodyGyro")
+              bodyGyro.Parent = findFirstChild17.PrimaryPart
+              bodyGyro.MaxTorque = Vector3.new(10000000, 10000000, 10000000)
+              bodyGyro.P = 10000000
+              bodyGyro.CFrame = findFirstChild17.PrimaryPart.CFrame
+                * CFrame.Angles(0, math.rad(90), 0)
+
+              v39.Workspace.Gravity = 0.1
+              local findFirstChild18 = v39.Players:FindFirstChild(v45)
+
+              if not findFirstChild18 or not findFirstChild18.Character then
+                return
+              else
+                local character34 = findFirstChild18.Character
+                humanoid38 = character34:FindFirstChildOfClass("Humanoid")
+                humanoidRootPart24 = character34:FindFirstChild("HumanoidRootPart")
+
+                if not humanoidRootPart24 or not humanoid38 then
+                  return
+                end
+
+                function f48()
+                  local magnitude2 = humanoidRootPart24.Velocity.Magnitude
+                  local moveDirection2 = humanoid38.MoveDirection
+
+                  local function f50(p35, p36)
+                    if findFirstChild17 and findFirstChild17.PrimaryPart then
+                      findFirstChild17:SetPrimaryPartCFrame(CFrame.new(p35.Position) * p36)
+                    end
+                  end
+
+                  f50(humanoidRootPart24, CFrame.new(0, 3, 0) + moveDirection2 * magnitude2 / 1.05)
+                  f50(humanoidRootPart24, CFrame.new(0, -2.25, 5) + moveDirection2 * magnitude2 / 1.05)
+                  f50(humanoidRootPart24, CFrame.new(0, 2.25, 0.25) + moveDirection2 * magnitude2 / 1.1)
+                  f50(humanoidRootPart24, CFrame.new(-2.25, -1.5, 2.25) + moveDirection2 * magnitude2 / 1.1)
+                  f50(humanoidRootPart24, CFrame.new(0, 1.5, 0) + moveDirection2 * magnitude2 / 1.05)
+                  f50(humanoidRootPart24, CFrame.new(0, -1.5, 0) + moveDirection2 * magnitude2 / 1.05)
+                end
+
+                task.spawn(function()
+                  local count4 = 0
+                  local cframe7 = CFrame.new(1754, 5, 58)
+
+                  while count4 < 5 do
+                    task.wait(0.5)
+
+                    if not findFirstChild17 or not findFirstChild17.Parent then
+                      pcall(function() bodyGyro:Destroy() end)
+                      humanoidRootPart23.CFrame = cframe7
+                      count4 = count4 + 1
+                      humanoid37.PlatformStand = true
+                      task.wait(0.5)
+
+                      bodyGyro = Instance.new("BodyGyro")
+                      bodyGyro.Parent = findFirstChild17.PrimaryPart
+                      bodyGyro.MaxTorque = Vector3.new(10000000, 10000000, 10000000)
+                      bodyGyro.P = 10000000
+                      bodyGyro.CFrame = findFirstChild17.PrimaryPart.CFrame
+                        * CFrame.Angles(0, math.rad(90), 0)
+                    else
+                      break
+                    end
+                  end
+
+                  while true do
+                    task.wait(0.5)
+
+                    if findFirstChild17 and findFirstChild17.Parent then
+                      f48()
+                    else
+                      break
+                    end
+                  end
+                end)
+
+                v39.RunService.Heartbeat:Connect(function()
+                  if not findFirstChild17 or not findFirstChild17.Parent then
+                    v39.Workspace.Gravity = 196.2
+                  end
+                end)
+
+                return
+              end
+            end
+          end
+        end
+      end
+    end)
+end)
+
+SecAdvancedMethods:AddButton("Fling Boat V2", function()
+    pcall(function()
+      local findFirstChild19, humanoidRootPart25, vehicles6, humanoidRootPart26, spinning, f51
+
+      if not v45 then
+        return
+      else
+        local character35 = localPlayer22.Character
+        local humanoid39 = character35 and character35:FindFirstChildOfClass("Humanoid")
+        humanoidRootPart25 = character35 and character35:FindFirstChild("HumanoidRootPart")
+        local v95 = v39.Workspace
+        local v96 = not humanoid39
+        vehicles6 = v95:FindFirstChild("Vehicles")
+
+        if v96 or not humanoidRootPart25 then
+          return
+        else
+          local function f52()
+            humanoidRootPart25.CFrame = CFrame.new(1754, -2, 58)
+            task.wait(0.5)
+
+            v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer(
+              "PickingBoat", "MilitaryBoatFree"
+            )
+
+            task.wait(1)
+            return vehicles6:FindFirstChild(localPlayer22.Name .. "Car")
+          end
+
+          findFirstChild19 = vehicles6:FindFirstChild(localPlayer22.Name .. "Car") or f52()
+
+          if not findFirstChild19 then
+            return
+          else
+            local vehicleSeat5 = findFirstChild19:FindFirstChild("Body")
+              and findFirstChild19.Body:FindFirstChild("VehicleSeat")
+
+            if not vehicleSeat5 then
+              return
+            else
+              repeat
+                task.wait(0.1)
+                humanoidRootPart25.CFrame = vehicleSeat5.CFrame * CFrame.new(0, 1, 0)
+              until humanoid39.SeatPart == vehicleSeat5
+
+              local findFirstChild20 = v39.Players:FindFirstChild(v45)
+
+              if not findFirstChild20 or not findFirstChild20.Character then
+                return
+              else
+                local character36 = findFirstChild20.Character
+                local humanoid40 = character36:FindFirstChildOfClass("Humanoid")
+                humanoidRootPart26 = character36:FindFirstChild("HumanoidRootPart")
+
+                if not humanoidRootPart26 or not humanoid40 then
+                  return
+                end
+
+                spinning = Instance.new("BodyAngularVelocity")
+                spinning.Name = "Spinning"
+                spinning.Parent = findFirstChild19.PrimaryPart
+                spinning.MaxTorque = Vector3.new(0, math.huge, 0)
+                spinning.AngularVelocity = Vector3.new(0, 1845, 0)
+
+                function f51(p37, p38)
+                  if findFirstChild19 and findFirstChild19.PrimaryPart then
+                    findFirstChild19:SetPrimaryPartCFrame(CFrame.new(p37.Position + p38))
+                  end
+                end
+
+                task.spawn(function()
+                  while findFirstChild19 and findFirstChild19.Parent and humanoidRootPart26
+                    and humanoidRootPart26.Parent do
+                    task.wait(0.01)
+                    local v97 = humanoidRootPart26.CFrame.LookVector * 2
+                    f51(humanoidRootPart26, v97 + Vector3.new(0, 7.5, 0))
+
+                    if humanoidRootPart26.Position.Y > 7000 then
+                      pcall(function() spinning:Destroy() end)
+                      pcall(function() findFirstChild19:Destroy() end)
+                      break
+                    elseif findFirstChild19 and findFirstChild19.PrimaryPart then
+                      local v98 = math.rad(math.random(-369, 369))
+                      local v99 = math.rad(math.random(-369, 369))
+                      local cframe8 = CFrame.Angles(v98, v99, math.rad(math.random(-369, 369)))
+
+                      findFirstChild19:SetPrimaryPartCFrame(CFrame.new(humanoidRootPart26.Position
+                          + v97 + Vector3.new(0, 7.5, 0))
+                        * cframe8)
+                    end
+                  end
+                end)
+
+                return
+              end
+            end
+          end
+        end
+      end
+    end)
+end)
+
+local SecLoops = TrollPage2:CreateSection("Target Loops & Automation")
+
+local v100 = false
+local autoFling = false
+local v101 = false
+
+SecLoops:AddToggle("Loop Teleport To Player", false, function(value58) end)
+
+SecLoops:AddToggle("Auto Fling", false, function(value59)
+    pcall(function()
+      autoFling = value59
+
+      if value59 then
+        if not v44 or v44 == "" then
+          autoFling = false
+          return
+        end
+
+        if not v39.Players:FindFirstChild(v44) then
+          autoFling = false
+          return
+        end
+
+        task.spawn(function()
+          while autoFling do
+            task.wait(1)
+
+            if not v44 or v44 == "" then
+              autoFling = false
+              break
+            else
+              local findFirstChild21 = v39.Players:FindFirstChild(v44)
+
+              if not findFirstChild21 then
+                autoFling = false
+                break
+              end
+
+              if not localPlayer22.Character or not findFirstChild21.Character then
+              elseif not findFirstChild21.Character:FindFirstChild("HumanoidRootPart") then
+              elseif standardMethod == "Ball" then
+                f35(findFirstChild21)
+                task.wait(2)
+              elseif standardMethod == "Couch" then
+                if not f33(findFirstChild21) then
+                  f43(findFirstChild21)
+                end
+
+                task.wait(3)
+              elseif standardMethod == "Boat" then
+                if not f33(findFirstChild21) then
+                  f37(findFirstChild21, "Boat")
+                end
+
+                task.wait(5)
+              elseif standardMethod == "PoliceBoat" then
+                if not f33(findFirstChild21) then
+                  f37(findFirstChild21, "PoliceBoat")
+                end
+
+                task.wait(5)
+              elseif standardMethod == "Bus" then
+                if not f33(findFirstChild21) then
+                  f37(findFirstChild21, "Bus")
+                end
+
+                task.wait(5)
+              elseif standardMethod == "TowTruck" then
+                if not f33(findFirstChild21) then
+                  f37(findFirstChild21, "TowTruck")
+                end
+
+                task.wait(5)
+              end
+            end
+          end
+        end)
+
+        return
+      end
+    end)
+end)
+
+local shieldBall, shieldLoop
+
+SecLoops:AddToggle("Fling Ball Aura", false, function(value60)
+    pcall(function()
+      v101 = value60
+      local soccerBall4, upperTorso
+
+      if v101 then
+        local character37 = localPlayer22.Character or localPlayer22.CharacterAdded:Wait()
+        local backpack3 = localPlayer22:WaitForChild("Backpack")
+        local waitForChild3 = v39.Workspace:FindFirstChild("WorkspaceCom") and v39.Workspace.WorkspaceCom:WaitForChild("001_SoccerBalls") or v39.Workspace:FindFirstChild("Com", true) and v39.Workspace.Com:FindFirstChild("001_SoccerBalls")
+
+        if character37:FindFirstChild("ShieldBall") then
+          return
+        else
+          if not backpack3:FindFirstChild("SoccerBall")
+            and not character37:FindFirstChild("SoccerBall") then
+            if v39.ReplicatedStorage.RE:FindFirstChild("1Too1l") then
+              v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(
+                "PickingTools", "SoccerBall"
+              )
+            end
+          end
+
+          if not backpack3:FindFirstChild("SoccerBall") then
+            character37:FindFirstChild("SoccerBall")
+          end
+
+          repeat
+            task.wait()
+            local soccerBall5 = backpack3:FindFirstChild("SoccerBall")
+
+            soccerBall4 = soccerBall5
+            soccerBall4 = soccerBall5 or character37:FindFirstChild("SoccerBall")
+          until soccerBall4
+
+          local soccerBall6 = backpack3:FindFirstChild("SoccerBall")
+
+          if soccerBall6 then
+            soccerBall6.Parent = character37
+          end
+
+          if waitForChild3 then
+            waitForChild3:FindFirstChild("Soccer" .. localPlayer22.Name)
+
+            repeat
+              task.wait()
+            until waitForChild3:FindFirstChild("Soccer" .. localPlayer22.Name)
+
+            shieldBall = waitForChild3:FindFirstChild("Soccer" .. localPlayer22.Name)
+          end
+
+          if not shieldBall then
+            return
+          end
+
+          shieldBall.Name = "ShieldBall"
+          shieldBall.CanCollide = false
+          shieldBall.Massless = true
+          shieldBall.CustomPhysicalProperties = PhysicalProperties.new(0.0001, 0, 0)
+
+          local flingPower2 = Instance.new("BodyVelocity")
+          flingPower2.Name = "FlingPower"
+          flingPower2.Velocity = Vector3.new(900000000, 900000000, 900000000)
+          flingPower2.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+          flingPower2.P = math.huge
+          flingPower2.Parent = shieldBall
+
+          upperTorso = character37:FindFirstChild("UpperTorso")
+            or character37:FindFirstChild("HumanoidRootPart")
+
+          shieldLoop = Instance.new("BindableEvent")
+          shieldLoop.Name = "ShieldLoop"
+          shieldLoop.Parent = character37
+
+          task.spawn(function()
+            while v101 and shieldLoop and shieldLoop.Parent and shieldBall and shieldBall.Parent
+              and upperTorso and upperTorso.Parent do
+              shieldBall.CFrame = upperTorso.CFrame
+              task.wait(0.016666666666667)
+            end
+          end)
+
+          return
+        end
+      else
+        if shieldBall then
+          pcall(function() shieldBall:Destroy() end)
+          shieldBall = nil
+        end
+
+        if shieldLoop then
+          pcall(function() shieldLoop:Destroy() end)
+          shieldLoop = nil
+        end
+
+        return
+      end
+    end)
+end)
+
+SecLoops:AddToggle("Fling Couch Loop", false, function(value61) end)
+
+SecLoops:AddToggle("Fast Fling Couch Loop", false, function(value62)
+    pcall(function()
+      v100 = value62
+
+      task.spawn(function()
+        while v100 do
+          if v45 then
+            local findFirstChild22 = v39.Players:FindFirstChild(v45)
+
+            if findFirstChild22 and findFirstChild22.Character then
+              local character38 = localPlayer22.Character
+              local humanoidRootPart27 = character38 and character38:FindFirstChild("HumanoidRootPart")
+              local humanoidRootPart28 = findFirstChild22.Character:FindFirstChild("HumanoidRootPart")
+              local humanoid41 = findFirstChild22.Character:FindFirstChildOfClass("Humanoid")
+              local humanoid42 = character38 and character38:FindFirstChildOfClass("Humanoid")
+
+              if humanoidRootPart27 and humanoidRootPart28 and humanoid41 and humanoid42 then
+                v39.ReplicatedStorage.RE:FindFirstChild("1Clea1rTool1s"):FireServer(unpack({
+                  "ClearAllTools",
+                }))
+
+                task.wait(0.2)
+
+                v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(
+                  "PickingTools", "Couch"
+                )
+
+                local cframe9 = humanoidRootPart27.CFrame
+                local tool3 = localPlayer22.Backpack:FindFirstChildOfClass("Tool")
+
+                if tool3 then
+                  tool3.Parent = character38
+                end
+
+                v39.Workspace.FallenPartsDestroyHeight = -math.huge
+
+                local flingForce3 = Instance.new("BodyVelocity")
+                flingForce3.Name = "FlingForce"
+                flingForce3.Velocity = Vector3.new(900000000, 900000000, 900000000)
+                flingForce3.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                flingForce3.Parent = humanoidRootPart27
+
+                humanoid42:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+                humanoid42.PlatformStand = false
+
+                v39.Workspace.CurrentCamera.CameraSubject = humanoidRootPart28
+                local total4 = 0
+
+                while v100 and findFirstChild22 and findFirstChild22.Character
+                  and findFirstChild22.Character:FindFirstChildOfClass("Humanoid") do
+                  local humanoid43 = findFirstChild22.Character:FindFirstChildOfClass("Humanoid")
+                  local humanoidRootPart29 = findFirstChild22.Character:FindFirstChild("HumanoidRootPart")
+
+                  if not humanoidRootPart29 or humanoid43.Sit
+                    or humanoidRootPart29.Position.Y >= 70000 then
+                    break
+                  else
+                    local moveDirection3 = humanoid43.MoveDirection
+                    local v102 = Vector3.new(0, 0, 0)
+
+                    if moveDirection3.Magnitude >= 0.01 then
+                      local walkSpeed2 = humanoid43.WalkSpeed
+                      local v103 = 13
+
+                      if walkSpeed2 > 16 then
+                        v103 = v103 + math.floor((walkSpeed2 - 16) / 9) * 9
+                      end
+
+                      v102 = moveDirection3.Unit * v103
+                    end
+
+                    total4 = total4 + 90
+
+                    humanoidRootPart27.CFrame = CFrame.new(humanoidRootPart29.Position + v102
+                        + Vector3.new(0, 1, 0))
+                      * CFrame.Angles(math.rad(total4), 0, 0)
+
+                    humanoidRootPart27.Velocity = Vector3.new(900000000, 900000000, 900000000)
+                    humanoidRootPart27.RotVelocity = Vector3.new(900000000, 900000000, 900000000)
+
+                    task.wait(0.02)
+                  end
+                end
+
+                flingForce3:Destroy()
+
+                humanoid42:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+                humanoid42.PlatformStand = false
+
+                humanoidRootPart27.CFrame = cframe9
+                v39.Workspace.CurrentCamera.CameraSubject = humanoid42
+
+                for key14, value63 in pairs(character38:GetDescendants()) do
+                  if value53:IsA("BasePart") then
+                    value53.Velocity = Vector3.zero
+                    value53.RotVelocity = Vector3.zero
+                  end
+                end
+
+                humanoid42:UnequipTools()
+
+                v39.ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(
+                  "PickingTools", "Couch"
+                )
+              end
+            end
+          end
+
+          task.wait(0.2)
+        end
+      end)
+    end)
+end)
+
+local SecAllPlayers = TrollPage2:CreateSection("All Players (Server Actions)")
+
+local v104 = false
+
+SecAllPlayers:AddToggle("Glitch / Fling Couch (All)", false, function(value64)
+    v104 = value64
+
+    if value64 then
+      task.spawn(function()
+        while v104 do
+          for key15, value65 in pairs(v39.Players:GetPlayers()) do
+          end
+
+          task.wait(1)
+        end
+      end)
+    end
+end)
+
 Library:Notify({
     Title = "Kenz Hub",
     Description = "Successfully loaded Kenz Hub with Troll Features!",
