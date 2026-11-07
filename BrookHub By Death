@@ -36,7 +36,7 @@ if identifyexecutor then
 end
 
 -- ==================== TAB INFO (DEFAULT ACTIVE) ====================
-local InfoTab = Window:CreateTab("Info", "accessibility")
+local InfoTab = Window:CreateTab("Info", "info")
 local PageInfo = InfoTab:CreatePage("Info")
 
 local SecInfo1 = PageInfo:CreateSection("Welcome back")
@@ -340,8 +340,8 @@ SecPlayer3:AddButton("Enable Fly GUI", function()
 end)
 
 -- ==================== TAB TROLL PLAYERS ====================
-local TrollTab = Window:CreateTab("Troll Players", "activity")
-local PageTroll = TrollTab:CreatePage("Troll Menu")
+local TrollTab = Window:CreateTab("Troll Players", "skull")
+local PageTroll = TrollTab:CreatePage("Troll v1")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VirtualInputManager = game:GetService("VirtualInputManager")
