@@ -2849,10 +2849,18 @@ SecTargetConfig:AddButton("Refresh Player List", function()
       end
 
       v43 = true
-      local v46 = f34()
-      pcall(function() selectTargetAddDropdown:Set(v46) end)
       v44 = nil
       v45 = nil
+      getgenv().Target = nil
+      selectedPlayerName = nil
+
+      local v46 = f34()
+      if selectTargetAddDropdown.Refresh then
+        selectTargetAddDropdown:Refresh(v46)
+      end
+      if selectTargetAddDropdown.Set then
+        selectTargetAddDropdown:Set("")
+      end
       v43 = false
     end)
 end)
@@ -3015,7 +3023,86 @@ local function f35(p17)
   end)
 end
 
+-- Fixed Kill Method for Vehicles (Bus, Boat, PoliceBoat, TowTruck)
 local function f37(p18, p19)
+  pcall(function()
+    local character18 = localPlayer22.Character
+    local humanoidRootPart5 = character18 and character18:FindFirstChild("HumanoidRootPart")
+    local humanoid21 = character18 and character18:FindFirstChildOfClass("Humanoid")
+
+    if not humanoidRootPart5 or not humanoid21 then return end
+
+    local cframe = humanoidRootPart5.CFrame
+    local vehicles = v39.Workspace:FindFirstChild("Vehicles")
+
+    if p19 == "Boat" then
+      humanoidRootPart5.CFrame = CFrame.new(1754, -2, 58)
+      task.wait(0.5)
+      v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer("PickingBoat", "MilitaryBoatFree")
+    elseif p19 == "PoliceBoat" then
+      humanoidRootPart5.CFrame = CFrame.new(1754, -2, 58)
+      task.wait(0.5)
+      v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer("PickingBoat", "PoliceBoatChangeable")
+    else
+      humanoidRootPart5.CFrame = CFrame.new(1118.81, 75.998, -1138.61)
+      task.wait(0.5)
+      local v57 = p19 == "Bus" and { "PickingCar", "SchoolBus" } or { "PickingCar", "TowTruck" }
+      v39.ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Ca1r"):FireServer(unpack(v57))
+    end
+
+    task.wait(1.5)
+    local findFirstChild4 = vehicles:FindFirstChild(localPlayer22.Name .. "Car")
+    if not findFirstChild4 then
+      humanoidRootPart5.CFrame = cframe
+      return
+    end
+
+    local seat = findFirstChild4:FindFirstChild("Body") and findFirstChild4.Body:FindFirstChild("VehicleSeat")
+      or findFirstChild4:FindFirstChild("VehicleSeat", true)
+
+    if seat then
+      local count = 0
+      repeat
+        humanoidRootPart5.CFrame = seat.CFrame * CFrame.new(0, 2, 0)
+        task.wait(0.1)
+        count = count + 1
+      until humanoid21.Sit or count > 50 or not findFirstChild4.Parent
+    end
+
+    if not humanoid21.Sit then
+      humanoidRootPart5.CFrame = cframe
+      return
+    end
+
+    local startTime = tick()
+    while findFirstChild4 and findFirstChild4.Parent and p18 and p18.Character do
+      if tick() - startTime > 15 then break end
+      local tChar = p18.Character
+      local tHrp = tChar and tChar:FindFirstChild("HumanoidRootPart")
+      local tHum = tChar and tChar:FindFirstChildOfClass("Humanoid")
+
+      if not tHrp or not tHum or tHum.Health <= 0 then break end
+
+      if tHum.Sit then
+        findFirstChild4:SetPrimaryPartCFrame(CFrame.new(9999, -450, 9999))
+        task.wait(0.2)
+        humanoid21:ChangeState(Enum.HumanoidStateType.Jumping)
+        task.wait(0.4)
+        break
+      else
+        local timeVal = tick() * 35
+        local offset = Vector3.new(math.sin(timeVal) * 4, 0, math.cos(timeVal) * 20)
+        findFirstChild4:SetPrimaryPartCFrame(tHrp.CFrame * CFrame.new(offset))
+      end
+      v39.RunService.RenderStepped:Wait()
+    end
+
+    task.wait(0.3)
+    humanoid21.Sit = false
+    task.wait(0.5)
+    humanoidRootPart5.CFrame = cframe
+    v39.ReplicatedStorage.RE:FindFirstChild("1Ca1r"):FireServer("DeleteAllVehicles")
+  end)
 end
 
 local function f38(p20, p21)
@@ -4938,9 +5025,3 @@ SecAllPlayers:AddToggle("Glitch / Fling Couch (All)", false, function(value64)
       end)
     end
 end)
-
-Library:Notify({
-    Title = "Kenz Hub",
-    Description = "Successfully loaded Kenz Hub with Troll Features!",
-    Duration = 5
-})
