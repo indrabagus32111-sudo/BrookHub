@@ -2842,6 +2842,7 @@ local selectTargetAddDropdown = SecTargetConfig:AddDropdown("Select Target", f34
     end)
 end)
 
+-- Tombol Refresh Player List yang Dioptimalkan
 SecTargetConfig:AddButton("Refresh Player List", function()
     pcall(function()
       if not selectTargetAddDropdown then
@@ -2862,6 +2863,32 @@ SecTargetConfig:AddButton("Refresh Player List", function()
         selectTargetAddDropdown:Set("")
       end
       v43 = false
+    end)
+end)
+
+-- Auto Update Dropdown ketika Player Masuk atau Keluar dari Server
+v39.Players.PlayerAdded:Connect(function()
+    pcall(function()
+      if selectTargetAddDropdown and selectTargetAddDropdown.Refresh then
+        selectTargetAddDropdown:Refresh(f34())
+      end
+    end)
+end)
+
+v39.Players.PlayerRemoving:Connect(function(leavingPlayer)
+    pcall(function()
+      if v45 == leavingPlayer.Name then
+        v44 = nil
+        v45 = nil
+        getgenv().Target = nil
+        selectedPlayerName = nil
+        if selectTargetAddDropdown and selectTargetAddDropdown.Set then
+          selectTargetAddDropdown:Set("")
+        end
+      end
+      if selectTargetAddDropdown and selectTargetAddDropdown.Refresh then
+        selectTargetAddDropdown:Refresh(f34())
+      end
     end)
 end)
 
@@ -4985,10 +5012,11 @@ SecLoops:AddToggle("Fast Fling Couch Loop", false, function(value62)
                 humanoidRootPart27.CFrame = cframe9
                 v39.Workspace.CurrentCamera.CameraSubject = humanoid42
 
+                -- Perbaikan bug error: mengganti value53 menjadi value63 yang benar
                 for key14, value63 in pairs(character38:GetDescendants()) do
-                  if value53:IsA("BasePart") then
-                    value53.Velocity = Vector3.zero
-                    value53.RotVelocity = Vector3.zero
+                  if value63:IsA("BasePart") then
+                    value63.Velocity = Vector3.zero
+                    value63.RotVelocity = Vector3.zero
                   end
                 end
 
